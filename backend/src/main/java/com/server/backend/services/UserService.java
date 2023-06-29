@@ -2,6 +2,7 @@ package com.server.backend.services;
 
 import com.server.backend.entity.User;
 import com.server.backend.exceptions.UserRegisterException;
+import com.server.backend.forms.LoginForm;
 import com.server.backend.forms.RegisterForm;
 import com.server.backend.repository.UserRepository;
 import jakarta.validation.ConstraintViolationException;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
@@ -33,6 +36,17 @@ public class UserService {
 
             throw new UserRegisterException(String.join(", ", errors));
         }
+    }
+
+    public boolean loginUser(LoginForm loginForm) {
+        Optional<User> user;
+        if (Pattern.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", loginForm.getUsername())) {
+            user = userRepository.findByEmail(loginForm.getUsername());
+        } else {
+            user = userRepository.findByUsername(loginForm.getUsername());
+        }
+
+        return user.isPresent() && user.get().getPassword().equals(loginForm.getPassword());
     }
 
     private void validatePassword(String password, String confirmPassword) throws UserRegisterException {

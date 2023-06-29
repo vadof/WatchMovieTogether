@@ -1,6 +1,7 @@
 package com.server.backend.controllers;
 
 import com.server.backend.exceptions.UserRegisterException;
+import com.server.backend.forms.LoginForm;
 import com.server.backend.forms.RegisterForm;
 import com.server.backend.services.UserService;
 import org.slf4j.Logger;
@@ -29,6 +30,18 @@ public class UserController {
         } catch (UserRegisterException e) {
             LOG.error("Error adding user to database: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginForm loginForm) {
+        System.out.println("REQYEST");
+        boolean authorize = userService.loginUser(loginForm);
+
+        if (authorize) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
