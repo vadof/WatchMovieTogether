@@ -1,0 +1,32 @@
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <form [formGroup]="loginForm" (ngSubmit)="login()" style="width: 50%">
+
+    <div class="mb-3">
+      <label for="username" class="form-label">Email address or username</label>
+      <input type="text" class="form-control" id="username" formControlName="username">
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" formControlName="password">
+    </div>
+
+    <div *ngIf="message" class="mb-3 text-danger text-center">
+      <strong>{{message}}</strong>
+    </div>
+
+    <div class="mb-3 text-end">
+      <a href="/">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">SIGN IN</button>
+
+    <div class="text-center mt-3">
+      <div>Not a member?
+        <a routerLink="/register">Register</a>
+      </div>
+    </div>
+
+  </form>
+</div>
+
