@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {UserService} from "../../services/user-service";
+import {AuthorizationService} from "../../auth/authorization.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login-form',
@@ -10,7 +11,8 @@ import {UserService} from "../../services/user-service";
 export class LoginFormComponent {
 
   constructor(
-    private userService: UserService
+    private authService: AuthorizationService,
+    private router: Router
   ) {
   }
 
@@ -26,13 +28,17 @@ export class LoginFormComponent {
       const username = this.loginForm.value.username as string
       const password = this.loginForm.value.password as string
 
-      this.userService.loginUser(username, password).subscribe(
+      this.authService.login(username, password).subscribe(
         response => {
-          console.log('Success')
+          this.router.navigate([''])
         },
         error => {
-          this.message = error.error;
-          this.loginForm.controls.password.reset()
+          if (error.status === 403) {
+            this.message = 'Invalid Username or Password!';
+          } else {
+            this.message = 'An error occurred. Please try again later.';
+          }
+          this.loginForm.controls.password.reset();
         })
     } else {
       this.message = 'Fill in the empty fields!'
