@@ -1,0 +1,38 @@
+.main-body {
+  background-image: url("/assets/main-bg.jpg");
+  //background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 90vh;
+}
+
+.content {
+  padding: 5rem 0;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+
+  button {
+    border-color: #b1d6fd;
+    width: 150px;
+
+    &:hover {
+      background-color: #b1d6fd;
+      color: #080c2c;
+    }
+  }
+
+  button:not(:last-child) {
+    margin-right: 30px;
+  }
+}
+
+.text-content {
+  align-items: center;
+  justify-content: center;
+
+  div {
+    max-width: 80%;
+  }
+}

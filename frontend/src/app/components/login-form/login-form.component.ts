@@ -22,15 +22,21 @@ export class LoginFormComponent {
   })
 
   login() {
-    const username = this.loginForm.value.username as string
-    const password = this.loginForm.value.password as string
-    this.userService.loginUser(username, password).subscribe(
-      response => {
-        console.log('Success')
-      },
-      error => {
-        this.message = error.error;
-        this.loginForm.value.password = ''
-      })
+    if (this.loginForm.valid) {
+      const username = this.loginForm.value.username as string
+      const password = this.loginForm.value.password as string
+
+      this.userService.loginUser(username, password).subscribe(
+        response => {
+          console.log('Success')
+        },
+        error => {
+          this.message = error.error;
+          this.loginForm.controls.password.reset()
+        })
+    } else {
+      this.message = 'Fill in the empty fields!'
+    }
+
   }
 }

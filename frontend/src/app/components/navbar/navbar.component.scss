@@ -1,0 +1,28 @@
+svg {
+  fill: #b1d6fd;
+
+  transition: transform 0.5s;
+  &:hover {
+    transform: scale(1.5);
+  }
+}
+
+.main-items {
+  li:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+}
+
+.eye {
+  svg {
+    margin-top: -0.1rem;
+  }
+}
+
+.username {
+  padding-left: 0.3rem;
+}
+
+.logo {
+  font-weight: 800;
+}
