@@ -8,7 +8,7 @@ import {
   ValidatorFn,
   Validators
 } from "@angular/forms";
-import {AuthorizationService} from "../../auth/authorization.service";
+import {AuthService} from "../../auth/auth.service";
 import {TokenStorageService} from "../../auth/token-storage.service";
 import {RegisterRequest} from "./register-request";
 import {solid} from "@fortawesome/fontawesome-svg-core/import.macro";
@@ -26,7 +26,7 @@ export class RegisterFormComponent {
   errorMessage = ''
   constructor(
     private fb: FormBuilder,
-    private authService: AuthorizationService,
+    private authService: AuthService,
     private storage: TokenStorageService,
     private router: Router
   ) {

@@ -14,7 +14,7 @@ const httpOptions = {
 @Injectable({
   providedIn: 'root'
 })
-export class AuthorizationService {
+export class AuthService {
 
   private loginUrl = 'http://localhost:8080/api/auth/login'
   private registerUrl = 'http://localhost:8080/api/auth/register'

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
-import {AuthorizationService} from "../../auth/authorization.service";
+import {AuthService} from "../../auth/auth.service";
 import {Router} from "@angular/router";
 import {TokenStorageService} from "../../auth/token-storage.service";
 import {LoginRequest} from "./login-request";
@@ -13,7 +13,7 @@ import {LoginRequest} from "./login-request";
 export class LoginFormComponent {
 
   constructor(
-    private authService: AuthorizationService,
+    private authService: AuthService,
     private router: Router,
     private storage: TokenStorageService
   ) {
