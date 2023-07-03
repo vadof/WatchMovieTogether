@@ -8,6 +8,11 @@ import {
   ValidatorFn,
   Validators
 } from "@angular/forms";
+import {AuthorizationService} from "../../auth/authorization.service";
+import {TokenStorageService} from "../../auth/token-storage.service";
+import {RegisterRequest} from "./register-request";
+import {solid} from "@fortawesome/fontawesome-svg-core/import.macro";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-register-form',
@@ -18,9 +23,12 @@ export class RegisterFormComponent {
 
   // @ts-ignore
   registerForm: FormGroup;
-
+  errorMessage = ''
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthorizationService,
+    private storage: TokenStorageService,
+    private router: Router
   ) {
     this.createForm();
   }
@@ -43,6 +51,7 @@ export class RegisterFormComponent {
       ]],
       password: ['', [
         Validators.required,
+        Validators.minLength(6)
       ]],
       confirmPassword: ['', [
         Validators.required
@@ -57,12 +66,39 @@ export class RegisterFormComponent {
     return (password === '' || confirmPassword === '') || password === confirmPassword;
   }
 
+  get formIsValid() {
+    return this.registerForm.valid && this.passwordsMatch;
+  }
+
+  get passwordLengthValid() {
+    const password = this.registerForm.get('password')?.value;
+    return password.length >= 6 || password === '';
+  }
+
+  get emailIsValid() {
+    const email = this.registerForm.get('email')?.value;
+    let r = new RegExp("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$")
+    return r.test(email) || email === '';
+  }
+
   register(): void {
-    if (this.registerForm.valid) {
-      console.log('Valid')
+    if (this.formIsValid) {
+      let rr: RegisterRequest = new RegisterRequest(this.registerForm.value.firstname,
+        this.registerForm.value.lastname,
+        this.registerForm.value.username,
+        this.registerForm.value.email,
+        this.registerForm.value.password)
+
+      this.authService.register(rr).subscribe(
+        response => {
+          console.log(response)
+          this.storage.saveToken(response.token)
+          this.router.navigate([''])
+        }, error => {
+          this.errorMessage = error.error.error;
+        })
     } else {
-      console.log('Invalid')
+      this.errorMessage = 'Fill in the empty fields!'
     }
-    // console.log("SUBMITED")
   }
 }

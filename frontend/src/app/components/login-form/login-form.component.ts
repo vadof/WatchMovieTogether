@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {AuthorizationService} from "../../auth/authorization.service";
 import {Router} from "@angular/router";
+import {TokenStorageService} from "../../auth/token-storage.service";
+import {LoginRequest} from "./login-request";
 
 @Component({
   selector: 'app-login-form',
@@ -12,11 +14,12 @@ export class LoginFormComponent {
 
   constructor(
     private authService: AuthorizationService,
-    private router: Router
+    private router: Router,
+    private storage: TokenStorageService
   ) {
   }
 
-  public message = ''
+  public errorMessage = ''
 
   loginForm = new FormGroup({
     username: new FormControl<string>('', Validators.required),
@@ -25,23 +28,23 @@ export class LoginFormComponent {
 
   login() {
     if (this.loginForm.valid) {
-      const username = this.loginForm.value.username as string
-      const password = this.loginForm.value.password as string
-
-      this.authService.login(username, password).subscribe(
+      const request = new LoginRequest(this.loginForm.value.username as string,
+        this.loginForm.value.password as string)
+      this.authService.login(request).subscribe(
         response => {
+          this.storage.saveToken(response.token);
           this.router.navigate([''])
         },
         error => {
           if (error.status === 403) {
-            this.message = 'Invalid Username or Password!';
+            this.errorMessage = 'Invalid Username or Password!';
           } else {
-            this.message = 'An error occurred. Please try again later.';
+            this.errorMessage = 'An error occurred. Please try again later.';
           }
           this.loginForm.controls.password.reset();
         })
     } else {
-      this.message = 'Fill in the empty fields!'
+      this.errorMessage = 'Fill in the empty fields!'
     }
 
   }

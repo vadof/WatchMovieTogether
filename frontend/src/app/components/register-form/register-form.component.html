@@ -21,9 +21,17 @@
       <input type="email" class="form-control" id="email" formControlName="email" aria-describedby="emailHelp">
     </div>
 
+    <div *ngIf="!emailIsValid" class="text-danger mb-3">
+      Invalid email
+    </div>
+
     <div class="mb-3">
       <label for="password" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" formControlName="password">
+      <input type="password" class="form-control" minlength="6" id="password" formControlName="password">
+    </div>
+
+    <div *ngIf="!passwordLengthValid" class="text-danger mb-3">
+      Password min length is 6
     </div>
 
     <div class="mb-3">
@@ -33,6 +41,10 @@
 
     <div *ngIf="!passwordsMatch" class="text-danger mb-3">
       Password mismatch
+    </div>
+
+    <div *ngIf="errorMessage" class="mb-3 text-danger text-center">
+      <strong>{{errorMessage}}</strong>
     </div>
 
     <button type="submit" class="btn btn-primary w-100">SIGN UP</button>
