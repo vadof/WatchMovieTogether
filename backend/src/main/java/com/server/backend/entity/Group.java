@@ -1,16 +1,15 @@
 package com.server.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "`group`")
 public class Group {
@@ -22,8 +21,8 @@ public class Group {
     @NotBlank
     private String name;
 
-//    @ManyToOne
-//    private User admin;
+    @NotBlank
+    private String admin;
 
     @ManyToOne
     private Movie currentMovie;
@@ -32,14 +31,5 @@ public class Group {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "groups")
     private Set<User> users = new HashSet<>();
-
-    @Override
-    public String toString() {
-        return "Group{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", movieProgress=" + movieProgress +
-                '}';
-    }
 
 }

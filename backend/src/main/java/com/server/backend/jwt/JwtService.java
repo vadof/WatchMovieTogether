@@ -1,5 +1,8 @@
 package com.server.backend.jwt;
 
+import com.server.backend.entity.User;
+import com.server.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -24,6 +28,9 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private Long expiration;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -72,6 +79,16 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Optional<User> getUserFromToken(String token) {
+        String username = extractUsername(token);
+        return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> getUserFromBearerToken(String token) {
+        String username = extractUsername(token.substring(7));
+        return userRepository.findByUsername(username);
     }
 
 }
