@@ -1,0 +1,22 @@
+<div class="container d-flex align-items-center justify-content-center">
+<form [formGroup]="groupForm" (ngSubmit)="create()" style="width: 50%">
+
+  <div class="mb-3">
+    <label for="name" class="form-label">Group name</label>
+    <input type="text" class="form-control" id="name" formControlName="name">
+  </div>
+
+  <div *ngIf="errorMessage" class="mb-3 text-danger text-center">
+    <strong>{{errorMessage}}</strong>
+  </div>
+
+  <div class="movie-select d-flex align-items-center mb-3">
+    <button class="btn btn-primary">Choose movie</button>
+    <div class="px-2">(You can choose movie later)</div>
+  </div>
+
+
+  <button type="submit" class="btn btn-primary w-100">Create</button>
+
+</form>
+</div>

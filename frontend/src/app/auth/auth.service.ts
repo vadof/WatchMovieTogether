@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {LoginRequest} from "../components/login-form/login-request";
+import {LoginRequest} from "../pages/login-page/login-request";
 import {AuthResponse} from "./auth-response";
 import {Observable} from "rxjs";
-import {RegisterRequest} from "../components/register-form/register-request";
+import {RegisterRequest} from "../pages/register-page/register-request";
 
 const httpOptions = {
   headers: new HttpHeaders({

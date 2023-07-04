@@ -1,10 +1,16 @@
 import { Component } from '@angular/core';
+import {TokenStorageService} from "../../auth/token-storage.service";
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss', '../styles/main.scss']
+  styleUrls: ['./navbar.component.scss', '../../../assets/styles/main.scss']
 })
 export class NavbarComponent {
-  username: string = 'vadoff'
+  username: string;
+
+  constructor(private storage: TokenStorageService) {
+    this.username = storage.getUsername();
+  }
+
 }

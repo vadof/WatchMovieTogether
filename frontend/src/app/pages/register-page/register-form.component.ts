@@ -15,7 +15,7 @@ import {solid} from "@fortawesome/fontawesome-svg-core/import.macro";
 import {Router} from "@angular/router";
 
 @Component({
-  selector: 'app-register-form',
+  selector: 'app-register-page',
   templateUrl: './register-form.component.html',
   styleUrls: ['./register-form.component.scss']
 })
@@ -93,6 +93,7 @@ export class RegisterFormComponent {
         response => {
           console.log(response)
           this.storage.saveToken(response.token)
+          this.storage.saveUsername(this.registerForm.value.username)
           this.router.navigate([''])
         }, error => {
           this.errorMessage = error.error.error;

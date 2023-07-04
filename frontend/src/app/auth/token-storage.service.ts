@@ -25,6 +25,11 @@ export class TokenStorageService {
     localStorage.setItem(USERNAME_KEY, username);
   }
 
+  public getUsername(): string {
+    let username = localStorage.getItem(USERNAME_KEY);
+    return username ? username : 'user';
+  }
+
   public signOut() {
     localStorage.clear();
   }

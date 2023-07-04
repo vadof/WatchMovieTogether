@@ -6,7 +6,7 @@ import {TokenStorageService} from "../../auth/token-storage.service";
 import {LoginRequest} from "./login-request";
 
 @Component({
-  selector: 'app-login-form',
+  selector: 'app-login-page',
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.scss']
 })
@@ -33,6 +33,7 @@ export class LoginFormComponent {
       this.authService.login(request).subscribe(
         response => {
           this.storage.saveToken(response.token);
+          this.storage.saveUsername(this.loginForm.value.username as string)
           this.router.navigate([''])
         },
         error => {
