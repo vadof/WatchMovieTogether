@@ -1,5 +1,6 @@
 package com.server.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class Resolution {
     @NotBlank
     private String value;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "resolutions")
     private List<Movie> movie;
 }

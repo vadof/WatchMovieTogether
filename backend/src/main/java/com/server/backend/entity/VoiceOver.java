@@ -1,5 +1,6 @@
 package com.server.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class VoiceOver {
     @NotBlank
     private String name;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "voiceOvers")
     private List<Movie> movies;
 }

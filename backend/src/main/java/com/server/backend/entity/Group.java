@@ -1,5 +1,6 @@
 package com.server.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -21,7 +22,24 @@ public class Group {
     @NotBlank
     private String name;
 
+//    @ManyToOne
+//    private User admin;
+
+    @ManyToOne
+    private Movie currentMovie;
+
+    private Long movieProgress;
+
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "groups")
     private Set<User> users = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", movieProgress=" + movieProgress +
+                '}';
+    }
 
 }

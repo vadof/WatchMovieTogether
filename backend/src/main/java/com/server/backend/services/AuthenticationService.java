@@ -3,8 +3,6 @@ package com.server.backend.services;
 import com.server.backend.entity.Role;
 import com.server.backend.entity.User;
 import com.server.backend.exceptions.UserRegisterException;
-import com.server.backend.forms.LoginForm;
-import com.server.backend.forms.RegisterForm;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.UserRepository;
 import com.server.backend.requests.AuthenticationRequest;
@@ -51,7 +49,6 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
         String jwtToken = jwtService.generateToken(user);
-
         return new AuthenticationResponse(jwtToken);
     }
 

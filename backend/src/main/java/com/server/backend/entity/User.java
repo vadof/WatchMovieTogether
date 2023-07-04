@@ -1,5 +1,6 @@
 package com.server.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,6 +28,7 @@ import java.util.Set;
 @Table
 public class User implements UserDetails {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,18 +42,23 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @JsonIgnore
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
+    @JsonIgnore
     @DateTimeFormat(pattern="dd/MM/yyyy")
     private LocalDate registerDate;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Group> groups = new HashSet<>();
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -60,26 +67,31 @@ public class User implements UserDetails {
         this.registerDate = LocalDate.now();
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;
