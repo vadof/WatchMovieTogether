@@ -9,13 +9,16 @@ import {Group} from "../../models/Group";
 @Component({
   selector: 'app-group-form',
   templateUrl: './group-form.component.html',
-  styleUrls: ['./group-form.component.scss']
+  styleUrls: ['./group-form.component.scss', '../../../styles.scss']
 })
 export class GroupFormComponent {
 
   // @ts-ignore
   groupForm: FormGroup;
+
+  chooseMovie = false;
   errorMessage = ''
+
   constructor(
     private fb: FormBuilder,
     private apiService: ApiService,

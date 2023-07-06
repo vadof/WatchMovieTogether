@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+.text-color-primary {
+  color: #b1d6fd;
+}
+
+.bg-color-primary {
+  background-color: #080c2c;
+}
+
+.bg-color-secondary {
+  background-color: #0f1b36;
+}
+
+.bg-image-primary {
+  background-image: url("./assets/main-bg.jpg");
+  background-size: cover;
+  min-height: 90vh;
+}

@@ -26,17 +26,7 @@ export class ApiService {
     return this.http.post(this.API_URL + url, body, this.httpOptions)
   }
 
-  // public sendPostRequest(url: string, body: any): Observable<any> {
-  //   console.log(this.httpOptions.headers.get('Authorization'))
-  //   return this.http.post(this.API_URL + url, body, {headers: this.httpOptions.headers})
-  // }
-
-  // public sendGetRequest(url: string) {
-  //   this.http.get(this.API_URL + url, this.httpOptions).subscribe(req => {
-  //     console.log(req)}, error => {})
-  // }
-
-  // public sendGetRequest(url: string) {
-  //
-  // }
+  public sendGetRequest(url: string) {
+    return this.http.get(this.API_URL + url, this.httpOptions);
+  }
 }

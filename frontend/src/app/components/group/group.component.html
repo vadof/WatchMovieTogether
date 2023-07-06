@@ -1,1 +1,8 @@
-<p>group works!</p>
+<a class="group-item list-group-item d-flex justify-content-between mb-3 text-color-primary bg-color-primary align-items-center"
+   href="#" [id]="group.id">
+
+  <div class="name"><strong>{{ group.name }}</strong></div>
+  <div class="current-movie">{{ group.currentMovie ? group.currentMovie : 'Movie not selected yet' }}</div>
+
+</a>
+

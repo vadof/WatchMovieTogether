@@ -18,7 +18,8 @@ export class GroupsPageComponent implements OnInit {
 
   ngOnInit(): void {
     // TODO Do not send request if groups are not null
-      this.groups = this.service.getAllGroups()
+    this.groups = this.service.getAllGroups()
+    console.log(this.groups);
   }
 
 }

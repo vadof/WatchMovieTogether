@@ -1,31 +1,37 @@
 <app-navbar xmlns="http://www.w3.org/1999/html"></app-navbar>
+<section class="bg-image-primary">
 
-<div class="container mt-3">
+  <div class="container pt-3">
 
-  <div *ngIf="createGroup; else content">
-    <div class="back-to-content text-start">
-      <a class="btn btn-primary" (click)="createGroup = false">Back</a>
-    </div>
-    <app-group-form></app-group-form>
-  </div>
-
-  <ng-template #content>
-    <div class="create-group text-end">
-      <a class="btn btn-primary" (click)="createGroup = true">Create New Group</a>
+    <div *ngIf="createGroup; else content">
+      <div class="back-to-content text-start">
+        <a class="btn btn-primary" (click)="createGroup = false">Back</a>
+      </div>
+      <app-group-form></app-group-form>
     </div>
 
-    <div class="group-items">
+    <ng-template #content>
+      <div class="group-page">
 
-      <div class="d-flex justify-content-around group-item">
+        <div class="create-group text-end">
+          <a class="btn btn-primary" (click)="createGroup = true">Create New Group</a>
+        </div>
+
+        <div class="group-items mt-5 list-group d-flex justify-content-center">
+          <app-group *ngFor="let group of groups" [group]="group">
+          </app-group>
+        </div>
 
       </div>
 
-    </div>
-  </ng-template>
+    </ng-template>
 
 
 
 
-</div>
+  </div>
+
+</section>
+
 
 <app-footer></app-footer>

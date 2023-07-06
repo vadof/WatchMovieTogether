@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {Group} from "../../models/Group";
 
 @Component({
   selector: 'app-group',
@@ -6,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./group.component.scss']
 })
 export class GroupComponent {
-
+  // @ts-ignore
+  @Input() group: Group
 }
