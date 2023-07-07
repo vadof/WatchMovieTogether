@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -29,12 +26,12 @@ public class Movie {
     @NotBlank
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Resolution> resolutions = new HashSet<>();
+    @JsonIgnore
+    private Long views;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private Set<Translation> translations = new HashSet<>();
+    private List<Translation> translations = new ArrayList<>();
 
     @OneToMany(mappedBy = "selectedMovie")
-    private Set<GroupSettings> groupSettings = new HashSet<>();
+    private List<GroupSettings> groupSettings = new ArrayList<>();
 }

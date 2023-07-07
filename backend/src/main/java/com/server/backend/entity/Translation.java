@@ -8,8 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -23,11 +25,7 @@ public class Translation {
     private Long id;
 
     @NotBlank
-    @Column(unique = true)
     private String name;
-
-    @NotBlank
-    private String value;
 
     @JsonIgnore
     @OneToMany(mappedBy = "selectedTranslation")
@@ -37,29 +35,10 @@ public class Translation {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "translations")
     private List<Movie> movies;
 
-    public Translation(String name, String value) {
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Resolution> resolutions = new ArrayList<>();
+
+    public Translation(String name) {
         this.name = name;
-        this.value = value;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Translation other = (Translation) obj;
-
-        return Objects.equals(name, other.name) &&
-                Objects.equals(value, other.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, value);
     }
 }

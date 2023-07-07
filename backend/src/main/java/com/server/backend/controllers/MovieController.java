@@ -18,6 +18,7 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<?> getMovieFromLink(@RequestBody String link) {
+        // TODO change return value in python api
         Optional<Movie> movie = movieService.getMovie(link);
         if (movie.isPresent()) {
             return ResponseEntity.ok(movie.get());

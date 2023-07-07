@@ -48,7 +48,7 @@ public class GroupService {
                     .stream()
                     .filter(t -> t.equals(msr.getSelectedTranslation()))
                     .findFirst().get();
-            Resolution resolution = movie.getResolutions()
+            Resolution resolution = translation.getResolutions()
                     .stream()
                     .filter(r -> r.equals(msr.getSelectedResolution()))
                     .findFirst().get();
