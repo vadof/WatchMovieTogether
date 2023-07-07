@@ -2,7 +2,13 @@ package com.server.backend.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.backend.entity.Movie;
+import com.server.backend.entity.Resolution;
+import com.server.backend.entity.Translation;
+import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MovieRepository;
+import com.server.backend.repository.ResolutionRepository;
+import com.server.backend.repository.TranslationRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +19,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,17 +30,57 @@ import java.util.regex.Pattern;
 public class MovieService {
 
     private final MovieRepository movieRepository;
+    private final ResolutionRepository resolutionRepository;
+    private final TranslationRepository translationRepository;
+
     private final String MOVIE_API_URL = "http://localhost:5000/api/movie";
     private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
 
     public Optional<Movie> getMovie(String link) {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
-        if (optionalMovie.isPresent()) {
-            return optionalMovie;
-        } else {
+        if (optionalMovie.isEmpty()) {
             String movieJsonString = sendMovieRequest(link);
-            return parseMovieFromString(movieJsonString);
+            optionalMovie = parseMovieFromString(movieJsonString);
+            optionalMovie.ifPresent(this::saveMovie);
         }
+        return optionalMovie;
+    }
+
+    @Transactional
+    private void saveMovie(Movie movie) {
+        try {
+            addAllResolutionsToMovie(movie);
+            addAllTranslationsToMovie(movie);
+            movieRepository.save(movie);
+            LOG.info("Movie saved to database: {}", movie.getLink());
+        } catch (Exception e) {
+            LOG.error("Error occurred while saving the movie: {}", movie.getLink(), e);
+        }
+    }
+
+    private void addAllResolutionsToMovie(Movie movie) {
+        Set<Resolution> resolutions = new HashSet<>();
+        for (Resolution resolution : movie.getResolutions()) {
+            resolutions.add(resolutionRepository.findByValue(resolution.getValue()));
+        }
+        movie.setResolutions(resolutions);
+    }
+
+    private void addAllTranslationsToMovie(Movie movie) {
+        Set<Translation> translations = new HashSet<>();
+        for (Translation translation : movie.getTranslations()) {
+            Optional<Translation> optionalTranslation = translationRepository.findByName(translation.getName());
+
+            if (optionalTranslation.isPresent()) {
+                translations.add(optionalTranslation.get());
+            } else {
+                Translation newTranslation = new Translation(translation.getName(), translation.getValue());
+                translationRepository.save(newTranslation);
+                translations.add(newTranslation);
+            }
+
+        }
+        movie.setTranslations(translations);
     }
 
     private String sendMovieRequest(String link) {

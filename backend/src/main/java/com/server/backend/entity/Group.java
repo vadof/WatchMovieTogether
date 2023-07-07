@@ -24,10 +24,8 @@ public class Group {
     @NotBlank
     private String admin;
 
-    @ManyToOne
-    private Movie currentMovie;
-
-    private Long movieProgress;
+    @OneToOne(fetch = FetchType.EAGER)
+    private SelectedMovieSettings selectedMovieSettings;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "groups")
     private Set<User> users = new HashSet<>();
