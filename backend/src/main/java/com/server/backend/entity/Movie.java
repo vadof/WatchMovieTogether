@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -32,4 +34,7 @@ public class Movie {
 
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Translation> translations = new HashSet<>();
+
+    @OneToMany(mappedBy = "selectedMovie")
+    private Set<GroupSettings> groupSettings = new HashSet<>();
 }
