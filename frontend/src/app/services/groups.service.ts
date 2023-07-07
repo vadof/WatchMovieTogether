@@ -42,8 +42,7 @@ export class GroupsService {
       id: response.id,
       name: response.name,
       admin: response.admin,
-      currentMovie: response.currentMovie || null,
-      movieProgress: response.movieProgress || null,
+      selectedMovieSettings: response.selectedMovieSettings || null,
       users: []
     };
 

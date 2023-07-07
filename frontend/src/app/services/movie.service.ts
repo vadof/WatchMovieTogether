@@ -7,22 +7,25 @@ import {Movie} from "../models/Movie";
 })
 export class MovieService {
 
-  movies: Movie[] = [];
+  movie: Movie | null = null;
 
   constructor(private api: ApiService) { }
 
-  public getMovie(link: string) {
-    this.api.sendPostRequest('/movie', link).subscribe(
-      res => {
-        this.addMovie(res)
-      }, err => {
-        console.log(err)
-      }
-    );
+  public getMovie(link: string): Movie {
+    // @ts-ignore
+    return new Promise<Movie>((resolve, reject) => {
+      this.api.sendPostRequest('/movie', link).subscribe(
+        res => {
+          resolve(this.convertResponseToObject(res));
+        },
+        err => {
+          reject(err.error);
+        }
+      );
+    });
   }
 
-  private addMovie(res: string) {
-    // @ts-ignore
+  private convertResponseToObject(res: string): Movie {
     let movie: Movie = {
       // @ts-ignore
       link: res.link,
@@ -33,7 +36,6 @@ export class MovieService {
       // @ts-ignore
       translations: res.translations
     }
-    console.log(movie)
-    this.movies.push(movie);
+    return movie
   }
 }

@@ -4,7 +4,6 @@ export interface Group {
   id: number
   name: string
   admin: string
-  currentMovie: string,
-  movieProgress: number,
+  selectedMovieSettings: string,
   users: User[]
 }

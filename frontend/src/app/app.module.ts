@@ -10,11 +10,11 @@ import { LoginFormComponent } from './pages/login-page/login-form.component';
 import { MainPageComponent } from './pages/main-page/main-page.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { FooterComponent } from './components/footer/footer.component';
 import { GroupComponent } from './components/group/group.component';
 import { GroupsPageComponent } from './pages/groups-page/groups-page.component';
 import { GroupFormComponent } from './components/group-form/group-form.component';
 import { MovieFormComponent } from './components/movie-form/movie-form.component';
+import { MovieFormSettingsComponent } from './components/movie-form-settings/movie-form-settings.component';
 
 @NgModule({
   declarations: [
@@ -23,11 +23,11 @@ import { MovieFormComponent } from './components/movie-form/movie-form.component
     LoginFormComponent,
     MainPageComponent,
     NavbarComponent,
-    FooterComponent,
     GroupComponent,
     GroupsPageComponent,
     GroupFormComponent,
     MovieFormComponent,
+    MovieFormSettingsComponent,
   ],
   imports: [
     BrowserModule,

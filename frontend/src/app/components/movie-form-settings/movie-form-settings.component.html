@@ -1,0 +1,39 @@
+<div class="movie-settings d-flex flex-column justify-content-center align-items-center">
+  <h3 class="text-center">{{ movie.name }}</h3>
+
+  <div class="translations">
+    <h4 class="text-center">Choose translation:</h4>
+    <div class="buttons">
+      <div *ngFor="let t of movie.translations">
+        <button type="button" class="btn mb-2"
+                [ngClass]="{
+                'btn-selected': t === selectedTranslation,
+                'btn-main': t !== selectedTranslation
+                }"
+                (click)="selectTranslation(t)">
+          {{ t.name }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="resolutions">
+    <h4 class="text-center">Choose resolution:</h4>
+    <div class="buttons row justify-content-start text-center">
+      <div *ngFor="let r of getSortedResolutions(); let i = index" class="col-lg-5">
+        <button type="button" class="btn mb-2"
+                [ngClass]="{
+                    'btn-selected': r === selectedResolution,
+                    'btn-main': r !== selectedResolution
+                  }"
+                (click)="selectResolution(r)">
+          {{ r.value }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+

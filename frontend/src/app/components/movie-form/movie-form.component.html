@@ -1,12 +1,16 @@
 <div class="mb-3">
   <label for="link" class="form-label">Paste the link to the movie
-    <a href="https://rezka.ag/" class="text-color-primary">HDREZKA</a>
+    <a href="https://rezka.ag/" class="text-color-primary" target="_blank">HDREZKA</a>
   </label>
   <div class="d-flex">
     <input type="text" class="form-control" id="link" placeholder="https://rezka.ag/" [(ngModel)]="linkValue">
-    <a class="btn btn-primary find-movie-btn" (click)="find()">Find</a>
+    <a class="btn btn-main-no-hover find-movie-btn" (click)="find()">Find</a>
   </div>
-
 </div>
 
 <div *ngIf="loading" class="text-center"><strong>Loading...</strong></div>
+<div *ngIf="error" class="text-center"><strong class="text-danger">{{ error }}</strong></div>
+
+<div *ngIf="movie">
+  <app-movie-form-settings [movie]="movie"></app-movie-form-settings>
+</div>

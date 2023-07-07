@@ -1,11 +1,11 @@
-<app-navbar xmlns="http://www.w3.org/1999/html"></app-navbar>
-<section class="bg-image-primary">
+<app-navbar></app-navbar>
+<section class="">
 
   <div class="container pt-3">
 
     <div *ngIf="createGroup; else content">
       <div class="back-to-content text-start">
-        <a class="btn btn-primary" (click)="createGroup = false">Back</a>
+        <a class="btn btn-main-no-hover" (click)="createGroup = false">Back</a>
       </div>
       <app-group-form></app-group-form>
     </div>
@@ -14,7 +14,7 @@
       <div class="group-page">
 
         <div class="create-group text-end">
-          <a class="btn btn-primary" (click)="createGroup = true">Create New Group</a>
+          <a class="btn btn-main-no-hover" (click)="createGroup = true">Create New Group</a>
         </div>
 
         <div class="group-items mt-5 list-group d-flex justify-content-center">
@@ -32,6 +32,4 @@
   </div>
 
 </section>
-
-
-<app-footer></app-footer>
+<!--<app-footer></app-footer>-->
