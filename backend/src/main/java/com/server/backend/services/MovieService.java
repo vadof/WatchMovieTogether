@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -44,6 +45,20 @@ public class MovieService {
             optionalMovie.ifPresent(this::saveMovie);
         }
         return optionalMovie;
+    }
+
+    public String getVideoLink(String movieLink, Translation translation, Resolution resolution) {
+        try {
+            String requestBody = "{\"url\": \"" + movieLink
+                                    + "\",\"translation\": \"" + translation.getValue()
+                                    + "\", \"resolution\": \"" + resolution.getValue()
+                                    + "\"}";
+
+            return sendHttpRequest(requestBody, new URL(MOVIE_API_URL + "/stream"));
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+            return null;
+        }
     }
 
     @Transactional
@@ -86,37 +101,8 @@ public class MovieService {
     private String sendMovieRequest(String link) {
         try {
             String requestBody = "{\"url\": \"" + link + "\"}";
-
-            URL url = new URL(MOVIE_API_URL);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            connection.setDoOutput(true);
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(requestBody.getBytes());
-            outputStream.flush();
-            outputStream.close();
-
-            int responseCode = connection.getResponseCode();
-
-            BufferedReader reader;
-            if (responseCode >= 200 && responseCode < 300) {
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            } else {
-                LOG.error("Error in parsing " + link);
-                reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            }
-
-            StringBuilder responseBody = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                responseBody.append(line);
-            }
-            reader.close();
-
-            return decodeUnicodeEscapeSequences(responseBody.toString());
+            String responseBody = sendHttpRequest(requestBody, new URL(MOVIE_API_URL));
+            return decodeUnicodeEscapeSequences(responseBody);
         } catch (Exception e) {
             LOG.error(e.getMessage());
             return e.getMessage();
@@ -147,8 +133,39 @@ public class MovieService {
             ObjectMapper objectMapper = new ObjectMapper();
             return Optional.of(objectMapper.readValue(s, Movie.class));
         } catch (Exception e) {
-            LOG.error("Error while parsing an object " + e.getMessage() + " JSON String: " + s);
+            LOG.error("Error while parsing an object " + e.getMessage());
         }
         return Optional.empty();
+    }
+
+    private String sendHttpRequest(String requestBody, URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        connection.setDoOutput(true);
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(requestBody.getBytes());
+        outputStream.flush();
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+
+        BufferedReader reader;
+        if (responseCode >= 200 && responseCode < 300) {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        } else {
+            LOG.error("Error in parsing " + requestBody);
+            reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+        }
+
+        StringBuilder responseBody = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            responseBody.append(line);
+        }
+        reader.close();
+
+        return responseBody.toString();
     }
 }

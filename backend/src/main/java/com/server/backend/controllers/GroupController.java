@@ -1,6 +1,7 @@
 package com.server.backend.controllers;
 
 import com.server.backend.entity.Group;
+import com.server.backend.requests.MovieSelectionRequest;
 import com.server.backend.services.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,4 +20,11 @@ public class GroupController {
         return ResponseEntity.ok(groupService.createGroup(name, token));
     }
 
+    @PostMapping("/movie")
+    public ResponseEntity<String> setUpMovieForGroup(@RequestBody MovieSelectionRequest movieSelectionRequest) {
+        if (groupService.setUpMovieForGroup(movieSelectionRequest)) {
+            return ResponseEntity.ok("Movie customized for the group");
+        }
+        return ResponseEntity.ok("Something went wrong!");
+    }
 }
