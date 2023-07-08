@@ -17,6 +17,5 @@ public class MovieSelectionRequest {
     private Long groupId;
     private Movie movie;
     private Translation selectedTranslation;
-    private Resolution selectedResolution;
 
 }

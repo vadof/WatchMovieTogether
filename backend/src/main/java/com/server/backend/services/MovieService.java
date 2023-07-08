@@ -39,35 +39,22 @@ public class MovieService {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
             String movieJsonString = sendMovieRequest(link);
+            System.out.println(movieJsonString);
             optionalMovie = parseMovieFromString(movieJsonString);
             optionalMovie.ifPresent(this::saveMovie);
+        } else {
+            Movie movie = optionalMovie.get();
+            movie.addSearch();
+            movieRepository.save(movie);
         }
         return optionalMovie;
-    }
-
-    public String getVideoLink(String movieLink, Translation translation, Resolution resolution) {
-        try {
-            String requestBody = "{\"url\": \"" + movieLink
-                                    + "\",\"translation\": \"" + translation.getName()
-                                    + "\", \"resolution\": \"" + resolution.getValue()
-                                    + "\"}";
-
-            return sendHttpRequest(requestBody, new URL(MOVIE_API_URL + "/stream"));
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            return null;
-        }
     }
 
     @Transactional
     private void saveMovie(Movie movie) {
         try {
             for (Translation translation : movie.getTranslations()) {
-                List<Resolution> resolutions = new ArrayList<>();
-                for (Resolution resolution : translation.getResolutions()) {
-                    resolutions.add(resolutionRepository.findByValue(resolution.getValue()));
-                }
-                translation.setResolutions(resolutions);
+                resolutionRepository.saveAll(translation.getResolutions());
                 translationRepository.save(translation);
             }
             movieRepository.save(movie);

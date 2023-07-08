@@ -7,11 +7,8 @@ import com.server.backend.repository.GroupSettingsRepository;
 import com.server.backend.repository.MovieRepository;
 import com.server.backend.repository.UserRepository;
 import com.server.backend.requests.MovieSelectionRequest;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,7 +19,6 @@ public class GroupService {
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final MovieService movieService;
 
     public Group createGroup(String name, String token) {
         User user = jwtService.getUserFromBearerToken(token).orElseThrow();
@@ -48,15 +44,9 @@ public class GroupService {
                     .stream()
                     .filter(t -> t.equals(msr.getSelectedTranslation()))
                     .findFirst().get();
-            Resolution resolution = translation.getResolutions()
-                    .stream()
-                    .filter(r -> r.equals(msr.getSelectedResolution()))
-                    .findFirst().get();
 
-            String videoLink = movieService.getVideoLink(movie.getLink(), translation, resolution);
-
-            GroupSettings groupSettings = new GroupSettings(movie, videoLink, "0",
-                    translation, resolution);
+            GroupSettings groupSettings = new GroupSettings(movie, "0",
+                    translation);
 
             groupSettingsRepository.save(groupSettings);
 

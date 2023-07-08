@@ -27,11 +27,15 @@ public class Movie {
     private String name;
 
     @JsonIgnore
-    private Long views;
+    private int searches = 1;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Translation> translations = new ArrayList<>();
 
     @OneToMany(mappedBy = "selectedMovie")
     private List<GroupSettings> groupSettings = new ArrayList<>();
+
+    public void addSearch() {
+        this.searches++;
+    }
 }

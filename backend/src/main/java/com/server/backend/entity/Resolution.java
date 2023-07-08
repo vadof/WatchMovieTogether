@@ -25,16 +25,16 @@ public class Resolution {
     @NotBlank
     private String value;
 
+    @Lob
+    private String videoLink;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "resolutions")
     private List<Translation> translations = new ArrayList<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "selectedResolution")
-    private List<GroupSettings> groupSettings;
-
-    public Resolution(String value) {
+    public Resolution(String value, String videoLink) {
         this.value = value;
+        this.videoLink = videoLink;
     }
 
     @Override
