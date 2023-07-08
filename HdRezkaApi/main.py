@@ -1,43 +1,49 @@
+from aifc import Error
+
 from flask import Flask, jsonify, request, make_response
 from HdRezkaAPI import HdRezkaApi
 from flask_cors import CORS
-
-from Movie import Movie
-from Translation import Translation
+from Entities import Movie, Translation, Resolution
 
 
 app = Flask(__name__)
 CORS(app)
 
-
+# TODO make 3 attempts to get video
 @app.route('/api/movie', methods=['POST'])
-def square():
+def getMovie():
     data = request.get_json()
     url = data.get('url')
     try:
-        movie = getMovie(url)
-        response = make_response(jsonify(movie=movie.to_dict()), 200)
-        return response
+        movie = getMovieObject(url)
+        return make_response(jsonify(movie=movie.to_dict()), 200)
     except:
-        response = make_response(jsonify(error='Invalid URL provided.'), 400)
-        return response
+        return make_response(jsonify(error='Invalid URL provided.'), 400)
 
 
-def getMovie(url):
-    rezka = HdRezkaApi(url)
-
-    type = rezka.getType().split('.')[1]
-
-    if type == 'movie':
-        resolutions = []
-        for key in rezka.getStream().videos.keys():
-            resolutions.append(key)
-
+def getMovieObject(url, attempts=3):
+    try:
+        rezka = HdRezkaApi('https://rezka.ag/films/action/55135-forsazh-10-2023.html')
         translations = []
-        for key, value in rezka.getTranslations().items():
-            translations.append(Translation(key, value))
+        for t in rezka.getTranslations().keys():
+            resolutions = []
+            for res, value in rezka.getStream(translation=t).videos.items():
+                resolutions.append(Resolution(res, value))
+            translations.append(Translation(t, resolutions))
 
-        return Movie(url, rezka.getName(), resolutions, translations)
+        movie = Movie('https://rezka.ag/films/action/55135-forsazh-10-2023.html', rezka.getName(), translations)
+
+        for i in movie.translations:
+            for x in i.resolutions:
+                print(x)
+
+        return movie
+    except:
+        if (attempts - 1 > 0):
+            getMovieObject(url, attempts - 1)
+        else:
+            return None
+
 
 if __name__ == '__main__':
     app.run()
