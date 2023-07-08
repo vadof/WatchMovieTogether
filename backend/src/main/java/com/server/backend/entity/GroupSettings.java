@@ -19,25 +19,19 @@ public class GroupSettings {
     @ManyToOne
     private Movie selectedMovie;
 
-    private String videoLink;
     private String movieProgress;
 
     @ManyToOne
     private Translation selectedTranslation;
 
-    @ManyToOne
-    private Resolution selectedResolution;
-
     @JsonIgnore
     @OneToOne(mappedBy = "groupSettings")
     private Group group;
 
-    public GroupSettings(Movie selectedMovie, String videoLink, String movieProgress,
-                         Translation selectedTranslation, Resolution selectedResolution) {
+    public GroupSettings(Movie selectedMovie, String movieProgress,
+                         Translation selectedTranslation) {
         this.selectedMovie = selectedMovie;
-        this.videoLink = videoLink;
         this.movieProgress = movieProgress;
         this.selectedTranslation = selectedTranslation;
-        this.selectedResolution = selectedResolution;
     }
 }

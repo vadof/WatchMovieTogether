@@ -20,9 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,61 +39,29 @@ public class MovieService {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
             String movieJsonString = sendMovieRequest(link);
+            System.out.println(movieJsonString);
             optionalMovie = parseMovieFromString(movieJsonString);
             optionalMovie.ifPresent(this::saveMovie);
+        } else {
+            Movie movie = optionalMovie.get();
+            movie.addSearch();
+            movieRepository.save(movie);
         }
         return optionalMovie;
-    }
-
-    public String getVideoLink(String movieLink, Translation translation, Resolution resolution) {
-        try {
-            String requestBody = "{\"url\": \"" + movieLink
-                                    + "\",\"translation\": \"" + translation.getValue()
-                                    + "\", \"resolution\": \"" + resolution.getValue()
-                                    + "\"}";
-
-            return sendHttpRequest(requestBody, new URL(MOVIE_API_URL + "/stream"));
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            return null;
-        }
     }
 
     @Transactional
     private void saveMovie(Movie movie) {
         try {
-            addAllResolutionsToMovie(movie);
-            addAllTranslationsToMovie(movie);
+            for (Translation translation : movie.getTranslations()) {
+                resolutionRepository.saveAll(translation.getResolutions());
+                translationRepository.save(translation);
+            }
             movieRepository.save(movie);
             LOG.info("Movie saved to database: {}", movie.getLink());
         } catch (Exception e) {
             LOG.error("Error occurred while saving the movie: {}", movie.getLink(), e);
         }
-    }
-
-    private void addAllResolutionsToMovie(Movie movie) {
-        Set<Resolution> resolutions = new HashSet<>();
-        for (Resolution resolution : movie.getResolutions()) {
-            resolutions.add(resolutionRepository.findByValue(resolution.getValue()));
-        }
-        movie.setResolutions(resolutions);
-    }
-
-    private void addAllTranslationsToMovie(Movie movie) {
-        Set<Translation> translations = new HashSet<>();
-        for (Translation translation : movie.getTranslations()) {
-            Optional<Translation> optionalTranslation = translationRepository.findByName(translation.getName());
-
-            if (optionalTranslation.isPresent()) {
-                translations.add(optionalTranslation.get());
-            } else {
-                Translation newTranslation = new Translation(translation.getName(), translation.getValue());
-                translationRepository.save(newTranslation);
-                translations.add(newTranslation);
-            }
-
-        }
-        movie.setTranslations(translations);
     }
 
     private String sendMovieRequest(String link) {

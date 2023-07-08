@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,16 +25,16 @@ public class Resolution {
     @NotBlank
     private String value;
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "resolutions")
-    private List<Movie> movie;
+    @Lob
+    private String videoLink;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "selectedResolution")
-    private List<GroupSettings> groupSettings;
+    @ManyToMany(mappedBy = "resolutions")
+    private List<Translation> translations = new ArrayList<>();
 
-    public Resolution(String value) {
+    public Resolution(String value, String videoLink) {
         this.value = value;
+        this.videoLink = videoLink;
     }
 
     @Override
