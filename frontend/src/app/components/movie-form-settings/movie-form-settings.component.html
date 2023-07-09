@@ -20,7 +20,7 @@
   <div class="resolutions">
     <h4 class="text-center">Choose resolution:</h4>
     <div class="buttons row justify-content-start text-center">
-      <div *ngFor="let r of getSortedResolutions(); let i = index" class="col-lg-5">
+      <div *ngFor="let r of getTranslationResolutions(); let i = index" class="col-lg-5">
         <button type="button" class="btn mb-2"
                 [ngClass]="{
                     'btn-selected': r === selectedResolution,

@@ -45,16 +45,14 @@ export class GroupFormComponent {
   public create() {
     const movie: Movie | null = this.movieService.movie
     const selectedTranslation: Translation | null = this.movieService.selectedTranslation
-    const selectedResolution: Resolution | null = this.movieService.selectedResolution
 
     // console.log(movie)
     // console.log(selectedTranslation)
     // console.log(selectedResolution)
-    if (movie && selectedTranslation
-      && selectedResolution && this.groupForm.valid) {
+    if (movie && selectedTranslation && this.groupForm.valid) {
       this.createGroup()
         .then(group=>
-          this.groupService.selectMovieForGroup(group, movie, selectedTranslation, selectedResolution))
+          this.groupService.selectMovieForGroup(group, movie, selectedTranslation))
     } else if (this.groupForm.valid) {
       this.createGroup()
     } else {

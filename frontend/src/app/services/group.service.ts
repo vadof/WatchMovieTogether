@@ -44,14 +44,12 @@ export class GroupService {
   }
 
   public selectMovieForGroup(group: Group, movie: Movie,
-                             selectedTranslation: Translation, selectedResolution: Resolution) {
+                             selectedTranslation: Translation) {
     let requestObj = {
       groupId: group.id,
       movie,
-      selectedTranslation,
-      selectedResolution
+      selectedTranslation
     }
-    // this.api.sendPostRequest('/group/movie', requestObj);
     this.api.sendPostRequest('/group/movie', requestObj).subscribe(res => {
       console.log(res)
     }, err => {
