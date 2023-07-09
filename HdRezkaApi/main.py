@@ -23,7 +23,7 @@ def getMovie():
 
 def getMovieObject(url, attempts=3):
     try:
-        rezka = HdRezkaApi('https://rezka.ag/films/action/55135-forsazh-10-2023.html')
+        rezka = HdRezkaApi(url)
         translations = []
         for t in rezka.getTranslations().keys():
             resolutions = []
@@ -31,13 +31,7 @@ def getMovieObject(url, attempts=3):
                 resolutions.append(Resolution(res, value))
             translations.append(Translation(t, resolutions))
 
-        movie = Movie('https://rezka.ag/films/action/55135-forsazh-10-2023.html', rezka.getName(), translations)
-
-        for i in movie.translations:
-            for x in i.resolutions:
-                print(x)
-
-        return movie
+        return Movie(url, rezka.getName(), translations)
     except:
         if (attempts - 1 > 0):
             getMovieObject(url, attempts - 1)
