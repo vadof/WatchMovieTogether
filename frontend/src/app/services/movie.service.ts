@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
+import {Translation} from "../models/Translation";
+import {Resolution} from "../models/Resolution";
 
 @Injectable({
   providedIn: 'root'
@@ -8,15 +10,18 @@ import {Movie} from "../models/Movie";
 export class MovieService {
 
   movie: Movie | null = null;
+  selectedTranslation: Translation | null = null;
+  selectedResolution: Resolution | null = null;
 
   constructor(private api: ApiService) { }
 
-  public getMovie(link: string): Movie {
-    // @ts-ignore
+  public getMovie(link: string): Promise<Movie> {
     return new Promise<Movie>((resolve, reject) => {
       this.api.sendPostRequest('/movie', link).subscribe(
         res => {
-          resolve(this.convertResponseToObject(res));
+          let movie = this.convertResponseToObject(res)
+          this.selectedTranslation = movie.translations[0]
+          resolve(movie);
         },
         err => {
           reject(err.error);
@@ -36,6 +41,9 @@ export class MovieService {
       // @ts-ignore
       translations: res.translations
     }
+    this.movie = movie
     return movie
   }
+
+
 }

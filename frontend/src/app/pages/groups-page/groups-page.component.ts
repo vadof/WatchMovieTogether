@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {GroupsService} from "../../services/groups.service";
+import {GroupService} from "../../services/group.service";
 import {Group} from "../../models/Group";
 
 @Component({
@@ -13,7 +13,7 @@ export class GroupsPageComponent implements OnInit {
   // @ts-ignore
   groups: Group[] = null;
 
-  constructor(private service: GroupsService) {
+  constructor(private service: GroupService) {
   }
 
   ngOnInit(): void {

@@ -12,7 +12,6 @@ export class MovieFormComponent {
   linkValue: string = '';
   movie: Movie | null = null
   error: any = ''
-  foundMovieLink: string = ''
 
   constructor(private movieService: MovieService) {
   }
@@ -21,8 +20,9 @@ export class MovieFormComponent {
     this.error = ''
     try {
       this.loading = true;
-      this.foundMovieLink = this.linkValue;
-      this.movie = await this.movieService.getMovie(this.linkValue);
+      this.movie = null;
+      this.movie = await this.movieService.getMovie(this.linkValue.trim());
+      this.linkValue = ''
     } catch (error) {
       this.error = error;
     } finally {

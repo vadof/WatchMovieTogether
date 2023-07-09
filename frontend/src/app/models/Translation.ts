@@ -1,4 +1,6 @@
+import {Resolution} from "./Resolution";
+
 export interface Translation {
   name: string
-  value: number
+  resolutions: Resolution[]
 }

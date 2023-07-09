@@ -1,12 +1,15 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Group} from "../models/Group";
 import {User} from "../models/User";
 import {ApiService} from "./api.service";
+import {Movie} from "../models/Movie";
+import {Translation} from "../models/Translation";
+import {Resolution} from "../models/Resolution";
 
 @Injectable({
   providedIn: 'root'
 })
-export class GroupsService {
+export class GroupService {
 
   // groups: Group[] = []
 
@@ -16,7 +19,6 @@ export class GroupsService {
 
   public getAllGroups(): Group[] {
     let groups: Group[] = []
-
     this.api.sendPostRequest('/user/groups', null).subscribe(response => {
         response.forEach((group: any) => {
           groups.push(this.saveGroup(group));
@@ -28,13 +30,33 @@ export class GroupsService {
     return groups;
   }
 
-  public createGroup(name: string): Group | null {
-    this.api.sendPostRequest('/group', name).subscribe(res => {
-      return this.saveGroup(res);
-    }, error => {
-      console.log(error)
-    })
-    return null;
+  public createGroup(name: string): Promise<Group> {
+    return new Promise<Group>((resolve, reject) => {
+      this.api.sendPostRequest('/group', name).subscribe(
+        res => {
+          resolve(this.saveGroup(res));
+        },
+        err => {
+          reject(err.error);
+        }
+      );
+    });
+  }
+
+  public selectMovieForGroup(group: Group, movie: Movie,
+                             selectedTranslation: Translation, selectedResolution: Resolution) {
+    let requestObj = {
+      groupId: group.id,
+      movie,
+      selectedTranslation,
+      selectedResolution
+    }
+    // this.api.sendPostRequest('/group/movie', requestObj);
+    this.api.sendPostRequest('/group/movie', requestObj).subscribe(res => {
+      console.log(res)
+    }, err => {
+      console.log(err)
+    });
   }
 
   private saveGroup(response: any): Group {
