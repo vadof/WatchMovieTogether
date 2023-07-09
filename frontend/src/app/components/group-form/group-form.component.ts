@@ -3,11 +3,8 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ApiService} from "../../services/api.service";
 import {Router} from "@angular/router";
 import {GroupService} from "../../services/group.service";
-import {GroupsPageComponent} from "../../pages/groups-page/groups-page.component";
-import {Group} from "../../models/Group";
 import {MovieService} from "../../services/movie.service";
 import {Movie} from "../../models/Movie";
-import {Resolution} from "../../models/Resolution";
 import {Translation} from "../../models/Translation";
 
 @Component({
@@ -28,7 +25,6 @@ export class GroupFormComponent {
     private apiService: ApiService,
     private groupService: GroupService,
     private router: Router,
-    private groupPage: GroupsPageComponent,
     private movieService: MovieService
   ) {
     this.createForm();
@@ -46,9 +42,6 @@ export class GroupFormComponent {
     const movie: Movie | null = this.movieService.movie
     const selectedTranslation: Translation | null = this.movieService.selectedTranslation
 
-    // console.log(movie)
-    // console.log(selectedTranslation)
-    // console.log(selectedResolution)
     if (movie && selectedTranslation && this.groupForm.valid) {
       this.createGroup()
         .then(group=>
@@ -61,10 +54,6 @@ export class GroupFormComponent {
   }
 
   private async createGroup() {
-    let group: Group | null = await this.groupService.createGroup(this.groupForm.value.name);
-    if (group !== null) {
-      this.groupPage.groups.push(group)
-    }
-    return group;
+    return await this.groupService.createGroup(this.groupForm.value.name);
   }
 }

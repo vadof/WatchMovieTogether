@@ -4,30 +4,36 @@ import {User} from "../models/User";
 import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
 import {Translation} from "../models/Translation";
-import {Resolution} from "../models/Resolution";
 
 @Injectable({
   providedIn: 'root'
 })
 export class GroupService {
 
-  // groups: Group[] = []
+  groups: Group[] = []
 
   constructor(
     private api: ApiService
   ) { }
 
-  public getAllGroups(): Group[] {
-    let groups: Group[] = []
-    this.api.sendPostRequest('/user/groups', null).subscribe(response => {
+  public async getAllGroups(): Promise<Group[]> {
+    return await new Promise<Group[]>((resolve, reject) => {
+      let groups: Group[] = []
+      this.api.sendPostRequest('/user/groups', null).subscribe(response => {
         response.forEach((group: any) => {
           groups.push(this.saveGroup(group));
         })
+        this.groups = groups;
+        resolve(this.groups)
       }, error => {
-      console.log(error)
+        reject(error)
+      })
     })
+  }
 
-    return groups;
+  public async getGroupById(id: number): Promise<Group | undefined> {
+    const groups = await this.getAllGroups();
+    return groups.find(group => group.id === id);
   }
 
   public createGroup(name: string): Promise<Group> {
@@ -62,7 +68,7 @@ export class GroupService {
       id: response.id,
       name: response.name,
       admin: response.admin,
-      selectedMovieSettings: response.selectedMovieSettings || null,
+      groupSettings: response.groupSettings,
       users: []
     };
 

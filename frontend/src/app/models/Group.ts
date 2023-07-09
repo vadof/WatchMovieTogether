@@ -1,9 +1,10 @@
 import {User} from "./User";
+import {GroupSettings} from "./GroupSettings";
 
 export interface Group {
   id: number
   name: string
   admin: string
-  selectedMovieSettings: string,
+  groupSettings: GroupSettings,
   users: User[]
 }
