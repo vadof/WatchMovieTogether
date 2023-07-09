@@ -43,14 +43,11 @@ public class GroupService {
     public boolean setUpMovieForGroup(MovieSelectionRequest msr) {
         try {
             Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).get();
-            System.out.println(movie.getName());
             Group group = groupRepository.findById(msr.getGroupId()).get();
-            System.out.println(group.getName());
             Translation translation = movie.getTranslations()
                     .stream()
                     .filter(t -> t.equals(msr.getSelectedTranslation()))
                     .findFirst().get();
-            System.out.println(translation.getName());
 
             GroupSettings groupSettings = new GroupSettings(movie, "0",
                     translation);
