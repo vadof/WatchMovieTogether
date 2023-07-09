@@ -38,7 +38,16 @@ public class Translation {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Resolution> resolutions = new ArrayList<>();
 
-    public Translation(String name) {
-        this.name = name;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Translation that = (Translation) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

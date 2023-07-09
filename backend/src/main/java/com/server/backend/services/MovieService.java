@@ -2,9 +2,7 @@ package com.server.backend.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.backend.entity.Movie;
-import com.server.backend.entity.Resolution;
 import com.server.backend.entity.Translation;
-import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MovieRepository;
 import com.server.backend.repository.ResolutionRepository;
 import com.server.backend.repository.TranslationRepository;
@@ -39,7 +37,6 @@ public class MovieService {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
             String movieJsonString = sendMovieRequest(link);
-            System.out.println(movieJsonString);
             optionalMovie = parseMovieFromString(movieJsonString);
             optionalMovie.ifPresent(this::saveMovie);
         } else {

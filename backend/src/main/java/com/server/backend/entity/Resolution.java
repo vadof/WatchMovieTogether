@@ -25,6 +25,7 @@ public class Resolution {
     @NotBlank
     private String value;
 
+    @JsonIgnore
     @Lob
     private String videoLink;
 

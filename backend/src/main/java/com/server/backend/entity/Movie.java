@@ -21,6 +21,7 @@ public class Movie {
     private Long id;
 
     @NotBlank
+    @Column(unique = true)
     private String link;
 
     @NotBlank
@@ -32,6 +33,7 @@ public class Movie {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Translation> translations = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "selectedMovie")
     private List<GroupSettings> groupSettings = new ArrayList<>();
 
