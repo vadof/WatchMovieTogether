@@ -1,0 +1,68 @@
+.custom-scrollbar
+{
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: transparent;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-image: -webkit-gradient(linear,
+      left bottom,
+      left top,
+      color-stop(0.44, rgb(122,153,217)),
+      color-stop(0.72, rgb(73,125,189)),
+      color-stop(0.86, rgb(28,58,148)));
+  }
+}
+
+.chat-content {
+  height: 25rem;
+  overflow-y: auto;
+  padding: 0 1rem;
+}
+
+.message {
+  color: #b1d6fd;
+
+  display: flex;
+  flex-direction: column;
+
+  .message-info {
+    display: flex;
+    align-items: center;
+  }
+
+  .message-user {
+    font-weight: 700;
+  }
+
+  .message-time {
+    font-size: 14px;
+    margin-left: 0.5rem;
+  }
+
+  .message-content {
+    padding: 5px;
+    background-color: #b1d6fd;
+    color: #0f1b36;
+    border-radius: 10px;
+    max-width: 80%;
+  }
+}
+
+.my-message {
+  align-items: end;
+}
+
+.another-message {
+  align-items: start;
+}

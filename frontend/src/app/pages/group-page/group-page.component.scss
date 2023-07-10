@@ -1,4 +1,41 @@
-video {
-  width: auto;
-  height: 20rem;
+.group-settings {
+  padding-top: 2rem;
+
+  svg {
+    color: #b1d6fd;
+    cursor: pointer;
+  }
+
+  .settings-list {
+    background: none;
+    border-color: #b1d6fd;
+    padding: 0;
+    margin-top: 1.5rem;
+
+    a {
+      color: #b1d6fd;
+      cursor: pointer;
+
+      &:hover {
+        color: #080c2c;
+      }
+    }
+  }
+}
+
+.content {
+  padding-top: 5rem;
+}
+
+.video-content {
+  width: 70%;
+
+  video {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.chat {
+  width: 30%;
 }

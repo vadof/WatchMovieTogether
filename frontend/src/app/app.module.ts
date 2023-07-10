@@ -16,6 +16,7 @@ import { GroupFormComponent } from './components/group-form/group-form.component
 import { MovieFormComponent } from './components/movie-form/movie-form.component';
 import { MovieFormSettingsComponent } from './components/movie-form-settings/movie-form-settings.component';
 import { GroupPageComponent } from './pages/group-page/group-page.component';
+import { ChatComponent } from './components/chat/chat.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { GroupPageComponent } from './pages/group-page/group-page.component';
     MovieFormComponent,
     MovieFormSettingsComponent,
     GroupPageComponent,
+    ChatComponent,
   ],
   imports: [
     BrowserModule,
