@@ -1,5 +1,6 @@
 package com.server.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -29,5 +30,9 @@ public class Group {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "groups")
     private Set<User> users = new HashSet<>();
+
+    @JsonIgnore
+    @OneToOne
+    private Chat chat;
 
 }

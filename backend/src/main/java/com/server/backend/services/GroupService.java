@@ -2,15 +2,15 @@ package com.server.backend.services;
 
 import com.server.backend.entity.*;
 import com.server.backend.jwt.JwtService;
-import com.server.backend.repository.GroupRepository;
-import com.server.backend.repository.GroupSettingsRepository;
-import com.server.backend.repository.MovieRepository;
-import com.server.backend.repository.UserRepository;
+import com.server.backend.repository.*;
 import com.server.backend.requests.MovieSelectionRequest;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +21,7 @@ public class GroupService {
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final ChatRepository chatRepository;
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupService.class);
 
@@ -32,6 +33,11 @@ public class GroupService {
         group.getUsers().add(user);
         group.setAdmin(user.getUsername());
         group.getUsers().add(user);
+
+        Chat chat = new Chat();
+        chatRepository.save(chat);
+        group.setChat(chat);
+
         groupRepository.save(group);
 
         user.getGroups().add(group);
@@ -67,5 +73,14 @@ public class GroupService {
             LOG.error("Failed to set up movie for group " + e.getMessage());
             return false;
         }
+    }
+
+    public Optional<Chat> getGroupChat(Long groupId, String token) {
+        User user = jwtService.getUserFromBearerToken(token).orElseThrow();
+        Group group = groupRepository.findById(groupId).orElseThrow();
+        if (group.getUsers().stream().anyMatch(u -> u.equals(user))) {
+            return Optional.of(group.getChat());
+        }
+        return Optional.empty();
     }
 }

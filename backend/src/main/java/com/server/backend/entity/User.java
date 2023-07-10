@@ -57,6 +57,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @JsonIgnore
+    @OneToMany
+    private List<Message> messages;
+
     @PrePersist
     private void setDate() {
         this.registerDate = LocalDate.now();
