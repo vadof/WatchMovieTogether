@@ -4,6 +4,7 @@ import {User} from "../models/User";
 import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
 import {Translation} from "../models/Translation";
+import {Chat} from "../models/Chat";
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,23 @@ export class GroupService {
         reject(error)
       })
     })
+  }
+
+  public getGroupChat(group: Group) {
+    return new Promise<Chat>((resolve, reject) => {
+      this.api.sendGetRequest('/group/chat/' + group.id).subscribe(
+        res => {
+          resolve(this.getChatFromResponse(res))
+        }
+      )
+    })
+  }
+
+  private getChatFromResponse(res: any): Chat {
+    return {
+      id: res.id,
+      messages: res.messages
+    }
   }
 
   public async getGroupById(id: number): Promise<Group | undefined> {
@@ -69,7 +87,7 @@ export class GroupService {
       name: response.name,
       admin: response.admin,
       groupSettings: response.groupSettings,
-      users: []
+      users: [],
     };
 
     response.users.forEach((user: any) => {

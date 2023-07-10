@@ -1,17 +1,38 @@
 <app-navbar></app-navbar>
 
 <div class="container">
-  <div class="d-flex justify-content-between">
-    <div>
-      <div class="embed-responsive embed-responsive-16by9">
-        <video class="embed-responsive-item" controls>
+
+  <div class="group-settings text-end">
+
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         class="feather feather-settings"
+         data-bs-toggle="dropdown" aria-expanded="false">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+      </path>
+    </svg>
+
+    <ul class="dropdown-menu settings-list">
+      <li><a class="dropdown-item">Invite friends</a></li>
+      <li><a class="dropdown-item">Group settings</a></li>
+      <li><a class="dropdown-item">Leave from group</a></li>
+    </ul>
+  </div>
+
+
+  <div class="d-flex content">
+
+    <div class="video-content">
+        <video class="" controls>
           <source src="https://stream.voidboost.cc/f84a564ea8b36acf87a3e0c4c90889ab:2023071014:R3BPTTVxNHlpeFNCM1QyZUU4QURYR2VDdU1kcXFwMkw4RG5OckZhYStBQU5mZEhaZE9NTFMwbzFvSysrNGFZak5wYkJmdzRwVXZvbGx2eTJzOXZzWWc9PQ==/8/5/5/3/6/5/dbbdb.mp4"
                   type="video/mp4">
         </video>
-      </div>
     </div>
-    <div class="text-color-primary">
-      chat
+
+    <div *ngIf="chat" class="text-color-primary chat">
+      <app-chat [chat]="chat"></app-chat>
     </div>
+
   </div>
 </div>

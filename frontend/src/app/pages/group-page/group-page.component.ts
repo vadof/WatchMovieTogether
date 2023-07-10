@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {GroupService} from "../../services/group.service";
 import {Group} from "../../models/Group";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Chat} from "../../models/Chat";
 
 @Component({
   selector: 'app-group-page',
@@ -11,6 +12,8 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class GroupPageComponent implements OnInit {
 
   group: Group | undefined = undefined;
+  // @ts-ignore
+  chat: Chat;
 
   constructor(
     private groupService: GroupService,
@@ -26,10 +29,12 @@ export class GroupPageComponent implements OnInit {
       const group: Group | undefined = await this.groupService.getGroupById(id)
       if (group) {
         this.group = group;
+        await this.groupService.getGroupChat(this.group).then(
+          chat => this.chat = chat
+        )
       } else {
         this.router.navigate([''])
       }
     });
   }
-
 }

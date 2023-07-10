@@ -1,0 +1,20 @@
+<div class="chat-content custom-scrollbar">
+
+  <div *ngFor="let m of chat.messages; let i = index">
+    <div class="message"
+         [class.mt-3]="i !== 0"
+      [ngClass]="m.user.username === getUsernameFromStorage() ? 'my-message' : 'another-message'">
+      <div class="message-info">
+        <div class="message-user">{{ m.user.username }}</div>
+        <span class="message-time">{{ m.time }}</span>
+      </div>
+      <div class="message-content">{{ m.message }}</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="input-group mt-3">
+  <input type="text" class="form-control" placeholder="Write a message..." [(ngModel)]="message" (keyup.enter)="sendMessage()">
+  <button class="btn btn-outline-secondary" type="button" (click)="sendMessage()">Send</button>
+</div>
