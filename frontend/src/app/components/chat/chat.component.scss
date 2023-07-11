@@ -27,6 +27,7 @@
 .chat-content {
   height: 25rem;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 1rem;
 }
 

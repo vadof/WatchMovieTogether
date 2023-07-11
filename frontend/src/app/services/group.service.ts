@@ -20,7 +20,7 @@ export class GroupService {
   public async getAllGroups(): Promise<Group[]> {
     return await new Promise<Group[]>((resolve, reject) => {
       let groups: Group[] = []
-      this.api.sendPostRequest('/user/groups', null).subscribe(response => {
+      this.api.sendPostRequest('/users/groups', null).subscribe(response => {
         response.forEach((group: any) => {
           groups.push(this.saveGroup(group));
         })

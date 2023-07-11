@@ -1,0 +1,81 @@
+<app-navbar></app-navbar>
+
+<div class="container">
+
+  <div class="content row mt-3">
+    <div class="section col-lg-9">
+      <div *ngIf="currentSection === Section.MY_FRIENDS">
+        <app-my-friends></app-my-friends>
+      </div>
+
+      <div *ngIf="currentSection === Section.FRIEND_REQUESTS">
+        <app-friend-requests></app-friend-requests>
+      </div>
+
+      <div *ngIf="currentSection === Section.SEARCH_FRIENDS">
+        <app-search-friends></app-search-friends>
+      </div>
+    </div>
+
+    <div class="section-selection col-lg-3">
+      <ul class="list-group">
+        <li class="list-group-item"
+            (click)="currentSection = Section.MY_FRIENDS"
+            [ngClass]="{'active-item': currentSection === Section.MY_FRIENDS}">My friends
+        </li>
+        <li class="list-group-item"
+            (click)="currentSection = Section.FRIEND_REQUESTS"
+            [ngClass]="{'active-item': currentSection === Section.FRIEND_REQUESTS}">Friend requests
+        </li>
+        <li class="list-group-item"
+            (click)="currentSection = Section.SEARCH_FRIENDS"
+            [ngClass]="{'active-item': currentSection === Section.SEARCH_FRIENDS}">Search friends
+        </li>
+      </ul>
+    </div>
+  </div>
+
+<!--  <div class="d-flex justify-content-between align-items-center mt-3">-->
+
+<!--    <h3 class="friend-amount text-color-primary pt-2">-->
+<!--      Friends: {{ friends.length }}-->
+<!--    </h3>-->
+
+<!--    <div class="search-form d-flex">-->
+<!--      <input name="username"-->
+<!--             class="form-control username-input"-->
+<!--             [(ngModel)]="usernameInput"-->
+<!--             placeholder="Username">-->
+<!--      <button type="submit" class="btn btn-primary" (click)="findFriends()">Find friends</button>-->
+<!--    </div>-->
+
+<!--  </div>-->
+
+<!--  <div *ngIf="!showFoundFriends" class="friend-items mt-5 list-group d-flex justify-content-center">-->
+<!--    <app-friend-item *ngFor="let friend of friends" [friend]="friend">-->
+<!--    </app-friend-item>-->
+<!--  </div>-->
+
+<!--  <div *ngIf="showFoundFriends" class="text-color-primary found-friends mt-3">-->
+<!--    <h3 *ngIf="foundFriends.length === 0" class="text-center">No users found</h3>-->
+<!--    <div *ngFor="let friend of foundFriends; let i = index" class="d-flex justify-content-center">-->
+<!--      <div class="found-friends-item list-group-item d-flex justify-content-between-->
+<!--                  mb-3 text-color-primary bg-color-primary align-items-center">-->
+
+<!--        <div class="friend-info">-->
+<!--          <div class="username"><strong>{{ friend.username }}</strong></div>-->
+<!--          <div class="firstname-lastname">{{ friend.firstname }} {{ friend.lastname }}</div>-->
+<!--        </div>-->
+
+<!--        <button type="button" class="btn btn-main-no-hover"-->
+<!--                [ngClass]="{'disabled': disabledAddFriendButtons[i]}"-->
+<!--                (click)="addFriend(friend, i)">-->
+<!--          Add to friends-->
+<!--        </button>-->
+
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+
+</div>

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TokenStorageService} from "../auth/token-storage.service";
 import {Observable} from "rxjs";
-import {error} from "@angular/compiler-cli/src/transformers/util";
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +25,7 @@ export class ApiService {
     return this.http.post(this.API_URL + url, body, this.httpOptions)
   }
 
-  public sendGetRequest(url: string) {
+  public sendGetRequest(url: string): Observable<any> {
     return this.http.get(this.API_URL + url, this.httpOptions);
   }
 }
