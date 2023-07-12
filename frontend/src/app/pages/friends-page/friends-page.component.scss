@@ -1,0 +1,32 @@
+.section {
+
+}
+
+.selection {
+  .list-group {
+    border: 1px solid #b1d6fd;
+    border-radius: 2%;
+  }
+
+  li {
+    border: none;
+    color: #b1d6fd;
+    border-radius: 0;
+    cursor: pointer;
+    background-color: transparent;
+
+    &:hover {
+      background-color: #b1d6fd;
+      color: #080c2c;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: .5rem;
+    }
+  }
+
+  .active-item {
+    background-color: #b1d6fd;
+    color: #080c2c;
+  }
+}

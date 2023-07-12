@@ -1,0 +1,45 @@
+<div class="text-color-primary friend-requests">
+  <h3 *ngIf="!friends.length" class="text-center">No friends found</h3>
+  <div *ngFor="let friend of friends; let i = index" class="friend-items">
+    <div class="friend-item list-group-item d-flex justify-content-between align-items-center">
+
+      <div class="friend-info">
+        <div class="username"><strong>{{ friend.username }}</strong></div>
+        <div class="firstname-lastname">{{ friend.firstname }} {{ friend.lastname }}</div>
+      </div>
+
+      <div class="actions">
+        <div class="dropstart">
+          <svg class="bi bi-three-dots-vertical dropdown-toggle" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+          </svg>
+          <ul class="dropdown-menu dropdown-menu-end mt-1">
+            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="setClickedUser(friend)">Add to group</a></li>
+            <li><a class="dropdown-item" (click)="removeFromFriends(friend)">Remove from friends</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal-->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="header d-flex justify-content-between align-items-center">
+        <h2 class="header-title">Choose group</h2>
+        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </div>
+      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
+      <div class="group-items">
+        <div *ngFor="let group of filteredGroups" class="group-item d-flex justify-content-between align-items-center">
+          <div class="group-name">{{ group.name }}</div>
+          <button class="btn btn-main-no-hover" (click)="addUserToGroup(group)">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,7 @@ package com.server.backend.controllers;
 
 import com.server.backend.entity.Chat;
 import com.server.backend.entity.Group;
+import com.server.backend.entity.User;
 import com.server.backend.requests.MovieSelectionRequest;
 import com.server.backend.services.GroupService;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/group")
+@RequestMapping("/api/groups")
 @AllArgsConstructor
 public class GroupController {
 
@@ -34,5 +35,10 @@ public class GroupController {
     public ResponseEntity<Chat> getGroupChat(@PathVariable(value = "id") Long groupId,
                                              @RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(groupService.getGroupChat(groupId, token).orElseThrow());
+    }
+
+    @PostMapping("/{groupId}/users")
+    public void addUserToGroup(@PathVariable Long groupId, @RequestBody User user) {
+        this.groupService.addUserToGroup(groupId, user);
     }
 }

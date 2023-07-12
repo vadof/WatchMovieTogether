@@ -1,0 +1,27 @@
+<div class="input-group search-form">
+  <input type="search" class="form-control" placeholder="Search" [(ngModel)]="usernameInput" (keyup.enter)="searchFriends()"/>
+  <button type="button" class="btn btn-main" (click)="searchFriends()">
+    <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.82l3.9 3.9a.75.75 0 0 1-1.06 1.06l-3.9-3.9A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="currentColor"></path></svg>
+  </button>
+</div>
+
+
+<div *ngIf="showFoundFriends" class="text-color-primary found-friends mt-3">
+  <h3 *ngIf="foundFriends.length === 0" class="text-center">No users found</h3>
+  <div *ngFor="let friend of foundFriends; let i = index" class="found-friends-items">
+    <div class="found-friends-item list-group-item d-flex">
+
+      <div class="friend-info">
+        <div class="username"><strong>{{ friend.username }}</strong></div>
+        <div class="firstname-lastname">{{ friend.firstname }} {{ friend.lastname }}</div>
+      </div>
+
+      <button type="button" class="btn btn-main-no-hover"
+              [ngClass]="{'disabled': disabledAddFriendButtons[i]}"
+              (click)="addFriend(friend, i)">
+        Add to friends
+      </button>
+
+    </div>
+  </div>
+</div>

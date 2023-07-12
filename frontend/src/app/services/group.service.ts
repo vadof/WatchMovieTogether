@@ -20,7 +20,7 @@ export class GroupService {
   public async getAllGroups(): Promise<Group[]> {
     return await new Promise<Group[]>((resolve, reject) => {
       let groups: Group[] = []
-      this.api.sendPostRequest('/user/groups', null).subscribe(response => {
+      this.api.sendPostRequest('/users/groups', null).subscribe(response => {
         response.forEach((group: any) => {
           groups.push(this.saveGroup(group));
         })
@@ -34,7 +34,7 @@ export class GroupService {
 
   public getGroupChat(group: Group) {
     return new Promise<Chat>((resolve, reject) => {
-      this.api.sendGetRequest('/group/chat/' + group.id).subscribe(
+      this.api.sendGetRequest('/groups/chat/' + group.id).subscribe(
         res => {
           resolve(this.getChatFromResponse(res))
         }
@@ -56,7 +56,7 @@ export class GroupService {
 
   public createGroup(name: string): Promise<Group> {
     return new Promise<Group>((resolve, reject) => {
-      this.api.sendPostRequest('/group', name).subscribe(
+      this.api.sendPostRequest('/groups', name).subscribe(
         res => {
           resolve(this.saveGroup(res));
         },
@@ -74,7 +74,7 @@ export class GroupService {
       movie,
       selectedTranslation
     }
-    this.api.sendPostRequest('/group/movie', requestObj).subscribe(res => {
+    this.api.sendPostRequest('/groups/movie', requestObj).subscribe(res => {
       console.log(res)
     }, err => {
       console.log(err)
@@ -101,5 +101,9 @@ export class GroupService {
     });
 
     return group;
+  }
+
+  public addUserToGroup(group: Group, user: User) {
+    this.api.sendPostRequest('/groups/' + group.id + '/users', user).subscribe()
   }
 }

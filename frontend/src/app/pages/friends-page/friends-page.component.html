@@ -1,0 +1,41 @@
+<app-navbar xmlns="http://www.w3.org/1999/html"></app-navbar>
+
+<div class="container">
+
+  <div class="content row mt-3 flex-md-row flex-column-reverse">
+    <div class="col-md-3 empty-space"></div>
+    <div class="section col-md-6">
+      <div *ngIf="currentSection === Section.MY_FRIENDS">
+        <app-my-friends></app-my-friends>
+      </div>
+
+      <div *ngIf="currentSection === Section.FRIEND_REQUESTS">
+        <app-friend-requests></app-friend-requests>
+      </div>
+
+      <div *ngIf="currentSection === Section.SEARCH_FRIENDS">
+        <app-search-friends></app-search-friends>
+      </div>
+    </div>
+
+    <div class="selection col-md-3 mb-3">
+      <ul class="list-group">
+        <li class="list-group-item"
+            (click)="currentSection = Section.MY_FRIENDS"
+            [ngClass]="{'active-item': currentSection === Section.MY_FRIENDS}">My friends
+        </li>
+        <li class="list-group-item"
+            (click)="currentSection = Section.FRIEND_REQUESTS"
+            [ngClass]="{'active-item': currentSection === Section.FRIEND_REQUESTS}">Friend requests
+          <span *ngIf="friendRequests" class="badge rounded-pill bg-danger">
+            {{ friendRequests }}
+          </span>
+        </li>
+        <li class="list-group-item"
+            (click)="currentSection = Section.SEARCH_FRIENDS"
+            [ngClass]="{'active-item': currentSection === Section.SEARCH_FRIENDS}">Search friends
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

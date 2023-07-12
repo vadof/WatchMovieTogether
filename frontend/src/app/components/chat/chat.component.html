@@ -6,7 +6,7 @@
       [ngClass]="m.user.username === getUsernameFromStorage() ? 'my-message' : 'another-message'">
       <div class="message-info">
         <div class="message-user">{{ m.user.username }}</div>
-        <span class="message-time">{{ m.time }}</span>
+        <span class="message-time">{{ formatTime(m.time) }}</span>
       </div>
       <div class="message-content">{{ m.message }}</div>
     </div>

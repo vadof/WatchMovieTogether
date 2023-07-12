@@ -16,8 +16,7 @@ export class ChatComponent {
   constructor(
     private chatService: ChatService,
     private tokenStorage: TokenStorageService
-  ) {setTimeout(() => {
-    console.log(this.chat.messages)}, 3000)}
+  ) {}
 
   public sendMessage() {
     console.log(this.message)
@@ -27,5 +26,9 @@ export class ChatComponent {
 
   public getUsernameFromStorage(): string {
     return this.tokenStorage.getUsername()
+  }
+
+  public formatTime(time: string): string {
+    return time.split(' ')[1]
   }
 }

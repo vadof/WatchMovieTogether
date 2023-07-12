@@ -17,6 +17,10 @@ import { MovieFormComponent } from './components/movie-form/movie-form.component
 import { MovieFormSettingsComponent } from './components/movie-form-settings/movie-form-settings.component';
 import { GroupPageComponent } from './pages/group-page/group-page.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { FriendsPageComponent } from './pages/friends-page/friends-page.component';
+import { MyFriendsComponent } from './pages/friends-page/my-friends/my-friends.component';
+import { FriendRequestsComponent } from './pages/friends-page/friend-requests/friend-requests.component';
+import { SearchFriendsComponent } from './pages/friends-page/search-friends/search-friends.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +36,10 @@ import { ChatComponent } from './components/chat/chat.component';
     MovieFormSettingsComponent,
     GroupPageComponent,
     ChatComponent,
+    FriendsPageComponent,
+    MyFriendsComponent,
+    FriendRequestsComponent,
+    SearchFriendsComponent,
   ],
   imports: [
     BrowserModule,

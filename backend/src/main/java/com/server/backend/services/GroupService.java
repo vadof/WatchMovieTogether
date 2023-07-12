@@ -83,4 +83,17 @@ public class GroupService {
         }
         return Optional.empty();
     }
+
+    public void addUserToGroup(Long groupId, User user) {
+        Group group = groupRepository.findById(groupId).orElseThrow();
+        user = userRepository.findByUsername(user.getUsername()).orElseThrow();
+
+        if (!group.getUsers().contains(user)) {
+            group.getUsers().add(user);
+            groupRepository.save(group);
+
+            user.getGroups().add(group);
+            userRepository.save(user);
+        }
+    }
 }
