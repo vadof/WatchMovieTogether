@@ -27,9 +27,24 @@ public class UserController {
         return ResponseEntity.ok(this.userService.findMatchingUsersByUsername(username, token));
     }
 
-    @PostMapping("/friend_request")
+    @PostMapping("/friend_requests")
     public void sendFriendRequest(@RequestBody User user, @RequestHeader("Authorization") String token) {
         this.userService.sendFriendRequest(user, token);
+    }
+
+    @GetMapping("/friend_requests")
+    public ResponseEntity<List<User>> getFriendRequests(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(this.userService.getFriendRequests(token));
+    }
+
+    @PostMapping("/friend_requests/accept")
+    public void acceptFriendRequest(@RequestBody User user, @RequestHeader("Authorization") String token) {
+        this.userService.acceptFriendRequest(user, token);
+    }
+
+    @PostMapping("/friend_requests/deny")
+    public void denyFriendRequest(@RequestBody User user, @RequestHeader("Authorization") String token) {
+        this.userService.denyFriendRequest(user, token);
     }
 
 }

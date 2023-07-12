@@ -43,4 +43,30 @@ public class UserService {
             userRepository.save(to);
         }
     }
+
+    public List<User> getFriendRequests(String token) {
+        return jwtService.getUserFromBearerToken(token).orElseThrow().getFriendRequests();
+    }
+
+    public void acceptFriendRequest(User addedUser, String userTokenWhoAccepted) {
+        User userWhoAccepted = jwtService.getUserFromBearerToken(userTokenWhoAccepted).orElseThrow();
+        addedUser = userRepository.findByUsername(addedUser.getUsername()).orElseThrow();
+
+        userWhoAccepted.getFriendRequests().remove(addedUser);
+
+        userWhoAccepted.getFriends().add(addedUser);
+        addedUser.getFriends().add(userWhoAccepted);
+
+        userRepository.save(userWhoAccepted);
+        userRepository.save(addedUser);
+    }
+
+    public void denyFriendRequest(User deniedUser, String userTokenWhoDenied) {
+        User userWhoDenied = jwtService.getUserFromBearerToken(userTokenWhoDenied).orElseThrow();
+        deniedUser = userRepository.findByUsername(deniedUser.getUsername()).orElseThrow();
+
+        userWhoDenied.getFriendRequests().remove(deniedUser);
+
+        userRepository.save(userWhoDenied);
+    }
 }
