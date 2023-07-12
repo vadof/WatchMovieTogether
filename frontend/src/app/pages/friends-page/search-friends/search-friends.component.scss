@@ -1,0 +1,30 @@
+.search-form {
+
+  svg {
+    width: 4rem;
+  }
+}
+
+.found-friends-items {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
+}
+
+.found-friends-item {
+
+  .friend-info {
+    background-color: #080c2c;
+    border-top-left-radius: .5rem;
+    border-bottom-left-radius: .5rem;
+    padding: .5rem;
+    width: 100%;
+  }
+
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 30%;
+  }
+}

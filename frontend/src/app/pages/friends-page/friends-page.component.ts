@@ -12,13 +12,8 @@ import {Section} from "./Section";
 export class FriendsPageComponent implements OnInit {
 
   friends: User[] = []
-  public disabledAddFriendButtons: boolean[] = [];
 
   currentSection = Section.MY_FRIENDS
-
-  usernameInput: string = ''
-  showFoundFriends: boolean = false
-  foundFriends: User[] = []
 
   constructor(
     private friendService: FriendService,
@@ -27,24 +22,6 @@ export class FriendsPageComponent implements OnInit {
 
   ngOnInit(): void {
 
-  }
-
-  public findFriends(): void {
-    if (this.usernameInput.length > 0
-      && this.tokenStorage.getUsername() !== this.usernameInput) {
-      this.showFoundFriends = false
-      this.friendService.findFriends(this.usernameInput)
-        .then(res => {
-          this.showFoundFriends = true;
-          this.foundFriends = res;
-        });
-    }
-    this.usernameInput = ''
-  }
-
-  public addFriend(user: User, index: number) {
-    this.disabledAddFriendButtons[index] = true;
-    this.friendService.sendFriendRequest(user);
   }
 
   protected readonly Section = Section;
