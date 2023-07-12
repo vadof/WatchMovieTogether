@@ -3,6 +3,7 @@ import {FriendService} from "../../services/friend.service";
 import {User} from "../../models/User";
 import {TokenStorageService} from "../../auth/token-storage.service";
 import {Section} from "./Section";
+import {FriendRequestsComponent} from "./friend-requests/friend-requests.component";
 
 @Component({
   selector: 'app-friends-page',
@@ -11,7 +12,8 @@ import {Section} from "./Section";
 })
 export class FriendsPageComponent implements OnInit {
 
-  currentSection = Section.FRIEND_REQUESTS
+  currentSection = Section.MY_FRIENDS
+  friendRequests: number = 0
 
   constructor(
     private friendService: FriendService,
@@ -19,7 +21,8 @@ export class FriendsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-
+    this.friendService.getFriendRequests().then(
+      res => this.friendRequests = res.length)
   }
 
   protected readonly Section = Section;

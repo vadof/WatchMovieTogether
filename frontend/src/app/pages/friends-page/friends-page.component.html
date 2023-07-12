@@ -2,9 +2,9 @@
 
 <div class="container">
 
-  <div class="content row mt-3">
-    <div class="col-lg-3 empty-space"></div>
-    <div class="section col-lg-6">
+  <div class="content row mt-3 flex-md-row flex-column-reverse">
+    <div class="col-md-3 empty-space"></div>
+    <div class="section col-md-6">
       <div *ngIf="currentSection === Section.MY_FRIENDS">
         <app-my-friends></app-my-friends>
       </div>
@@ -18,17 +18,17 @@
       </div>
     </div>
 
-    <div class="selection col-lg-3">
+    <div class="selection col-md-3 mb-3">
       <ul class="list-group">
         <li class="list-group-item"
             (click)="currentSection = Section.MY_FRIENDS"
             [ngClass]="{'active-item': currentSection === Section.MY_FRIENDS}">My friends
         </li>
-        <li class="list-group-item position-relative"
+        <li class="list-group-item"
             (click)="currentSection = Section.FRIEND_REQUESTS"
             [ngClass]="{'active-item': currentSection === Section.FRIEND_REQUESTS}">Friend requests
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            99+<span class="visually-hidden">unread messages</span>
+          <span *ngIf="friendRequests" class="badge rounded-pill bg-danger">
+            {{ friendRequests }}
           </span>
         </li>
         <li class="list-group-item"

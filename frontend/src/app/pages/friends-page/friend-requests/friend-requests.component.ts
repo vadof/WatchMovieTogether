@@ -19,21 +19,11 @@ export class FriendRequestsComponent implements OnInit {
     this.friendService.getFriendRequests()
       .then(res => {
         this.friendRequests = res;
-        // let u: User = {
-        //   username: 'dyracho',
-        //   firstname: 'Anton',
-        //   lastname: 'Petuhov'
-        // }
-        // this.friendRequests.push(u);
       });
   }
 
   public replyToFriendRequestRequest(user: User, accept: boolean) {
     this.friendService.replyToFriendRequest(user, accept)
-
-    const index = this.friendRequests.indexOf(user);
-    if (index !== -1) {
-      this.friendRequests.splice(index, 1);
-    }
+    this.friendRequests.splice(this.friendRequests.indexOf(user), 1);
   }
 }

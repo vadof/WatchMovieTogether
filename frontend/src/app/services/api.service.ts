@@ -28,4 +28,8 @@ export class ApiService {
   public sendGetRequest(url: string): Observable<any> {
     return this.http.get(this.API_URL + url, this.httpOptions);
   }
+
+  public sendDeleteRequest(url: string): Observable<any> {
+    return this.http.delete(this.API_URL + url, this.httpOptions);
+  }
 }
