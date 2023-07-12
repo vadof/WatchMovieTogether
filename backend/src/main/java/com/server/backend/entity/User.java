@@ -9,10 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -52,6 +49,14 @@ public class User implements UserDetails {
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Group> groups = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany
+    private List<User> friends = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany
+    private List<User> friendRequests = new ArrayList<>();
 
     @JsonIgnore
     @Enumerated(EnumType.STRING)
