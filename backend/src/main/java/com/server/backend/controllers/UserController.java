@@ -21,6 +21,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserGroups(token));
     }
 
+    @GetMapping("/friends")
+    public ResponseEntity<List<User>> getFriends(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(this.userService.getUserFriends(token));
+    }
+
+    @DeleteMapping("/friends/{username}")
+    public void removeFriend(@PathVariable String username, @RequestHeader("Authorization") String token) {
+        this.userService.removeFriend(username, token);
+    }
+
     @GetMapping("/search/{username}")
     public ResponseEntity<Set<User>> findMatchingUsersByUsername(@PathVariable String username,
                                                                  @RequestHeader("Authorization") String token) {

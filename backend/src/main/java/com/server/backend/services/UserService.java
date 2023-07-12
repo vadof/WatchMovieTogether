@@ -23,6 +23,10 @@ public class UserService {
         return user.getGroups().stream().toList();
     }
 
+    public List<User> getUserFriends(String token) {
+        return this.jwtService.getUserFromBearerToken(token).orElseThrow().getFriends();
+    }
+
     public Set<User> findMatchingUsersByUsername(String username, String token) {
         User exceptUser = jwtService.getUserFromBearerToken(token).orElseThrow();
 
@@ -68,5 +72,16 @@ public class UserService {
         userWhoDenied.getFriendRequests().remove(deniedUser);
 
         userRepository.save(userWhoDenied);
+    }
+
+    public void removeFriend(String username, String token) {
+        User user = jwtService.getUserFromBearerToken(token).orElseThrow();
+        User userToRemove = userRepository.findByUsername(username).orElseThrow();
+
+        user.getFriends().remove(userToRemove);
+        userToRemove.getFriends().remove(user);
+
+        userRepository.save(user);
+        userRepository.save(userToRemove);
     }
 }
