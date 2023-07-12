@@ -11,9 +11,7 @@ import {Section} from "./Section";
 })
 export class FriendsPageComponent implements OnInit {
 
-  friends: User[] = []
-
-  currentSection = Section.MY_FRIENDS
+  currentSection = Section.FRIEND_REQUESTS
 
   constructor(
     private friendService: FriendService,
