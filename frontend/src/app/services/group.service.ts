@@ -106,4 +106,8 @@ export class GroupService {
   public addUserToGroup(group: Group, user: User) {
     this.api.sendPostRequest('/groups/' + group.id + '/users', user).subscribe()
   }
+
+  removeUserFromGroup(groupId: number, username: string) {
+    this.api.sendDeleteRequest('/groups/' + groupId + '/users/' + username).subscribe()
+  }
 }
