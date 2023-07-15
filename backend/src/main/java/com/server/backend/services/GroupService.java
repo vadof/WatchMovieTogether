@@ -96,4 +96,23 @@ public class GroupService {
             userRepository.save(user);
         }
     }
+
+    public void removeUserFromGroup(Long groupId, String username) {
+        Group group = groupRepository.findById(groupId).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        group.getUsers().remove(user);
+        user.getGroups().remove(group);
+        userRepository.save(user);
+
+        if (group.getUsers().isEmpty()) {
+            groupRepository.delete(group);
+        } else {
+            if (group.getAdmin().equals(user.getUsername())) {
+                group.setAdmin(group.getUsers().stream().findFirst().get().getUsername());
+            }
+
+            groupRepository.save(group);
+        }
+    }
 }

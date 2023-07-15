@@ -25,14 +25,14 @@ public class Group {
     @NotBlank
     private String admin;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private GroupSettings groupSettings;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "groups")
     private Set<User> users = new HashSet<>();
 
     @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Chat chat;
 
 }

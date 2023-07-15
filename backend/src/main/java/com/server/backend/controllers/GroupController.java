@@ -41,4 +41,9 @@ public class GroupController {
     public void addUserToGroup(@PathVariable Long groupId, @RequestBody User user) {
         this.groupService.addUserToGroup(groupId, user);
     }
+
+    @DeleteMapping("/{groupId}/users/{username}")
+    public void removeUserFromGroup(@PathVariable Long groupId, @PathVariable String username) {
+        this.groupService.removeUserFromGroup(groupId, username);
+    }
 }
