@@ -115,4 +115,19 @@ public class GroupService {
             groupRepository.save(group);
         }
     }
+
+    public void changeMovieTranslation(Long groupId, Translation translation) {
+        Group group = groupRepository.findById(groupId).orElseThrow();
+        Movie movie = group.getGroupSettings().getSelectedMovie();
+
+        if (!translation.equals(group.getGroupSettings().getSelectedTranslation())) {
+            Translation translation1 = movie.getTranslations()
+                    .stream()
+                    .filter(t -> t.getName().equals(translation.getName()))
+                    .findFirst().orElseThrow();
+
+            group.getGroupSettings().setSelectedTranslation(translation1);
+            groupRepository.save(group);
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.server.backend.controllers;
 
 import com.server.backend.entity.Chat;
 import com.server.backend.entity.Group;
+import com.server.backend.entity.Translation;
 import com.server.backend.entity.User;
 import com.server.backend.requests.MovieSelectionRequest;
 import com.server.backend.services.GroupService;
@@ -45,5 +46,10 @@ public class GroupController {
     @DeleteMapping("/{groupId}/users/{username}")
     public void removeUserFromGroup(@PathVariable Long groupId, @PathVariable String username) {
         this.groupService.removeUserFromGroup(groupId, username);
+    }
+
+    @PutMapping("/{groupId}/translation")
+    public void changeMovieTranslationForGroup(@PathVariable Long groupId, @RequestBody Translation translation) {
+        this.groupService.changeMovieTranslation(groupId, translation);
     }
 }
