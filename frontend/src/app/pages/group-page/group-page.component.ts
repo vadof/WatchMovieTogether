@@ -6,6 +6,8 @@ import {Chat} from "../../models/Chat";
 import {TokenStorageService} from "../../auth/token-storage.service";
 import {User} from "../../models/User";
 import {FriendService} from "../../services/friend.service";
+import {MovieService} from "../../services/movie.service";
+import {Translation} from "../../models/Translation";
 
 @Component({
   selector: 'app-group-page',
@@ -19,15 +21,16 @@ export class GroupPageComponent implements OnInit {
   // @ts-ignore
   chat: Chat
   notInGroupUsers: User[] = []
-
   checkedUsers: User[] = []
+  chooseAnotherMovie: boolean = false
 
   constructor(
     private groupService: GroupService,
     private route: ActivatedRoute,
     private router: Router,
     private tokenStorage: TokenStorageService,
-    private friendService: FriendService
+    private friendService: FriendService,
+    private movieService: MovieService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +40,10 @@ export class GroupPageComponent implements OnInit {
       const group: Group | undefined = await this.groupService.getGroupById(id)
       if (group) {
         this.group = group;
+
+        if (group.groupSettings) {
+          this.movieService.selectedTranslation = group.groupSettings.selectedTranslation
+        }
 
         await this.groupService.getGroupChat(this.group)
           .then(chat => this.chat = chat)
@@ -96,5 +103,22 @@ export class GroupPageComponent implements OnInit {
 
   public userIsAdmin(user: User): boolean {
     return this.group.admin === user.username
+  }
+
+  setMovie() {
+    let selectedTranslation: any = this.movieService.selectedTranslation
+    let movie = this.movieService.movie
+    if (selectedTranslation && movie) {
+      this.groupService.selectMovieForGroup(this.group, movie, selectedTranslation)
+      this.movieService.selectedTranslation = null;
+      this.movieService.movie = null;
+    }
+  }
+
+  changeMovieTranslation() {
+    if (this.group.groupSettings.selectedTranslation.name !== this.movieService.selectedTranslation?.name
+                  && this.movieService.selectedTranslation) {
+      this.groupService.changeMovieTranslation(this.movieService.selectedTranslation, this.group)
+    }
   }
 }

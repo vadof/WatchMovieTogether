@@ -1,8 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Movie} from "../../models/Movie";
-import {Resolution} from "../../models/Resolution";
 import {MovieService} from "../../services/movie.service";
-import {Translation} from "../../models/Translation";
 
 @Component({
   selector: 'app-movie-form-settings',
@@ -13,20 +11,11 @@ export class MovieFormSettingsComponent {
   // @ts-ignore
   @Input() movie: Movie
 
-  constructor(private movieService: MovieService) {}
+  selectedTranslation: any = this.movieService.selectedTranslation
 
-  selectedTranslation: any = this.movieService.selectedTranslation;
-  selectedResolution: any = this.movieService.selectedResolution;
+  constructor(private movieService: MovieService) {}
 
   selectTranslation(translation: any) {
     this.selectedTranslation = this.movieService.selectedTranslation = translation;
-  }
-
-  selectResolution(resolution: any) {
-    this.selectedResolution = this.movieService.selectedResolution = resolution;
-  }
-
-  getTranslationResolutions(): Resolution[] {
-    return this.selectedTranslation.resolutions.reverse();
   }
 }

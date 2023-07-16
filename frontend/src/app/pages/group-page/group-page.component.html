@@ -9,9 +9,14 @@
       <a class="group-people h5" data-bs-toggle="modal" data-bs-target="#membersModal" (click)="t()">{{ group.users.length + (group.users.length === 1 ? ' member': ' members')}}</a>
     </div>
 
-    <h2 class="movie-name" *ngIf="group.groupSettings">
-      {{ group.groupSettings.selectedMovie.name }}
-    </h2>
+    <div class="movie-info text-color-primary text-center">
+      <h2 class="movie-name text-color-primary" *ngIf="group.groupSettings">
+        {{ group.groupSettings.selectedMovie.name }}
+      </h2>
+      <h5 *ngIf="group.groupSettings">
+        Translation: {{ group.groupSettings.selectedTranslation.name }}
+      </h5>
+    </div>
 
     <div class="group-settings dropstart">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -25,7 +30,7 @@
 
       <ul class="dropdown-menu settings-list">
         <li><a class="dropdown-item" data-bs-target="#membersAddModal" data-bs-toggle="modal">Invite friends</a></li>
-        <li *ngIf="isAdmin()"><a class="dropdown-item">Movie settings</a></li>
+        <li *ngIf="isAdmin()"><a class="dropdown-item" data-bs-target="#movieSettingsModal" data-bs-toggle="modal">Movie settings</a></li>
         <li><a class="dropdown-item" (click)="leaveFromGroup()">Leave from group</a></li>
       </ul>
     </div>
@@ -125,35 +130,36 @@
 </div>
 
 
-<!--  Modal for movie settings  -->
-<!--<div class="modal fade members-add-modal" id="movieSettingsModal" aria-hidden="true" aria-labelledby="movieSettingsLabel" tabindex="-1">-->
-<!--  <div class="modal-dialog">-->
-<!--    <div class="modal-content">-->
+<!--  Modal for movie settings-->
+<div class="modal fade movie-settings-modal" id="movieSettingsModal" aria-hidden="true" aria-labelledby="movieSettingsLabel" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
-<!--      <div class="header d-flex justify-content-between align-items-center">-->
-<!--        <h2 class="header-title">Add members</h2>-->
-<!--        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>-->
-<!--        </svg>-->
-<!--      </div>-->
+      <div class="header d-flex justify-content-between align-items-center">
+        <h2 class="header-title">
+          {{ group.groupSettings ? group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}
+        </h2>
+        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </div>
 
-<!--      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>-->
+      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
 
-<!--      <div class="members">-->
-<!--        <div *ngFor="let user of notInGroupUsers" class="user-item d-flex justify-content-between align-items-center">-->
-<!--          <div class="user-info">-->
-<!--            <div class="user-username">{{ user.username }}</div>-->
-<!--            <div class="user-fullname">{{ user.firstname + ' ' + user.lastname }}</div>-->
-<!--          </div>-->
-<!--          <input class="form-check-input custom-checkbox" type="checkbox" (change)="addUserToChecked(user)">-->
-<!--        </div>-->
-<!--      </div>-->
+      <div class="movie-settings-body">
+        <div *ngIf="group.groupSettings && !chooseAnotherMovie; else selectMovie">
+          <button class="btn btn-main-no-hover mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
+          <app-movie-form-settings [movie]="group.groupSettings.selectedMovie"></app-movie-form-settings>
+          <button class="btn btn-main mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
+        </div>
 
-<!--      <div *ngIf="checkedUsers.length" class="d-flex justify-content-end add-members svg-element" (click)="addUsersToGroup()">-->
-<!--        <a data-bs-toggle="modal">-->
-<!--          <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">&lt;!&ndash;! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. &ndash;&gt;<path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>-->
-<!--        </a>-->
-<!--      </div>-->
+        <ng-template #selectMovie>
+          <button *ngIf="chooseAnotherMovie" class="btn btn-main-no-hover mb-3 text-center w-100"
+                  (click)="chooseAnotherMovie = !chooseAnotherMovie">Cancel</button>
+          <app-movie-form></app-movie-form>
+          <button class="btn btn-main mt-3 text-center w-100" (click)="setMovie()" data-bs-dismiss="modal">Save</button>
+        </ng-template>
+      </div>
 
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
+    </div>
+  </div>
+</div>

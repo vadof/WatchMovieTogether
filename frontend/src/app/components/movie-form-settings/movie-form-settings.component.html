@@ -7,8 +7,8 @@
       <div *ngFor="let t of movie.translations">
         <button type="button" class="btn mb-2"
                 [ngClass]="{
-                'btn-selected': t === selectedTranslation,
-                'btn-main': t !== selectedTranslation
+                'btn-selected': t.name === selectedTranslation.name,
+                'btn-main': t.name !== selectedTranslation.name
                 }"
                 (click)="selectTranslation(t)">
           {{ t.name }}
@@ -16,23 +16,6 @@
       </div>
     </div>
   </div>
-
-  <div class="resolutions">
-    <h4 class="text-center">Choose resolution:</h4>
-    <div class="buttons row justify-content-start text-center">
-      <div *ngFor="let r of getTranslationResolutions(); let i = index" class="col-lg-5">
-        <button type="button" class="btn mb-2"
-                [ngClass]="{
-                    'btn-selected': r === selectedResolution,
-                    'btn-main': r !== selectedResolution
-                  }"
-                (click)="selectResolution(r)">
-          {{ r.value }}
-        </button>
-      </div>
-    </div>
-  </div>
-
 
 </div>
 

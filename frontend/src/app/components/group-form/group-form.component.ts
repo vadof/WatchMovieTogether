@@ -56,7 +56,6 @@ export class GroupFormComponent {
       this.errorMessage = 'Fill in the empty fields!'
     }
   }
-
   private async createGroup() {
     return await this.groupService.createGroup(this.groupForm.value.name);
   }
