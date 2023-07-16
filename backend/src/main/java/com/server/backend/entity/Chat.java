@@ -25,6 +25,6 @@ public class Chat {
     @OneToOne(mappedBy = "chat")
     private Group group;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Message> messages = new ArrayList<>();
 }

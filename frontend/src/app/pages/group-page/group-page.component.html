@@ -2,24 +2,39 @@
 
 <div class="container">
 
-  <div class="group-settings text-end">
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         class="feather feather-settings"
-         data-bs-toggle="dropdown" aria-expanded="false">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-      </path>
-    </svg>
+  <div class="group-info-section d-flex justify-content-between align-items-center">
+    <div class="text-color-primary">
+      <h3 class="group-name fw-bold">{{ group.name }}</h3>
+      <a class="group-people h5" data-bs-toggle="modal" data-bs-target="#membersModal" (click)="t()">{{ group.users.length + (group.users.length === 1 ? ' member': ' members')}}</a>
+    </div>
 
-    <ul class="dropdown-menu settings-list">
-      <li><a class="dropdown-item">Invite friends</a></li>
-      <li><a class="dropdown-item">Group settings</a></li>
-      <li><a class="dropdown-item">Leave from group</a></li>
-    </ul>
+    <div class="movie-info text-color-primary text-center">
+      <h2 class="movie-name text-color-primary" *ngIf="group.groupSettings">
+        {{ group.groupSettings.selectedMovie.name }}
+      </h2>
+      <h5 *ngIf="group.groupSettings">
+        Translation: {{ group.groupSettings.selectedTranslation.name }}
+      </h5>
+    </div>
+
+    <div class="group-settings dropstart">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           class="feather feather-settings"
+           data-bs-toggle="dropdown" aria-expanded="false">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+        </path>
+      </svg>
+
+      <ul class="dropdown-menu settings-list">
+        <li><a class="dropdown-item" data-bs-target="#membersAddModal" data-bs-toggle="modal">Invite friends</a></li>
+        <li *ngIf="isAdmin()"><a class="dropdown-item" data-bs-target="#movieSettingsModal" data-bs-toggle="modal">Movie settings</a></li>
+        <li><a class="dropdown-item" (click)="leaveFromGroup()">Leave from group</a></li>
+      </ul>
+    </div>
   </div>
-
 
   <div class="d-flex content">
 
@@ -34,5 +49,117 @@
       <app-chat [chat]="chat"></app-chat>
     </div>
 
+  </div>
+</div>
+
+
+<!--  Modal for members info  -->
+<div class="modal fade members-modal" id="membersModal" tabindex="-1" aria-labelledby="membersModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="header d-flex justify-content-between align-items-center">
+        <h2 class="header-title">Members</h2>
+        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </div>
+
+      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
+
+      <div class="members">
+        <div *ngFor="let user of group.users" class="user-item d-flex justify-content-between align-items-center">
+          <div class="user-info">
+            <div class="user-username">{{ user.username }} <span *ngIf="userIsAdmin(user)" class="fw-bold text-danger">*</span></div>
+            <div class="user-fullname">{{ user.firstname + ' ' + user.lastname }}</div>
+          </div>
+          <button *ngIf="isAdmin() && !userIsAdmin(user)" class="btn btn-main-no-hover"
+                  (click)="removeUserFromGroup(user)">Remove from group
+          </button>
+        </div>
+      </div>
+
+      <div class="add-members svg-element d-flex justify-content-end">
+        <a data-bs-toggle="modal" data-bs-target="#membersAddModal">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+            <path class="rounded-circle" d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--  Modal for adding users  -->
+<div class="modal fade members-add-modal" id="membersAddModal" aria-hidden="true" aria-labelledby="usersAddModalLabel" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="header d-flex justify-content-between align-items-center">
+        <div class="svg-element d-flex justify-content-start">
+          <a data-bs-toggle="modal" data-bs-target="#membersModal">
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+          </a>
+        </div>
+        <h2 class="header-title">Add members</h2>
+        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </div>
+
+      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
+
+      <div class="members">
+        <div *ngFor="let user of notInGroupUsers" class="user-item d-flex justify-content-between align-items-center">
+          <div class="user-info">
+            <div class="user-username">{{ user.username }}</div>
+            <div class="user-fullname">{{ user.firstname + ' ' + user.lastname }}</div>
+          </div>
+          <input class="form-check-input custom-checkbox" type="checkbox" (change)="addUserToChecked(user)">
+        </div>
+      </div>
+
+      <div *ngIf="checkedUsers.length" class="d-flex justify-content-end add-members svg-element" (click)="addUsersToGroup()">
+        <a data-bs-toggle="modal">
+          <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--  Modal for movie settings-->
+<div class="modal fade movie-settings-modal" id="movieSettingsModal" aria-hidden="true" aria-labelledby="movieSettingsLabel" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="header d-flex justify-content-between align-items-center">
+        <h2 class="header-title">
+          {{ group.groupSettings ? group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}
+        </h2>
+        <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+        </svg>
+      </div>
+
+      <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
+
+      <div class="movie-settings-body">
+        <div *ngIf="group.groupSettings && !chooseAnotherMovie; else selectMovie">
+          <button class="btn btn-main-no-hover mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
+          <app-movie-form-settings [movie]="group.groupSettings.selectedMovie"></app-movie-form-settings>
+          <button class="btn btn-main mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
+        </div>
+
+        <ng-template #selectMovie>
+          <button *ngIf="chooseAnotherMovie" class="btn btn-main-no-hover mb-3 text-center w-100"
+                  (click)="chooseAnotherMovie = !chooseAnotherMovie">Cancel</button>
+          <app-movie-form></app-movie-form>
+          <button class="btn btn-main mt-3 text-center w-100" (click)="setMovie()" data-bs-dismiss="modal">Save</button>
+        </ng-template>
+      </div>
+
+    </div>
   </div>
 </div>

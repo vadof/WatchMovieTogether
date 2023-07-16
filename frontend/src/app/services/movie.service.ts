@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
 import {Translation} from "../models/Translation";
-import {Resolution} from "../models/Resolution";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +10,6 @@ export class MovieService {
 
   movie: Movie | null = null;
   selectedTranslation: Translation | null = null;
-  selectedResolution: Resolution | null = null;
 
   constructor(private api: ApiService) { }
 

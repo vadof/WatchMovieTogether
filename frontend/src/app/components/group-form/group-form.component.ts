@@ -44,15 +44,18 @@ export class GroupFormComponent {
 
     if (movie && selectedTranslation && this.groupForm.valid) {
       this.createGroup()
-        .then(group=>
-          this.groupService.selectMovieForGroup(group, movie, selectedTranslation))
+        .then(group=> {
+          this.groupService.selectMovieForGroup(group, movie, selectedTranslation)
+          this.router.navigate(['group/' + group.id])
+        })
     } else if (this.groupForm.valid) {
       this.createGroup()
+        .then(group=>
+          this.router.navigate(['group/' + group.id]))
     } else {
       this.errorMessage = 'Fill in the empty fields!'
     }
   }
-
   private async createGroup() {
     return await this.groupService.createGroup(this.groupForm.value.name);
   }

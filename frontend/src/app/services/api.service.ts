@@ -32,4 +32,8 @@ export class ApiService {
   public sendDeleteRequest(url: string): Observable<any> {
     return this.http.delete(this.API_URL + url, this.httpOptions);
   }
+
+  public sendPutRequest(url: string, body: any): Observable<any> {
+    return this.http.put(this.API_URL + url, body, this.httpOptions)
+  }
 }
