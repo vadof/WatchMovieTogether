@@ -8,7 +8,7 @@
         <button type="button" class="btn mb-2"
                 [ngClass]="{
                 'btn-selected': t.name === selectedTranslation.name,
-                'btn-main': t.name !== selectedTranslation.name
+                'btn-main btn-scale': t.name !== selectedTranslation.name
                 }"
                 (click)="selectTranslation(t)">
           {{ t.name }}

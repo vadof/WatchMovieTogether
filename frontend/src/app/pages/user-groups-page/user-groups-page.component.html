@@ -5,7 +5,7 @@
 
     <div *ngIf="createGroup; else content">
       <div class="back-to-content text-start">
-        <a class="btn btn-main-no-hover" (click)="createGroup = false">Back</a>
+        <a class="btn btn-main" (click)="createGroup = false">Back</a>
       </div>
       <app-group-form></app-group-form>
     </div>
@@ -14,7 +14,7 @@
       <div class="group-page">
 
         <div class="create-group text-end">
-          <a class="btn btn-main-no-hover" (click)="createGroup = true">Create New Group</a>
+          <a class="btn btn-main" (click)="createGroup = true">Create New Group</a>
         </div>
 
         <div class="group-items mt-5 list-group d-flex justify-content-center">
@@ -32,4 +32,3 @@
   </div>
 
 </section>
-<!--<app-footer></app-footer>-->

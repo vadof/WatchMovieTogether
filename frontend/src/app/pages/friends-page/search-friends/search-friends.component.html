@@ -1,6 +1,6 @@
 <div class="input-group search-form">
   <input type="search" class="form-control" placeholder="Search" [(ngModel)]="usernameInput" (keyup.enter)="searchFriends()"/>
-  <button type="button" class="btn btn-main" (click)="searchFriends()">
+  <button type="button" class="btn btn-main btn-scale" (click)="searchFriends()">
     <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 1a5.5 5.5 0 0 1 4.38 8.82l3.9 3.9a.75.75 0 0 1-1.06 1.06l-3.9-3.9A5.5 5.5 0 1 1 6.5 1zm0 1.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="currentColor"></path></svg>
   </button>
 </div>
@@ -16,7 +16,7 @@
         <div class="firstname-lastname">{{ friend.firstname }} {{ friend.lastname }}</div>
       </div>
 
-      <button type="button" class="btn btn-main-no-hover"
+      <button type="button" class="btn btn-main"
               [ngClass]="{'disabled': disabledAddFriendButtons[i]}"
               (click)="addFriend(friend, i)">
         Add to friends

@@ -72,7 +72,7 @@
             <div class="user-username">{{ user.username }} <span *ngIf="userIsAdmin(user)" class="fw-bold text-danger">*</span></div>
             <div class="user-fullname">{{ user.firstname + ' ' + user.lastname }}</div>
           </div>
-          <button *ngIf="isAdmin() && !userIsAdmin(user)" class="btn btn-main-no-hover"
+          <button *ngIf="isAdmin() && !userIsAdmin(user)" class="btn btn-main"
                   (click)="removeUserFromGroup(user)">Remove from group
           </button>
         </div>
@@ -147,16 +147,16 @@
 
       <div class="movie-settings-body">
         <div *ngIf="group.groupSettings && !chooseAnotherMovie; else selectMovie">
-          <button class="btn btn-main-no-hover mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
+          <button class="btn btn-main mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
           <app-movie-form-settings [movie]="group.groupSettings.selectedMovie"></app-movie-form-settings>
-          <button class="btn btn-main mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
+          <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
         </div>
 
         <ng-template #selectMovie>
-          <button *ngIf="chooseAnotherMovie" class="btn btn-main-no-hover mb-3 text-center w-100"
+          <button *ngIf="chooseAnotherMovie" class="btn btn-main mb-3 text-center w-100"
                   (click)="chooseAnotherMovie = !chooseAnotherMovie">Cancel</button>
           <app-movie-form></app-movie-form>
-          <button class="btn btn-main mt-3 text-center w-100" (click)="setMovie()" data-bs-dismiss="modal">Save</button>
+          <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="setMovie()" data-bs-dismiss="modal">Save</button>
         </ng-template>
       </div>
 

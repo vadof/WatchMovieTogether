@@ -28,19 +28,11 @@
     color: #b1d6fd;
     background: rgb(24,4,96);
     background: linear-gradient(119deg, rgba(24,4,96,1) 0%, rgba(43,41,133,1) 91%);
-    scale: 1.2;
   }
 }
 
-.btn-main-no-hover {
-  color: #b1d6fd;
-  border: none;
-  font-weight: 600;
-
-  background: rgb(43,41,133);
-  background: linear-gradient(119deg, rgba(43,41,133,1) 0%, rgba(56,4,96,1) 91%);
-
+.btn-scale {
   &:hover {
-    color: #b1d6fd;
+    scale: 1.2;
   }
 }

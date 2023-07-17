@@ -1,5 +1,5 @@
 <div class="container d-flex align-items-center justify-content-center min-vh-100">
-  <form [formGroup]="registerForm" (ngSubmit)="register()" style="width: 50%">
+  <form [formGroup]="registerForm" (ngSubmit)="register()" class="w-50 text-color-primary">
 
     <div class="mb-3">
       <label for="firstname" class="form-label">FirstName</label>
@@ -47,7 +47,13 @@
       <strong>{{errorMessage}}</strong>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">SIGN UP</button>
+    <div class="text-center mt-3">
+      <div>Already have an account?
+        <a routerLink="/login">Log in</a>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-main w-100 mt-3">SIGN UP</button>
 
   </form>
 </div>
