@@ -7,10 +7,10 @@ import com.server.backend.requests.MovieSelectionRequest;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +22,7 @@ public class GroupService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ChatRepository chatRepository;
+    private final ChatService chatService;
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupService.class);
 
@@ -42,6 +43,9 @@ public class GroupService {
 
         user.getGroups().add(group);
         userRepository.save(user);
+
+        chatService.addSystemMessageToChat(chat.getId(),
+                chatService.generateGroupCreateMessage(user.getUsername()));
 
         return group;
     }
@@ -64,6 +68,10 @@ public class GroupService {
 
             group.setGroupSettings(groupSettings);
             groupRepository.save(group);
+
+            String movieChangeMessage = chatService.generateMovieChangeMessage(
+                    movie.getName(), translation.getName());
+            chatService.addSystemMessageToChat(group.getChat().getId(), movieChangeMessage);
 
             if (oldGroupSettings != null) {
                 groupSettingsRepository.delete(oldGroupSettings);
@@ -99,6 +107,9 @@ public class GroupService {
 
             user.getGroups().add(group);
             userRepository.save(user);
+
+            chatService.addSystemMessageToChat(group.getChat().getId(),
+                    chatService.generateUserJoinMessage(user.getUsername()));
         }
     }
 
@@ -117,6 +128,9 @@ public class GroupService {
                 group.setAdmin(group.getUsers().stream().findFirst().get().getUsername());
             }
 
+            chatService.addSystemMessageToChat(
+                    group.getChat().getId(), chatService.generateUserLeaveMessage(username));
+
             groupRepository.save(group);
         }
     }
@@ -133,6 +147,9 @@ public class GroupService {
 
             group.getGroupSettings().setSelectedTranslation(translation1);
             groupRepository.save(group);
+
+            chatService.addSystemMessageToChat(group.getChat().getId(),
+                    chatService.generateTranslationChangeMessage(translation.getName()));
         }
     }
 }
