@@ -2,11 +2,10 @@
 
 <div class="container">
 
-
   <div class="group-info-section d-flex justify-content-between align-items-center">
     <div class="text-color-primary">
       <h3 class="group-name fw-bold">{{ group.name }}</h3>
-      <a class="group-people h5" data-bs-toggle="modal" data-bs-target="#membersModal" (click)="t()">{{ group.users.length + (group.users.length === 1 ? ' member': ' members')}}</a>
+      <a class="group-people h5" data-bs-toggle="modal" data-bs-target="#membersModal">{{ group.users.length + (group.users.length === 1 ? ' member': ' members')}}</a>
     </div>
 
     <div class="movie-info text-color-primary text-center">

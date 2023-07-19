@@ -11,12 +11,12 @@ export class ChatService {
     private api: ApiService
   ) { }
 
-  public sendMessage(chat: Chat, message: string) {
-    this.api.sendPostRequest('/chat/' + chat.id, message).subscribe(
-      res => {
-        console.log(res)
-      }, err => {
-        console.log(err)}
-    )
-  }
+  // public sendMessage(chat: Chat, message: string) {
+  //   this.api.sendPostRequest('/chat/' + chat.id, message).subscribe(
+  //     res => {
+  //       console.log(res)
+  //     }, err => {
+  //       console.log(err)}
+  //   )
+  // }
 }
