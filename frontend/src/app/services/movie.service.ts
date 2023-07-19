@@ -39,7 +39,7 @@ export class MovieService {
       // @ts-ignore
       translations: res.translations
     }
-    this.movie = movie
+    this.movie = movie;
     return movie
   }
 

@@ -1,7 +1,7 @@
 <div class="chat-content custom-scrollbar">
 
   <div *ngFor="let m of chat.messages; let i = index">
-    <div class="message"
+    <div *ngIf="m.messageType === 'USER'" class="message"
          [class.mt-3]="i !== 0"
       [ngClass]="m.user.username === getUsernameFromStorage() ? 'my-message' : 'another-message'">
       <div class="message-info">
@@ -9,6 +9,13 @@
         <span class="message-time">{{ formatTime(m.time) }}</span>
       </div>
       <div class="message-content">{{ m.message }}</div>
+    </div>
+    <div *ngIf="m.messageType === 'SYSTEM'"
+         [class.mt-3]="i !== 0"
+         class="system-message">
+      <div>{{m.message}}</div>
+<!--      <div>{{ formatTime(m.time) }}</div>-->
+<!--      {{m.message}}-->
     </div>
   </div>
 

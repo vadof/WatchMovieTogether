@@ -1,9 +1,7 @@
 import {Injectable} from '@angular/core';
-import {Client, StompSubscription} from "@stomp/stompjs";
-import {Message} from "../models/Message";
+import {Client} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
-import {solid} from "@fortawesome/fontawesome-svg-core/import.macro";
 
 @Injectable({
   providedIn: 'root'

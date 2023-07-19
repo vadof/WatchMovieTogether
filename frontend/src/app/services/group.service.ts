@@ -19,12 +19,8 @@ export class GroupService {
 
   public async getAllGroups(): Promise<Group[]> {
     return await new Promise<Group[]>((resolve, reject) => {
-      let groups: Group[] = []
       this.api.sendPostRequest('/users/groups', null).subscribe(response => {
-        response.forEach((group: any) => {
-          groups.push(this.saveGroup(group));
-        })
-        this.groups = groups;
+        this.groups = response;
         resolve(this.groups)
       }, error => {
         reject(error)
@@ -36,17 +32,12 @@ export class GroupService {
     return new Promise<Chat>((resolve, reject) => {
       this.api.sendGetRequest('/groups/chat/' + group.id).subscribe(
         res => {
-          resolve(this.getChatFromResponse(res))
+          let chat: Chat = res;
+          console.log(chat)
+          resolve(chat)
         }
       )
     })
-  }
-
-  private getChatFromResponse(res: any): Chat {
-    return {
-      id: res.id,
-      messages: res.messages
-    }
   }
 
   public async getGroupById(id: number): Promise<Group | undefined> {
@@ -58,7 +49,8 @@ export class GroupService {
     return new Promise<Group>((resolve, reject) => {
       this.api.sendPostRequest('/groups', name).subscribe(
         res => {
-          resolve(this.saveGroup(res));
+          let group: Group = res;
+          resolve(group);
         },
         err => {
           reject(err.error);
@@ -79,28 +71,6 @@ export class GroupService {
     }, err => {
       console.log(err)
     });
-  }
-
-  private saveGroup(response: any): Group {
-    const group: Group = {
-      id: response.id,
-      name: response.name,
-      admin: response.admin,
-      groupSettings: response.groupSettings,
-      users: [],
-    };
-
-    response.users.forEach((user: any) => {
-      const newUser: User = {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        username: user.username
-      };
-
-      group.users.push(newUser);
-    });
-
-    return group;
   }
 
   public addUserToGroup(group: Group, user: User) {
