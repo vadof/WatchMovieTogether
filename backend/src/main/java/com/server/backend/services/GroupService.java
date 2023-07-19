@@ -84,6 +84,11 @@ public class GroupService {
         return Optional.empty();
     }
 
+    public Optional<Chat> getGroupChat(Long groupId) {
+        Optional<Group> group = groupRepository.findById(groupId);
+        return group.map(Group::getChat);
+    }
+
     public void addUserToGroup(Long groupId, User user) {
         Group group = groupRepository.findById(groupId).orElseThrow();
         user = userRepository.findByUsername(user.getUsername()).orElseThrow();
