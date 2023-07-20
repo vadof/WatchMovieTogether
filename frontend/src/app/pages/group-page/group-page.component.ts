@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GroupService} from "../../services/group.service";
 import {Group} from "../../models/Group";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -7,14 +7,14 @@ import {TokenStorageService} from "../../auth/token-storage.service";
 import {User} from "../../models/User";
 import {FriendService} from "../../services/friend.service";
 import {MovieService} from "../../services/movie.service";
-import {Translation} from "../../models/Translation";
+import {WebSocketService} from "../../services/web-socket.service";
 
 @Component({
   selector: 'app-group-page',
   templateUrl: './group-page.component.html',
   styleUrls: ['./group-page.component.scss']
 })
-export class GroupPageComponent implements OnInit {
+export class GroupPageComponent implements OnInit, OnDestroy {
 
   // @ts-ignore
   group: Group
@@ -30,7 +30,8 @@ export class GroupPageComponent implements OnInit {
     private router: Router,
     private tokenStorage: TokenStorageService,
     private friendService: FriendService,
-    private movieService: MovieService
+    private movieService: MovieService,
+    private wsService: WebSocketService
   ) {}
 
   ngOnInit(): void {
@@ -49,10 +50,17 @@ export class GroupPageComponent implements OnInit {
           .then(chat => this.chat = chat)
 
         await this.getUsersWhoAreNotInTheGroup()
+
+        this.wsService.setGroupId(group.id)
+        this.wsService.connect();
       } else {
         this.router.navigate([''])
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.wsService.disconnect();
   }
 
   public leaveFromGroup() {

@@ -3,10 +3,7 @@ package com.server.backend.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Message {
 
     @JsonIgnore
@@ -26,6 +24,10 @@ public class Message {
     @JsonIgnore
     @ManyToOne
     private Chat chat;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType;
 
     @ManyToOne
     private User user;

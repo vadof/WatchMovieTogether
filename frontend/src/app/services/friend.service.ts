@@ -45,16 +45,8 @@ export class FriendService {
         toSend = this.api.sendGetRequest(url);
       }
 
-      let users: User[] = []
       toSend.subscribe(response => {
-        response.forEach((u: User) => {
-          let user: User = {
-            firstname: u.firstname,
-            lastname: u.lastname,
-            username: u.username
-          }
-          users.push(user);
-        })
+        let users: User[] = response;
         resolve(users)
       })
     })
