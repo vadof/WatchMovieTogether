@@ -26,4 +26,14 @@ public class MovieController {
         }
     }
 
+    @GetMapping("/{groupId}/{resolution}")
+    public ResponseEntity<?> getVideoLinkByResolution(@PathVariable Long groupId, @PathVariable String resolution) {
+        Optional<String> videoLink = this.movieService.getVideoLinkByResolution(groupId, resolution);
+        if (videoLink.isPresent()) {
+            return ResponseEntity.ok(videoLink);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to get video link");
+        }
+    }
+
 }

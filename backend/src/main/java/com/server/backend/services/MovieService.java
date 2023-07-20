@@ -1,8 +1,10 @@
 package com.server.backend.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.backend.entity.Group;
 import com.server.backend.entity.Movie;
 import com.server.backend.entity.Translation;
+import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MovieRepository;
 import com.server.backend.repository.ResolutionRepository;
 import com.server.backend.repository.TranslationRepository;
@@ -29,6 +31,7 @@ public class MovieService {
     private final MovieRepository movieRepository;
     private final ResolutionRepository resolutionRepository;
     private final TranslationRepository translationRepository;
+    private final GroupRepository groupRepository;
 
     private final String MOVIE_API_URL = "http://localhost:5000/api/movie";
     private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
@@ -130,5 +133,20 @@ public class MovieService {
         reader.close();
 
         return responseBody.toString();
+    }
+
+    public Optional<String> getVideoLinkByResolution(Long groupId, String resolution) {
+        try {
+            Group group = this.groupRepository.findById(groupId).orElseThrow();
+            Translation groupSelectedTranslation = group.getGroupSettings().getSelectedTranslation();
+            String videoLink = groupSelectedTranslation.getResolutions().stream()
+                    .filter(r -> r.getValue().equals(resolution))
+                    .findFirst().orElseThrow()
+                    .getVideoLink();
+            return Optional.of(videoLink);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 }
