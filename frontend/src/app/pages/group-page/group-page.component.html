@@ -38,10 +38,7 @@
   <div class="d-flex content">
 
     <div class="video-content">
-        <video class="" controls>
-          <source src="https://stream.voidboost.cc/f84a564ea8b36acf87a3e0c4c90889ab:2023071014:R3BPTTVxNHlpeFNCM1QyZUU4QURYR2VDdU1kcXFwMkw4RG5OckZhYStBQU5mZEhaZE9NTFMwbzFvSysrNGFZak5wYkJmdzRwVXZvbGx2eTJzOXZzWWc9PQ==/8/5/5/3/6/5/dbbdb.mp4"
-                  type="video/mp4">
-        </video>
+      <app-video-player [group]="group"></app-video-player>
     </div>
 
     <div *ngIf="chat" class="text-color-primary chat">
