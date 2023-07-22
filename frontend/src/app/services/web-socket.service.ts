@@ -29,7 +29,6 @@ export class WebSocketService {
       this.client.configure({
         brokerURL: `ws://localhost:8080/websocket/group/${this.groupId}`,
         onConnect: () => {
-          console.log("CONNECT")
           this.subscribeToGroupChat();
           this.subscribeToMovie();
         },
@@ -79,7 +78,6 @@ export class WebSocketService {
 
   public disconnect(): void {
     if (this.client.active) {
-      console.log("DISCONNECT")
       this.client.deactivate()
     }
   }

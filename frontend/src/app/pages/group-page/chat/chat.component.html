@@ -22,6 +22,6 @@
 </div>
 
 <div class="input-group mt-3">
-  <input type="text" class="form-control" placeholder="Write a message..." [(ngModel)]="message" (keyup.enter)="sendMessage()">
+  <input id="message-input" type="text" class="form-control" placeholder="Write a message..." [(ngModel)]="message" (keyup.enter)="sendMessage()">
   <button class="btn btn-main btn-scale" type="button" (click)="sendMessage()">Send</button>
 </div>
