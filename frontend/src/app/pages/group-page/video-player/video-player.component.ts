@@ -1,11 +1,11 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Group} from "../../../models/Group";
 import {Resolution} from "../../../models/Resolution";
 import {MovieService} from "../../../services/movie.service";
 import {WebSocketService} from "../../../services/web-socket.service";
 import {Subscription} from "rxjs";
-import {Movie} from "../../../models/Movie";
 import {VgApiService, VgStates} from "@videogular/ngx-videogular/core";
+import {MovieAction} from "../MovieAction";
 
 @Component({
   selector: 'app-video-player',
@@ -25,9 +25,7 @@ export class VideoPlayerComponent implements OnInit {
   private currentMovieTime: any;
 
   // @ts-ignore
-  public playSubscription: Subscription
-  // @ts-ignore
-  public pauseSubscription: Subscription
+  public movieSubscription: Subscription
 
   public videoLink: string = ''
 
@@ -44,25 +42,37 @@ export class VideoPlayerComponent implements OnInit {
       this.selectedResolution = this.group.groupSettings.selectedTranslation.resolutions
         .find((n) => n.value === '1080p')
 
-      this.getNewVideoLink();
+      this.getNewVideoLink(this.selectedResolution);
+
+      this.handleMovieSubscription();
     }
   }
 
-  private async getNewVideoLink() {
-    await this.movieService.getVideoLink(this.group.id, this.selectedResolution)
+  private handleMovieSubscription() {
+    this.movieSubscription = this.wsService.getMovieSubscription().subscribe((action) => {
+      if (action === MovieAction.PLAY) {
+        this.vgPlayer.play();
+      } else if (action === MovieAction.PAUSE) {
+        this.vgPlayer.pause();
+      }
+    })
+  }
+
+  private async getNewVideoLink(resolution: Resolution) {
+    await this.movieService.getVideoLink(this.group.id, resolution)
       .then(res => this.videoLink = res);
   }
 
   public playPause() {
-    this.vgPlayer.state === VgStates.VG_PAUSED ? this.play() : this.pause();
+    this.vgPlayer.state === VgStates.VG_PAUSED ? this.play() : this.pause()
   }
 
   private play() {
-    this.vgPlayer.play();
+    this.wsService.sendMovieAction(MovieAction.PLAY)
   }
 
   private pause() {
-    this.vgPlayer.pause();
+    this.wsService.sendMovieAction(MovieAction.PAUSE)
     this.currentMovieTime = this.vgPlayer.currentTime;
   }
 
@@ -71,10 +81,9 @@ export class VideoPlayerComponent implements OnInit {
       this.pause();
       this.selectedResolution = resolution;
 
-      this.getNewVideoLink().then(() => {
+      this.getNewVideoLink(resolution).then(() => {
         setTimeout(() => {
           this.vgPlayer.currentTime = this.currentMovieTime;
-          this.play();
         }, 3000)
       });
     }

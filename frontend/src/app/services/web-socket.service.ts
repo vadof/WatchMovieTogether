@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Client} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
+import {MovieAction} from "../pages/group-page/MovieAction";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,7 @@ import { Subject } from 'rxjs';
 export class WebSocketService {
   private client: Client;
   private messageSubject: Subject<string> = new Subject<string>();
+  private movieSubject: Subject<string> = new Subject<string>();
   // @ts-ignore
   private groupId: number;
 
@@ -29,6 +31,7 @@ export class WebSocketService {
         onConnect: () => {
           console.log("CONNECT")
           this.subscribeToGroupChat();
+          this.subscribeToMovie();
         },
       });
 
@@ -43,8 +46,18 @@ export class WebSocketService {
     })
   }
 
-  public getMessage(): Subject<string> {
+  private subscribeToMovie() {
+    this.client.subscribe(`/group/${this.groupId}/movie`, (action) => {
+      this.movieSubject.next(action.body)
+    })
+  }
+
+  public getMessageSubscription(): Subject<string> {
     return this.messageSubject;
+  }
+
+  public getMovieSubscription(): Subject<string> {
+    return this.movieSubject;
   }
 
   public sendMessage(message: string): void {
@@ -54,6 +67,13 @@ export class WebSocketService {
       headers: {
         'username': this.tokenStorage.getUsername()
       }
+    })
+  }
+
+  public sendMovieAction(action: MovieAction) {
+    this.client.publish({
+      destination: `/app/movie/${this.groupId}`,
+      body: action
     })
   }
 

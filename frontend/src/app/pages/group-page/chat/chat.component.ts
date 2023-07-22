@@ -23,8 +23,7 @@ export class ChatComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.subscription = this.wsService.getMessage().subscribe((msg) => {
-      console.log(msg)
+    this.subscription = this.wsService.getMessageSubscription().subscribe((msg) => {
       let message: Message = JSON.parse(msg);
       this.chat.messages.push(message);
     })

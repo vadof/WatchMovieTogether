@@ -33,7 +33,6 @@ export class GroupService {
       this.api.sendGetRequest('/groups/chat/' + group.id).subscribe(
         res => {
           let chat: Chat = res;
-          console.log(chat)
           resolve(chat)
         }
       )
