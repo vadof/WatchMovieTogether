@@ -9,7 +9,7 @@ from Entities import Movie, Translation, Resolution
 app = Flask(__name__)
 CORS(app)
 
-# TODO make 3 attempts to get video
+
 @app.route('/api/movie', methods=['POST'])
 def getMovie():
     data = request.get_json()
@@ -27,16 +27,33 @@ def getMovieObject(url, attempts=3):
         translations = []
         for t in rezka.getTranslations().keys():
             resolutions = []
-            for res, value in rezka.getStream(translation=t).videos.items():
-                resolutions.append(Resolution(res, value))
+            for res in rezka.getStream(translation=t).videos.keys():
+                resolutions.append(Resolution(res))
+                print(res)
             translations.append(Translation(t, resolutions))
 
-        return Movie(url, rezka.getName(), translations)
+        movie = Movie(url, rezka.getName(), translations)
+
+        return movie
     except:
         if (attempts - 1 > 0):
             getMovieObject(url, attempts - 1)
         else:
             return None
+
+
+@app.route('/api/movie/link', methods=['POST'])
+def getStreamLink():
+    data = request.get_json()
+    url = data.get('url')
+    translation = data.get('translation')
+    resolution = data.get('resolution')
+    try:
+        rezka = HdRezkaApi(url)
+        stream = rezka.getStream(translation=translation)(resolution)
+        return make_response(jsonify(stream, 200))
+    except:
+        return make_response(jsonify(error='Invalid URL provided.'), 400)
 
 
 if __name__ == '__main__':
