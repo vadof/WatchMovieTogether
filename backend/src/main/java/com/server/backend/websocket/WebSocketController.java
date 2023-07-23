@@ -24,8 +24,7 @@ public class WebSocketController {
     public Message addMessageToChat(@Payload String message,
                                     @DestinationVariable Long groupId,
                                     SimpMessageHeaderAccessor header) {
-        Chat chat = groupService.getGroupChat(groupId).orElseThrow();
-        return chatService.addMessageToChat(chat.getId(), message,
+        return chatService.addMessageToGroupChat(groupId, message,
                 header.getFirstNativeHeader("username"));
     }
 
