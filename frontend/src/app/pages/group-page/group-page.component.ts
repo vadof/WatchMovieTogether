@@ -70,10 +70,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  public t() {
-
-  }
-
   private async getUsersWhoAreNotInTheGroup() {
     const friends = await this.friendService.getFriends();
     const groupUsers = this.group.users;
@@ -102,6 +98,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         this.group.users.push(u)
       }
     )
+    this.checkedUsers = []
   }
 
   public removeUserFromGroup(user: User) {

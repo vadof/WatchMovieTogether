@@ -21,6 +21,13 @@ import { FriendsPageComponent } from './pages/friends-page/friends-page.componen
 import { MyFriendsComponent } from './pages/friends-page/my-friends/my-friends.component';
 import { FriendRequestsComponent } from './pages/friends-page/friend-requests/friend-requests.component';
 import { SearchFriendsComponent } from './pages/friends-page/search-friends/search-friends.component';
+import { VideoPlayerComponent } from './pages/group-page/video-player/video-player.component';
+import {VgControlsModule} from "@videogular/ngx-videogular/controls";
+import {VgBufferingModule} from "@videogular/ngx-videogular/buffering";
+import {VgOverlayPlayModule} from "@videogular/ngx-videogular/overlay-play";
+import {VgCoreModule} from "@videogular/ngx-videogular/core";
+import {VgModuloModule} from "@videogular/ngx-videogular/modulo";
+import {VgImaAdsModule} from "@videogular/ngx-videogular/ima-ads";
 
 @NgModule({
   declarations: [
@@ -40,6 +47,7 @@ import { SearchFriendsComponent } from './pages/friends-page/search-friends/sear
     MyFriendsComponent,
     FriendRequestsComponent,
     SearchFriendsComponent,
+    VideoPlayerComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,7 +55,13 @@ import { SearchFriendsComponent } from './pages/friends-page/search-friends/sear
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    VgControlsModule,
+    VgBufferingModule,
+    VgOverlayPlayModule,
+    VgCoreModule,
+    VgModuloModule,
+    VgImaAdsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

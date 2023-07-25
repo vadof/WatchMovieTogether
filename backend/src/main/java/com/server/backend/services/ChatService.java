@@ -5,9 +5,9 @@ import com.server.backend.entity.Message;
 import com.server.backend.entity.MessageType;
 import com.server.backend.entity.User;
 import com.server.backend.repository.ChatRepository;
+import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MessageRepository;
 import com.server.backend.repository.UserRepository;
-import com.server.backend.websocket.WebSocketController;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -17,12 +17,13 @@ import org.springframework.stereotype.Service;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final GroupRepository groupRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate template;
 
-    public Message addMessageToChat(Long chatId, String message, String username) {
-        Chat chat = chatRepository.findById(chatId).orElseThrow();
+    public Message addMessageToGroupChat(Long groupId, String message, String username) {
+        Chat chat = groupRepository.findById(groupId).orElseThrow().getChat();
         User user = userRepository.findByUsername(username).orElseThrow();
 
         Message message1 = Message.builder()
@@ -36,13 +37,11 @@ public class ChatService {
         chat.getMessages().add(message1);
         chatRepository.save(chat);
 
-        template.convertAndSend("/group/" + 1 + "/chat", message1);
-
         return message1;
     }
 
-    public Message addSystemMessageToChat(Long chatId, String message) {
-        Chat chat = chatRepository.findById(chatId).orElseThrow();
+    public Message addSystemMessageToGroupChat(Long groupId, String message) {
+        Chat chat = groupRepository.findById(groupId).orElseThrow().getChat();
         Message systemMessage = Message.builder()
                 .message(message)
                 .messageType(MessageType.SYSTEM)
@@ -52,6 +51,8 @@ public class ChatService {
 
         chat.getMessages().add(systemMessage);
         chatRepository.save(chat);
+
+        template.convertAndSend("/group/" + groupId + "/chat", systemMessage);
 
         return systemMessage;
     }

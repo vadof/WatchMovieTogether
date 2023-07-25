@@ -17,6 +17,8 @@ export class UserGroupsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.service.getAllGroups().then(res => this.groups = res)
+    this.service.getAllGroups().then((res) => {
+      this.groups = res.sort((a, b) => b.id - a.id);
+    })
   }
 }

@@ -1,0 +1,39 @@
+<div class="video-player-wrapper">
+  <vg-player (onPlayerReady)="onPlayerReady()">
+    <vg-overlay-play (click)="playPause()"></vg-overlay-play>
+    <vg-buffering></vg-buffering>
+    <vg-controls [vgAutohide]="true">
+      <vg-play-pause (click)="playPause()"></vg-play-pause>
+      <vg-scrub-bar (mouseup)="mouseUpRewind()" [ngClass]="{'disabled': !hasAccessToRewound()}">
+        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+      </vg-scrub-bar>
+      <div class="time-display d-flex align-items-center justify-content-between">
+        <vg-time-display vgProperty="current" vgFormat="hh:mm:ss"></vg-time-display>
+        <span class="time-divider">|</span>
+        <vg-time-display vgProperty="total" vgFormat="hh:mm:ss"></vg-time-display>
+      </div>
+
+      <vg-mute></vg-mute>
+      <vg-volume></vg-volume>
+
+      <div class="quality d-flex align-items-center dropup dropup-center">
+        <svg class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <ul class="dropdown-menu flex-column">
+          <li *ngFor="let r of resolutions"
+              [ngClass]="{'selected-resolution': r.value === selectedResolution.value}">
+            <a class="dropdown-item" (click)="changeResolution(r)">{{ r.value }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <vg-fullscreen></vg-fullscreen>
+    </vg-controls>
+    <video [vgMedia]="$any(player)"
+           #player id="video"
+           preload="auto"
+           crossorigin
+           [src]="videoLink">
+    </video>
+  </vg-player>
+</div>

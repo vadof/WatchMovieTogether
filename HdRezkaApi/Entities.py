@@ -36,16 +36,11 @@ class Translation:
 
 
 class Resolution:
-    def __init__(self, value, videoLink):
+    def __init__(self, value):
         self.value = value
-        self.videoLink = videoLink
 
     def to_dict(self):
-        return {
-            'value': self.value,
-            'videoLink': self.videoLink
-        }
+        return {'value': self.value}
 
     def __str__(self):
-        return 'value=' + self.value + ',' + \
-                'videoLink=' + self.videoLink
+        return 'value=' + self.value

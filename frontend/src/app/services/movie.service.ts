@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
 import {Translation} from "../models/Translation";
+import {Resolution} from "../models/Resolution";
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,19 @@ export class MovieService {
     }
     this.movie = movie;
     return movie
+  }
+
+  public getVideoLink(groupId: number, resolution: Resolution) {
+    return new Promise<string>((resolve, reject) => {
+      this.api.sendGetRequest(`/movie/${groupId}/${resolution.value}`).subscribe(
+        res => {
+          resolve(res);
+        },
+        err => {
+          reject(err.error);
+        }
+      );
+    });
   }
 
 

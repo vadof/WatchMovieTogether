@@ -26,17 +26,12 @@ public class Resolution {
     @NotBlank
     private String value;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Lob
-    private String videoLink;
-
     @JsonIgnore
     @ManyToMany(mappedBy = "resolutions")
     private List<Translation> translations = new ArrayList<>();
 
-    public Resolution(String value, String videoLink) {
+    public Resolution(String value) {
         this.value = value;
-        this.videoLink = videoLink;
     }
 
     @Override

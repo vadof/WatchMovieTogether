@@ -1,8 +1,11 @@
 package com.server.backend.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.backend.entity.Group;
 import com.server.backend.entity.Movie;
+import com.server.backend.entity.Resolution;
 import com.server.backend.entity.Translation;
+import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MovieRepository;
 import com.server.backend.repository.ResolutionRepository;
 import com.server.backend.repository.TranslationRepository;
@@ -29,6 +32,7 @@ public class MovieService {
     private final MovieRepository movieRepository;
     private final ResolutionRepository resolutionRepository;
     private final TranslationRepository translationRepository;
+    private final GroupRepository groupRepository;
 
     private final String MOVIE_API_URL = "http://localhost:5000/api/movie";
     private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
@@ -51,7 +55,11 @@ public class MovieService {
     private void saveMovie(Movie movie) {
         try {
             for (Translation translation : movie.getTranslations()) {
-                resolutionRepository.saveAll(translation.getResolutions());
+                List<Resolution> resolutions = new ArrayList<>();
+                for (Resolution r : translation.getResolutions()) {
+                    resolutions.add(resolutionRepository.findByValue(r.getValue()));
+                }
+                translation.setResolutions(resolutions);
                 translationRepository.save(translation);
             }
             movieRepository.save(movie);
@@ -63,7 +71,8 @@ public class MovieService {
 
     private String sendMovieRequest(String link) {
         try {
-            String requestBody = "{\"url\": \"" + link + "\"}";
+//            String requestBody = "{\"url\": \"" + link + "\"}";
+            String requestBody = String.format("{\"url\":\"%s\"}", link);
             String responseBody = sendHttpRequest(requestBody, new URL(MOVIE_API_URL));
             return decodeUnicodeEscapeSequences(responseBody);
         } catch (Exception e) {
@@ -118,7 +127,7 @@ public class MovieService {
         if (responseCode >= 200 && responseCode < 300) {
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         } else {
-            LOG.error("Error in parsing " + requestBody);
+            LOG.error("Error sending HTTP request  " + requestBody);
             reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
         }
 
@@ -130,5 +139,28 @@ public class MovieService {
         reader.close();
 
         return responseBody.toString();
+    }
+
+    public Optional<String> getVideoLinkByResolution(Long groupId, String resolution) {
+        try {
+            Group group = this.groupRepository.findById(groupId).orElseThrow();
+
+            String movieUrl = group.getGroupSettings().getSelectedMovie().getLink();
+            Translation groupSelectedTranslation = group.getGroupSettings().getSelectedTranslation();
+            String resolutionValue = groupSelectedTranslation.getResolutions().stream()
+                    .filter(r -> r.getValue().equals(resolution))
+                    .findFirst().orElseThrow().getValue();
+
+            String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
+                    movieUrl, groupSelectedTranslation.getName(), resolutionValue);
+
+            String videoLink = sendHttpRequest(requestBody, new URL(MOVIE_API_URL + "/link"));
+            videoLink = videoLink.substring(videoLink.indexOf("http"), videoLink.lastIndexOf(".mp4") + 4);
+
+            return Optional.of(videoLink);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
     }
 }
