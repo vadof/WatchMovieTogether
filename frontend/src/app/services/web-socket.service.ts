@@ -11,6 +11,7 @@ export class WebSocketService {
   private client: Client;
   private messageSubject: Subject<string> = new Subject<string>();
   private movieSubject: Subject<string> = new Subject<string>();
+  private rewindSubject: Subject<number> = new Subject<number>();
   // @ts-ignore
   private groupId: number;
 
@@ -31,6 +32,7 @@ export class WebSocketService {
         onConnect: () => {
           this.subscribeToGroupChat();
           this.subscribeToMovie();
+          this.subscribeToRewind();
         },
       });
 
@@ -51,6 +53,12 @@ export class WebSocketService {
     })
   }
 
+  private subscribeToRewind() {
+    this.client.subscribe(`/group/${this.groupId}/movie/rewind`, (time) => {
+      this.rewindSubject.next(Number(time.body))
+    })
+  }
+
   public getMessageSubscription(): Subject<string> {
     return this.messageSubject;
   }
@@ -59,9 +67,13 @@ export class WebSocketService {
     return this.movieSubject;
   }
 
+  public getMovieRewindSubject(): Subject<number> {
+    return this.rewindSubject;
+  }
+
   public sendMessage(message: string): void {
     this.client.publish({
-      destination: `/app/chat/${this.groupId}`,
+      destination: `/app/${this.groupId}/chat`,
       body: message,
       headers: {
         'username': this.tokenStorage.getUsername()
@@ -71,8 +83,15 @@ export class WebSocketService {
 
   public sendMovieAction(action: MovieAction) {
     this.client.publish({
-      destination: `/app/movie/${this.groupId}`,
+      destination: `/app/${this.groupId}/movie`,
       body: action
+    })
+  }
+
+  public sendMovieRewind(movieTime: string) {
+    this.client.publish({
+      destination: `/app/${this.groupId}/movie/rewind`,
+      body: movieTime
     })
   }
 

@@ -1,7 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {Chat} from "../../../models/Chat";
 import {TokenStorageService} from "../../../auth/token-storage.service";
-import {Subscription} from "rxjs";
 import {WebSocketService} from "../../../services/web-socket.service";
 import {Message} from "../../../models/Message";
 
@@ -11,11 +10,9 @@ import {Message} from "../../../models/Message";
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit {
-  // @ts-ignore
-  @Input() chat: Chat
+  @Input() chat!: Chat
   message: string = ''
-  // @ts-ignore
-  private subscription: Subscription;
+  @ViewChild('chatContent', { static: true }) chatContentRef!: ElementRef;
 
   constructor(
     private tokenStorage: TokenStorageService,
@@ -23,15 +20,28 @@ export class ChatComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.subscription = this.wsService.getMessageSubscription().subscribe((msg) => {
+    this.handleMessages()
+    this.setScrollbarToBottom();
+  }
+
+  private handleMessages() {
+    this.wsService.getMessageSubscription().subscribe((msg) => {
+      const needToScroll = this.isScrollbarAtBottom();
+      console.log(needToScroll)
       let message: Message = JSON.parse(msg);
       this.chat.messages.push(message);
+
+      if (needToScroll) {
+        this.setScrollbarToBottom();
+      }
     })
   }
 
   public sendMessage() {
-    this.wsService.sendMessage(this.message);
-    this.message = ''
+    if (this.message && this.message.trim()) {
+      this.wsService.sendMessage(this.message);
+      this.message = ''
+    }
   }
 
   public getUsernameFromStorage(): string {
@@ -40,5 +50,18 @@ export class ChatComponent implements OnInit {
 
   public formatTime(time: string): string {
     return time.split(' ')[1]
+  }
+
+  private isScrollbarAtBottom(): boolean {
+    const chatContentEl: HTMLElement = this.chatContentRef.nativeElement;
+    const buffer = 5;
+    return chatContentEl.scrollTop + chatContentEl.clientHeight + buffer >= chatContentEl.scrollHeight;
+  }
+
+  private setScrollbarToBottom() {
+    setTimeout(() => {
+      const chatContentEl: HTMLElement = this.chatContentRef.nativeElement;
+      chatContentEl.scrollTop = chatContentEl.scrollHeight;
+    }, 0)
   }
 }

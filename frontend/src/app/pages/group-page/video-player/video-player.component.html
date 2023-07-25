@@ -1,10 +1,10 @@
 <div class="video-player-wrapper">
-  <vg-player>
+  <vg-player (onPlayerReady)="onPlayerReady()">
     <vg-overlay-play (click)="playPause()"></vg-overlay-play>
     <vg-buffering></vg-buffering>
     <vg-controls [vgAutohide]="true">
       <vg-play-pause (click)="playPause()"></vg-play-pause>
-      <vg-scrub-bar>
+      <vg-scrub-bar (mouseup)="mouseUpRewind()" [ngClass]="{'disabled': !hasAccessToRewound()}">
         <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
         <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
       </vg-scrub-bar>

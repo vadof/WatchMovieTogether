@@ -1,9 +1,7 @@
 package com.server.backend.websocket;
 
-import com.server.backend.entity.Chat;
 import com.server.backend.entity.Message;
 import com.server.backend.services.ChatService;
-import com.server.backend.services.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,10 +14,9 @@ import org.springframework.stereotype.Controller;
 @AllArgsConstructor
 public class WebSocketController {
 
-    private final GroupService groupService;
     private final ChatService chatService;
 
-    @MessageMapping("/chat/{groupId}")
+    @MessageMapping("/{groupId}/chat")
     @SendTo("/group/{groupId}/chat")
     public Message addMessageToChat(@Payload String message,
                                     @DestinationVariable Long groupId,
@@ -28,10 +25,17 @@ public class WebSocketController {
                 header.getFirstNativeHeader("username"));
     }
 
-    @MessageMapping("/movie/{groupId}")
+    @MessageMapping("/{groupId}/movie")
     @SendTo("/group/{groupId}/movie")
     public String moviePlayPause(@Payload String movieAction,
-                                      @DestinationVariable Long groupId) {
+                                 @DestinationVariable Long groupId) {
         return movieAction;
+    }
+
+    @MessageMapping("/{groupId}/movie/rewind")
+    @SendTo("/group/{groupId}/movie/rewind")
+    public String rewindMovie(@Payload String time,
+                             @DestinationVariable Long groupId) {
+        return time;
     }
 }

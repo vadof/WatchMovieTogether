@@ -127,7 +127,7 @@ public class MovieService {
         if (responseCode >= 200 && responseCode < 300) {
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         } else {
-            LOG.error("Error in parsing " + requestBody);
+            LOG.error("Error sending HTTP request  " + requestBody);
             reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
         }
 
