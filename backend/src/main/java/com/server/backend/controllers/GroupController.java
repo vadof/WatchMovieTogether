@@ -25,11 +25,8 @@ public class GroupController {
     }
 
     @PostMapping("/movie")
-    public ResponseEntity<String> setUpMovieForGroup(@RequestBody MovieSelectionRequest movieSelectionRequest) {
-        if (groupService.setUpMovieForGroup(movieSelectionRequest)) {
-            return ResponseEntity.ok("Movie customized for the group");
-        }
-        return ResponseEntity.ok("Something went wrong!");
+    public void setUpMovieForGroup(@RequestBody MovieSelectionRequest movieSelectionRequest) {
+        groupService.setUpMovieForGroup(movieSelectionRequest);
     }
 
     @GetMapping("/chat/{id}")
