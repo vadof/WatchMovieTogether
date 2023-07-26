@@ -4,11 +4,11 @@ import com.server.backend.entity.*;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.*;
 import com.server.backend.requests.MovieSelectionRequest;
+import com.server.backend.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -25,8 +25,7 @@ public class GroupService {
     private final JwtService jwtService;
     private final ChatRepository chatRepository;
     private final ChatService chatService;
-
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final WebSocketService webSocketService;
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupService.class);
 
@@ -60,7 +59,7 @@ public class GroupService {
     }
 
     @Transactional
-    public boolean setUpMovieForGroup(MovieSelectionRequest msr) {
+    public void setUpMovieForGroup(MovieSelectionRequest msr) {
         try {
             Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).get();
             Group group = groupRepository.findById(msr.getGroupId()).get();
@@ -79,10 +78,9 @@ public class GroupService {
                     movie.getName(), translation.getName());
             chatService.addSystemMessageToGroupChat(group.getId(), movieChangeMessage);
 
-            return true;
+            this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
         } catch (Exception e) {
             LOG.error("Failed to set up movie for group " + e.getMessage());
-            return false;
         }
     }
 
@@ -106,7 +104,7 @@ public class GroupService {
             user.getGroups().add(group);
             userRepository.save(user);
 
-            this.simpMessagingTemplate.convertAndSend("/group/" + groupId + "/user/add", user);
+            this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/user/add", user);
 
             chatService.addSystemMessageToGroupChat(group.getId(),
                     chatService.generateUserJoinMessage(user.getUsername()));
@@ -150,7 +148,7 @@ public class GroupService {
         return removedUser;
     }
 
-    public void changeMovieTranslation(Long groupId, Translation translation) {
+    public void changeSelectedMovieTranslation(Long groupId, Translation translation) {
         Group group = groupRepository.findById(groupId).orElseThrow();
         Movie movie = group.getGroupSettings().getSelectedMovie();
 
@@ -162,6 +160,9 @@ public class GroupService {
 
             group.getGroupSettings().setSelectedTranslation(translation1);
             groupRepository.save(group);
+
+            this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie",
+                    new MovieSelectionRequest(groupId, movie, translation1));
 
             chatService.addSystemMessageToGroupChat(group.getId(),
                     chatService.generateTranslationChangeMessage(translation.getName()));

@@ -71,7 +71,6 @@ public class MovieService {
 
     private String sendMovieRequest(String link) {
         try {
-//            String requestBody = "{\"url\": \"" + link + "\"}";
             String requestBody = String.format("{\"url\":\"%s\"}", link);
             String responseBody = sendHttpRequest(requestBody, new URL(MOVIE_API_URL));
             return decodeUnicodeEscapeSequences(responseBody);
