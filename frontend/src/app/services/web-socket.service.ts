@@ -3,17 +3,19 @@ import {Client} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
+import {User} from "../models/User";
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
   private client: Client;
+  private groupId!: number;
+
   private messageSubject: Subject<string> = new Subject<string>();
   private movieSubject: Subject<string> = new Subject<string>();
   private rewindSubject: Subject<number> = new Subject<number>();
-  // @ts-ignore
-  private groupId: number;
+  private privilegesSubject: Subject<User[]> = new Subject<User[]>();
 
   constructor(
     private tokenStorage: TokenStorageService,
@@ -33,6 +35,7 @@ export class WebSocketService {
           this.subscribeToGroupChat();
           this.subscribeToMovie();
           this.subscribeToRewind();
+          this.subscribeToPrivilegeChange();
         },
       });
 
@@ -59,6 +62,14 @@ export class WebSocketService {
     })
   }
 
+  private subscribeToPrivilegeChange() {
+    this.client.subscribe(`/group/${this.groupId}/user/privileges`,
+      (usersWithPrivileges) => {
+        let users: User[] = JSON.parse(usersWithPrivileges.body);
+      this.privilegesSubject.next(users)
+    })
+  }
+
   public getMessageSubscription(): Subject<string> {
     return this.messageSubject;
   }
@@ -69,6 +80,10 @@ export class WebSocketService {
 
   public getMovieRewindSubject(): Subject<number> {
     return this.rewindSubject;
+  }
+
+  public getPrivilegesSubject(): Subject<User[]> {
+    return this.privilegesSubject;
   }
 
   public sendMessage(message: string): void {
@@ -92,6 +107,16 @@ export class WebSocketService {
     this.client.publish({
       destination: `/app/${this.groupId}/movie/rewind`,
       body: movieTime
+    })
+  }
+
+  public changeUserPrivileges(user: User, groupId: number) {
+    this.client.publish({
+      destination: `/app/${this.groupId}/user/privileges`,
+      body: JSON.stringify(user),
+      headers: {
+        'username': this.tokenStorage.getUsername()
+      }
     })
   }
 

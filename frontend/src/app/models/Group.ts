@@ -4,7 +4,7 @@ import {GroupSettings} from "./GroupSettings";
 export interface Group {
   id: number
   name: string
-  admin: string
+  admin: User
   groupSettings: GroupSettings,
   users: User[]
 }

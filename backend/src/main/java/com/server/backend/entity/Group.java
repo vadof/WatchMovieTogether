@@ -3,6 +3,7 @@ package com.server.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.HashSet;
@@ -22,8 +23,9 @@ public class Group {
     @NotBlank
     private String name;
 
-    @NotBlank
-    private String admin;
+    @NotNull
+    @ManyToOne
+    private User admin;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private GroupSettings groupSettings;
@@ -34,5 +36,4 @@ public class Group {
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     private Chat chat;
-
 }

@@ -9,10 +9,10 @@
     </div>
 
     <div class="movie-info text-color-primary text-center">
-      <h2 class="movie-name text-color-primary" *ngIf="group.groupSettings">
+      <h2 class="movie-name text-color-primary" *ngIf="group.groupSettings.selectedMovie">
         {{ group.groupSettings.selectedMovie.name }}
       </h2>
-      <h5 *ngIf="group.groupSettings">
+      <h5 *ngIf="group.groupSettings.selectedMovie">
         Translation: {{ group.groupSettings.selectedTranslation.name }}
       </h5>
     </div>
@@ -68,34 +68,29 @@
             <div class="user-username">{{ user.username }} <span *ngIf="userIsAdmin(user)" class="fw-bold text-danger">*</span></div>
             <div class="user-fullname">{{ user.firstname + ' ' + user.lastname }}</div>
           </div>
-          <button *ngIf="isAdmin() && !userIsAdmin(user)" class="btn btn-main"
-                  (click)="removeUserFromGroup(user)">Remove from group
-          </button>
-<!--          <div class="actions">-->
-<!--            <div class="dropstart">-->
-<!--              <svg class="bi bi-three-dots-vertical dropdown-toggle" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">-->
-<!--                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>-->
-<!--              </svg>-->
-<!--              <ul class="dropdown-menu dropdown-menu-end mt-1">-->
-<!--                <li class="dropdown-item">-->
-<!--                  <div class="form-check form-switch form-check-reverse" *ngIf="!userIsAdmin(user)">-->
-<!--                    <input class="form-check-input" type="checkbox" role="switch" id="allowRewind" checked>-->
-<!--                    <label class="form-check-label" for="allowRewind">Allow rewind</label>-->
-<!--                  </div>-->
-<!--                </li>-->
-<!--                <li class="dropdown-item text-start">-->
-<!--                  <div class="form-check form-switch form-check-reverse" *ngIf="!userIsAdmin(user)">-->
-<!--                    <input class="form-check-input" type="checkbox" role="switch" id="allowPause" checked>-->
-<!--                    <label class="form-check-label" for="allowPause">Allow pause</label>-->
-<!--                  </div>-->
-<!--                </li>-->
-<!--                <li><a class="dropdown-item"-->
-<!--                       *ngIf="isAdmin() && !userIsAdmin(user)" (click)="removeUserFromGroup(user)">-->
-<!--                  Remove from group-->
-<!--                </a></li>-->
-<!--              </ul>-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="admin-actions" *ngIf="isAdmin() && !userIsAdmin(user)">
+            <div class="dropstart">
+              <svg class="bi bi-three-dots-vertical dropdown-toggle" data-bs-toggle="dropdown" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+              </svg>
+
+              <ul class="dropdown-menu dropdown-menu-end mt-1">
+                <li class="dropdown-item privileges">
+                  <div class="form-check form-switch form-check-reverse" *ngIf="!userIsAdmin(user)">
+                    <input class="form-check-input" type="checkbox" role="switch" id="privileges"
+                           [checked]="userHasPrivileges(user)" (change)="changeUserPrivileges(user)">
+                    <label class="form-check-label" for="privileges">Privileges</label>
+                  </div>
+                </li>
+                <li><a class="dropdown-item remove-button btn btn-main"
+                       *ngIf="isAdmin() && !userIsAdmin(user)" (click)="removeUserFromGroup(user)">
+                  Remove from group
+                </a></li>
+              </ul>
+
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -158,7 +153,7 @@
 
       <div class="header d-flex justify-content-between align-items-center">
         <h2 class="header-title">
-          {{ group.groupSettings ? group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}
+          {{ group.groupSettings.selectedMovie ? group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}
         </h2>
         <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
         </svg>
@@ -167,7 +162,7 @@
       <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
 
       <div class="movie-settings-body">
-        <div *ngIf="group.groupSettings && !chooseAnotherMovie; else selectMovie">
+        <div *ngIf="group.groupSettings.selectedMovie && !chooseAnotherMovie; else selectMovie">
           <button class="btn btn-main mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
           <app-movie-form-settings [movie]="group.groupSettings.selectedMovie"></app-movie-form-settings>
           <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>

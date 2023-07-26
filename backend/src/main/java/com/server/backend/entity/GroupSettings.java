@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Entity
 @Getter
@@ -19,8 +22,6 @@ public class GroupSettings {
     @ManyToOne
     private Movie selectedMovie;
 
-    private String movieProgress;
-
     @ManyToOne
     private Translation selectedTranslation;
 
@@ -28,10 +29,6 @@ public class GroupSettings {
     @OneToOne(mappedBy = "groupSettings")
     private Group group;
 
-    public GroupSettings(Movie selectedMovie, String movieProgress,
-                         Translation selectedTranslation) {
-        this.selectedMovie = selectedMovie;
-        this.movieProgress = movieProgress;
-        this.selectedTranslation = selectedTranslation;
-    }
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<User> usersWithPrivileges = new HashSet<>();
 }
