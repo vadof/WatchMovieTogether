@@ -65,11 +65,7 @@ export class GroupService {
       movie,
       selectedTranslation
     }
-    this.api.sendPostRequest('/groups/movie', requestObj).subscribe(res => {
-      console.log(res)
-    }, err => {
-      console.log(err)
-    });
+    this.api.sendPostRequest('/groups/movie', requestObj).subscribe();
   }
 
   public addUserToGroup(group: Group, user: User) {

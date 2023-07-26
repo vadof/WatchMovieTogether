@@ -64,7 +64,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.wsService.disconnect();
-    console.log(this.group.groupSettings.usersWithPrivileges)
   }
 
   private handlePrivilegesSubscription() {

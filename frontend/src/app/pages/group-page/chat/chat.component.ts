@@ -27,7 +27,6 @@ export class ChatComponent implements OnInit {
   private handleMessages() {
     this.wsService.getMessageSubject().subscribe((msg) => {
       const needToScroll = this.isScrollbarAtBottom();
-      console.log(needToScroll)
       let message: Message = JSON.parse(msg);
       this.chat.messages.push(message);
 

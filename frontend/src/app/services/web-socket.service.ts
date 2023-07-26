@@ -4,6 +4,7 @@ import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
 import {User} from "../models/User";
+import {MovieSelectionObject} from "../requests/MovieSelectionObject";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class WebSocketService {
   private groupId!: number;
 
   private messageSubject: Subject<string> = new Subject<string>();
-  private movieSubject: Subject<string> = new Subject<string>();
+  private movieActionSubject: Subject<string> = new Subject<string>();
+  private movieSubject: Subject<MovieSelectionObject> = new Subject<MovieSelectionObject>();
   private rewindSubject: Subject<number> = new Subject<number>();
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
   private userLeaveSubject: Subject<User> = new Subject<User>();
@@ -35,11 +37,12 @@ export class WebSocketService {
         brokerURL: `ws://localhost:8080/websocket/group/${this.groupId}`,
         onConnect: () => {
           this.subscribeToGroupChat();
-          this.subscribeToMovie();
+          this.subscribeToMovieAction();
           this.subscribeToRewind();
           this.subscribeToPrivilegeChange();
           this.subscribeToUserAdd();
           this.subscribeToUserLeave();
+          this.subscribeToMovieChange();
         },
       });
 
@@ -54,9 +57,16 @@ export class WebSocketService {
     })
   }
 
-  private subscribeToMovie() {
-    this.client.subscribe(`/group/${this.groupId}/movie`, (action) => {
-      this.movieSubject.next(action.body)
+  private subscribeToMovieAction() {
+    this.client.subscribe(`/group/${this.groupId}/movie/action`, (action) => {
+      this.movieActionSubject.next(action.body)
+    })
+  }
+
+  private subscribeToMovieChange() {
+    this.client.subscribe(`/group/${this.groupId}/movie`, (newMovie) => {
+      const msr: MovieSelectionObject = JSON.parse(newMovie.body);
+      this.movieSubject.next(msr);
     })
   }
 
@@ -94,8 +104,12 @@ export class WebSocketService {
     return this.messageSubject;
   }
 
-  public getMovieSubject(): Subject<string> {
+  public getMovieSubject(): Subject<MovieSelectionObject> {
     return this.movieSubject;
+  }
+
+  public getMovieActionSubject(): Subject<string> {
+    return this.movieActionSubject;
   }
 
   public getMovieRewindSubject(): Subject<number> {
@@ -143,7 +157,7 @@ export class WebSocketService {
 
   public sendMovieAction(action: MovieAction) {
     this.client.publish({
-      destination: `/app/${this.groupId}/movie`,
+      destination: `/app/${this.groupId}/movie/action`,
       body: action
     })
   }

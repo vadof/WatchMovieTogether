@@ -57,8 +57,9 @@ export class VideoPlayerComponent implements OnInit {
       this.setInitialResolution();
       this.getNewVideoLink(this.selectedResolution);
       this.setPreferredVolume();
-      this.handleMovieSubscription();
+      this.handleMovieActionSubscription();
       this.handleRewindSubscription();
+      this.handleMovieSubscription()
     }
   }
 
@@ -93,7 +94,19 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private handleMovieSubscription() {
-    this.wsService.getMovieSubject().subscribe((action) => {
+    this.wsService.getMovieSubject().subscribe((ms) => {
+      if (this.group.groupSettings.selectedMovie.name !== ms.movie.name) {
+        this.group.groupSettings.selectedMovie = ms.movie;
+      }
+      this.group.groupSettings.selectedTranslation = ms.selectedTranslation;
+      this.resolutions = ms.selectedTranslation.resolutions.reverse();
+      this.setInitialResolution();
+      this.getNewVideoLink(this.selectedResolution);
+    })
+  }
+
+  private handleMovieActionSubscription() {
+    this.wsService.getMovieActionSubject().subscribe((action) => {
       if (action === MovieAction.PLAY) {
         this.vgPlayer.play();
       } else if (action === MovieAction.PAUSE) {
