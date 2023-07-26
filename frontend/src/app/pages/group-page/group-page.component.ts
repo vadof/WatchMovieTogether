@@ -54,6 +54,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         this.wsService.connect();
 
         this.handlePrivilegesSubscription();
+        this.handleUserAddSubscription();
         this.handleUserLeaveSubscription();
       } else {
         this.router.navigate([''])
@@ -80,6 +81,12 @@ export class GroupPageComponent implements OnInit, OnDestroy {
       if (user.username === this.tokenStorage.getUsername()) {
         this.router.navigate(['groups'])
       }
+    })
+  }
+
+  private handleUserAddSubscription() {
+    this.wsService.getUserAddSubject().subscribe((user) => {
+      this.group.users.push(user);
     })
   }
 
@@ -115,8 +122,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   public addUsersToGroup() {
     this.checkedUsers.forEach(
       (u) => {
-        this.groupService.addUserToGroup(this.group, u)
-        this.group.users.push(u)
+        this.wsService.addUserToGroup(u);
       }
     )
     this.checkedUsers = []

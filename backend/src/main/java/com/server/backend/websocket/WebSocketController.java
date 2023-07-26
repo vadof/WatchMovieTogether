@@ -52,4 +52,20 @@ public class WebSocketController {
         return this.groupService.changeUserPrivileges(user,
                 groupId, header.getFirstNativeHeader("username"));
     }
+
+    @MessageMapping("/{groupId}/user/leave")
+    @SendTo("/group/{groupId}/user/leave")
+    public User removeUserFromGroup(@Payload User user,
+                                    @DestinationVariable Long groupId,
+                                    SimpMessageHeaderAccessor headerAccessor) {
+        return this.groupService.removeUserFromGroup(groupId,
+                user, headerAccessor.getFirstNativeHeader("username"));
+    }
+
+    @MessageMapping("/{groupId}/user/add")
+    @SendTo("/group/{groupId}/user/add")
+    public void addUserToGroup(@Payload User user,
+                               @DestinationVariable Long groupId) {
+        this.groupService.addUserToGroup(groupId, user);
+    }
 }
