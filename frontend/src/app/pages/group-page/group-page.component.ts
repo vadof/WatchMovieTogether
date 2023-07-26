@@ -8,6 +8,7 @@ import {User} from "../../models/User";
 import {FriendService} from "../../services/friend.service";
 import {MovieService} from "../../services/movie.service";
 import {WebSocketService} from "../../services/web-socket.service";
+import {MovieAction} from "./MovieAction";
 
 @Component({
   selector: 'app-group-page',
@@ -16,10 +17,8 @@ import {WebSocketService} from "../../services/web-socket.service";
 })
 export class GroupPageComponent implements OnInit, OnDestroy {
 
-  // @ts-ignore
-  group: Group
-  // @ts-ignore
-  chat: Chat
+  group!: Group
+  chat!: Chat
   notInGroupUsers: User[] = []
   checkedUsers: User[] = []
   chooseAnotherMovie: boolean = false
@@ -42,7 +41,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
       if (group) {
         this.group = group;
 
-        if (group.groupSettings) {
+        if (group.groupSettings.selectedMovie) {
           this.movieService.selectedTranslation = group.groupSettings.selectedTranslation
         }
 
@@ -53,6 +52,8 @@ export class GroupPageComponent implements OnInit, OnDestroy {
 
         this.wsService.setGroupId(group.id)
         this.wsService.connect();
+
+        this.handlePrivilegesSubscription();
       } else {
         this.router.navigate([''])
       }
@@ -61,6 +62,13 @@ export class GroupPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.wsService.disconnect();
+    console.log(this.group.groupSettings.usersWithPrivileges)
+  }
+
+  private handlePrivilegesSubscription() {
+    this.wsService.getPrivilegesSubject().subscribe((users) => {
+      this.group.groupSettings.usersWithPrivileges = users;
+    })
   }
 
   public leaveFromGroup() {
@@ -79,7 +87,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   public isAdmin() {
-    return this.tokenStorage.getUsername() === this.group.admin
+    return this.tokenStorage.getUsername() === this.group.admin.username
   }
 
   public addUserToChecked(user: User) {
@@ -107,7 +115,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   public userIsAdmin(user: User): boolean {
-    return this.group.admin === user.username
+    return this.group.admin.username === user.username
   }
 
   setMovie() {
@@ -124,6 +132,17 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     if (this.group.groupSettings.selectedTranslation.name !== this.movieService.selectedTranslation?.name
                   && this.movieService.selectedTranslation) {
       this.groupService.changeMovieTranslation(this.movieService.selectedTranslation, this.group)
+    }
+  }
+
+  public userHasPrivileges(user: User): boolean {
+    return this.group.groupSettings.usersWithPrivileges
+      .some((u) => u.username === user.username);
+  }
+
+  public changeUserPrivileges(user: User) {
+    if (this.isAdmin()) {
+      this.wsService.changeUserPrivileges(user, this.group.id);
     }
   }
 }

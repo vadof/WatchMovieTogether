@@ -21,8 +21,7 @@ const trackedKeys: string[] = [' ', 'p', 'm', 'ArrowLeft', 'ArrowRight', 'ArrowU
   styleUrls: ['./video-player.component.scss']
 })
 export class VideoPlayerComponent implements OnInit {
-  // @ts-ignore
-  @Input() group: Group
+  @Input() group!: Group
 
   @ViewChild(VgApiService, { static: true }) vgPlayer!: VgApiService;
   @ViewChild(VgControlsComponent, {static: true}) vgControls!: VgControlsComponent;
@@ -32,8 +31,6 @@ export class VideoPlayerComponent implements OnInit {
   public movie: any;
   public selectedResolution: any;
   public resolutions: Resolution[] = []
-  private currentMovieTime: any;
-
   public videoLink: string = ''
 
   constructor(
@@ -53,7 +50,7 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.group.groupSettings) {
+    if (this.group.groupSettings.selectedMovie) {
       this.resolutions = this.group.groupSettings.selectedTranslation.resolutions.reverse();
       this.movie = this.group.groupSettings.selectedMovie
 
@@ -65,13 +62,6 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
-  public t(t: string) {
-    console.log(t)
-    console.log(this.vgPlayer.currentTime)
-    setTimeout(() => {
-      console.log(this.vgPlayer.currentTime)}, 100)
-  }
-
   public onPlayerReady() {
     this.vgPlayer.getDefaultMedia().subscriptions.play.subscribe(() => {
       this.play();
@@ -80,9 +70,6 @@ export class VideoPlayerComponent implements OnInit {
     this.vgPlayer.getDefaultMedia().subscriptions.pause.subscribe(() => {
       this.pause();
     })
-    // this.vgPlayer.getDefaultMedia().subscriptions.timeUpdate.subscribe(() => {
-    //   console.log("TIME " + this.vgPlayer.currentTime)
-    // })
   }
 
   private setInitialResolution() {
@@ -117,7 +104,7 @@ export class VideoPlayerComponent implements OnInit {
 
   private handleRewindSubscription() {
     this.wsService.getMovieRewindSubject().subscribe((time) => {
-      this.pause()
+      this.vgPlayer.pause();
       this.vgPlayer.currentTime = time;
       setTimeout(() => {this.vgPlayer.play();}, 1000)
     })
@@ -133,30 +120,39 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private play() {
-    this.wsService.sendMovieAction(MovieAction.PLAY)
+    if (this.hasPrivileges()) {
+      this.wsService.sendMovieAction(MovieAction.PLAY)
+    }
   }
 
   private pause() {
-    this.wsService.sendMovieAction(MovieAction.PAUSE)
-    this.currentMovieTime = this.vgPlayer.currentTime;
+    if (this.hasPrivileges()) {
+      this.wsService.sendMovieAction(MovieAction.PAUSE)
+    }
   }
 
   public changeResolution(resolution: Resolution) {
     if (this.selectedResolution.value !== resolution.value) {
-      this.pause();
+      const start = performance.now();
+      const currentTime = this.getCurrentMovieTime();
+
+      this.vgPlayer.pause();
+
       this.selectedResolution = resolution;
       this.userConfig.setPreferredResolution(resolution.value);
 
       this.getNewVideoLink(resolution).then(() => {
         setTimeout(() => {
-          this.vgPlayer.currentTime = this.currentMovieTime;
-        }, 3000)
+          const end = performance.now();
+          this.vgPlayer.currentTime = currentTime + ((end - start) / 1000);
+          this.vgPlayer.play();
+        }, 5000)
       });
     }
   }
 
   public rewind(value: number) {
-    if (this.hasAccessToRewound()) {
+    if (this.hasPrivileges()) {
       this.wsService.sendMovieRewind(value.toString())
     }
   }
@@ -164,7 +160,7 @@ export class VideoPlayerComponent implements OnInit {
   public mouseUpRewind() {
     setTimeout(() => {
       this.rewind(this.getCurrentMovieTime())
-    }, 500)
+    }, 100)
   }
 
   private handleKeyPress(event: KeyboardEvent) {
@@ -195,14 +191,16 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private unmute() {
+    console.log(this.hasPrivileges())
     this.vgVolume.setVolume(this.userConfig.getPreferredVolume()! * 100);
-  }
-
-  public hasAccessToRewound(): boolean {
-    return this.group.admin === this.tokenStorage.getUsername()
   }
 
   public getCurrentMovieTime() {
     return this.vgPlayer.currentTime;
+  }
+
+  public hasPrivileges(): boolean {
+    return this.group.groupSettings.usersWithPrivileges
+      .some((u) => u.username === this.tokenStorage.getUsername());
   }
 }

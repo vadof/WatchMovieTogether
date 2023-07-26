@@ -111,3 +111,38 @@
     margin: 1rem;
   }
 }
+
+.admin-actions {
+  ul {
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: 10px;
+
+    font-size: 18px;
+
+    .privileges {
+      color: #b1d6fd;
+      background: rgb(43,41,133);
+      background: linear-gradient(119deg, rgba(43,41,133,1) 0%, rgba(56,4,96,1) 91%);
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      border-bottom: 1px solid #b1d6fd;
+    }
+  }
+
+  .form-check {
+    text-align: start;
+
+    input {
+      cursor: pointer;
+    }
+  }
+
+  .remove-button {
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+
+    font-size: 18px;
+    font-weight: normal;
+  }
+}
