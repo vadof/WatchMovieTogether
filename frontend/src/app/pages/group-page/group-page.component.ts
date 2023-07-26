@@ -54,6 +54,8 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         this.wsService.connect();
 
         this.handlePrivilegesSubscription();
+        this.handleUserAddSubscription();
+        this.handleUserLeaveSubscription();
       } else {
         this.router.navigate([''])
       }
@@ -71,10 +73,28 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     })
   }
 
+  private handleUserLeaveSubscription() {
+    this.wsService.getUserLeaveSubject().subscribe((user) => {
+      this.group.users
+        .splice(this.group.users.findIndex(u => u.username === user.username), 1)
+
+      if (user.username === this.tokenStorage.getUsername()) {
+        this.router.navigate(['groups'])
+      }
+    })
+  }
+
+  private handleUserAddSubscription() {
+    this.wsService.getUserAddSubject().subscribe((user) => {
+      this.group.users.push(user);
+    })
+  }
+
   public leaveFromGroup() {
-    if (this.group) {
-      this.groupService.removeUserFromGroup(this.group.id, this.tokenStorage.getUsername());
-      this.router.navigate(['groups'])
+    let username: string = this.tokenStorage.getUsername();
+    let user: User | undefined = this.group.users.find((u) => u.username === username)
+    if (user) {
+      this.wsService.removeUserFromGroup(user, username);
     }
   }
 
@@ -87,7 +107,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   public isAdmin() {
-    return this.tokenStorage.getUsername() === this.group.admin.username
+    return this.tokenStorage.getUsername() === this.group.admin.username;
   }
 
   public addUserToChecked(user: User) {
@@ -102,16 +122,14 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   public addUsersToGroup() {
     this.checkedUsers.forEach(
       (u) => {
-        this.groupService.addUserToGroup(this.group, u)
-        this.group.users.push(u)
+        this.wsService.addUserToGroup(u);
       }
     )
     this.checkedUsers = []
   }
 
   public removeUserFromGroup(user: User) {
-    this.groupService.removeUserFromGroup(this.group.id, user.username)
-    this.group.users.splice(this.group.users.findIndex(u => u.username === user.username), 1)
+    this.wsService.removeUserFromGroup(user, this.tokenStorage.getUsername());
   }
 
   public userIsAdmin(user: User): boolean {
@@ -142,7 +160,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
 
   public changeUserPrivileges(user: User) {
     if (this.isAdmin()) {
-      this.wsService.changeUserPrivileges(user, this.group.id);
+      this.wsService.changeUserPrivileges(user);
     }
   }
 }

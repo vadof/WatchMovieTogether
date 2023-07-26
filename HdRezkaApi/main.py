@@ -29,7 +29,6 @@ def getMovieObject(url, attempts=3):
             resolutions = []
             for res in rezka.getStream(translation=t).videos.keys():
                 resolutions.append(Resolution(res))
-                print(res)
             translations.append(Translation(t, resolutions))
 
         movie = Movie(url, rezka.getName(), translations)

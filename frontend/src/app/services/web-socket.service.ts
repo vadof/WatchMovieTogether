@@ -16,6 +16,8 @@ export class WebSocketService {
   private movieSubject: Subject<string> = new Subject<string>();
   private rewindSubject: Subject<number> = new Subject<number>();
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
+  private userLeaveSubject: Subject<User> = new Subject<User>();
+  private userAddSubject: Subject<User> = new Subject<User>();
 
   constructor(
     private tokenStorage: TokenStorageService,
@@ -36,6 +38,8 @@ export class WebSocketService {
           this.subscribeToMovie();
           this.subscribeToRewind();
           this.subscribeToPrivilegeChange();
+          this.subscribeToUserAdd();
+          this.subscribeToUserLeave();
         },
       });
 
@@ -70,11 +74,27 @@ export class WebSocketService {
     })
   }
 
-  public getMessageSubscription(): Subject<string> {
+  private subscribeToUserAdd() {
+    this.client.subscribe(`/group/${this.groupId}/user/add`,
+      (leftUser) => {
+        let user: User = JSON.parse(leftUser.body);
+        this.userAddSubject.next(user)
+      })
+  }
+
+  private subscribeToUserLeave() {
+    this.client.subscribe(`/group/${this.groupId}/user/leave`,
+      (leftUser) => {
+        let user: User = JSON.parse(leftUser.body);
+        this.userLeaveSubject.next(user)
+      })
+  }
+
+  public getMessageSubject(): Subject<string> {
     return this.messageSubject;
   }
 
-  public getMovieSubscription(): Subject<string> {
+  public getMovieSubject(): Subject<string> {
     return this.movieSubject;
   }
 
@@ -86,12 +106,37 @@ export class WebSocketService {
     return this.privilegesSubject;
   }
 
+  public getUserLeaveSubject(): Subject<User> {
+    return this.userLeaveSubject;
+  }
+
+  public getUserAddSubject(): Subject<User> {
+    return this.userAddSubject;
+  }
+
   public sendMessage(message: string): void {
     this.client.publish({
       destination: `/app/${this.groupId}/chat`,
       body: message,
       headers: {
         'username': this.tokenStorage.getUsername()
+      }
+    })
+  }
+
+  public addUserToGroup(user: User) {
+    this.client.publish({
+      destination: `/app/${this.groupId}/user/add`,
+      body: JSON.stringify(user),
+    })
+  }
+
+  public removeUserFromGroup(user: User, whoRemovedUsername: string) {
+    this.client.publish({
+      destination: `/app/${this.groupId}/user/leave`,
+      body: JSON.stringify(user),
+      headers: {
+        'username': whoRemovedUsername
       }
     })
   }
@@ -110,7 +155,7 @@ export class WebSocketService {
     })
   }
 
-  public changeUserPrivileges(user: User, groupId: number) {
+  public changeUserPrivileges(user: User) {
     this.client.publish({
       destination: `/app/${this.groupId}/user/privileges`,
       body: JSON.stringify(user),

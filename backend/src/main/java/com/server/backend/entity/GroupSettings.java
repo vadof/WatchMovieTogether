@@ -29,6 +29,6 @@ public class GroupSettings {
     @OneToOne(mappedBy = "groupSettings")
     private Group group;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> usersWithPrivileges = new HashSet<>();
 }

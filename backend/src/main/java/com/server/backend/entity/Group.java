@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -36,4 +37,17 @@ public class Group {
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     private Chat chat;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Group)) return false;
+        Group otherGroup = (Group) o;
+        return Objects.equals(this.id, otherGroup.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
