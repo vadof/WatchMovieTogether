@@ -40,7 +40,7 @@ public class ChatService {
         return message1;
     }
 
-    public Message addSystemMessageToGroupChat(Long groupId, String message) {
+    public void addSystemMessageToGroupChat(Long groupId, String message) {
         Chat chat = groupRepository.findById(groupId).orElseThrow().getChat();
         Message systemMessage = Message.builder()
                 .message(message)
@@ -53,8 +53,6 @@ public class ChatService {
         chatRepository.save(chat);
 
         template.convertAndSend("/group/" + groupId + "/chat", systemMessage);
-
-        return systemMessage;
     }
 
     public String generateMovieChangeMessage(String movieName, String selectedTranslation) {
@@ -64,6 +62,11 @@ public class ChatService {
 
     public String generateUserLeaveMessage(String username) {
         return String.format("%s left the group", username);
+    }
+
+    public String generateUserKickedMessage(String kickedUserUsername, String whoKickedUsername) {
+        return String.format("%s was kicked by %s from the group",
+                kickedUserUsername, whoKickedUsername);
     }
 
     public String generateUserJoinMessage(String username) {

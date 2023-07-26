@@ -93,7 +93,7 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private handleMovieSubscription() {
-    this.wsService.getMovieSubscription().subscribe((action) => {
+    this.wsService.getMovieSubject().subscribe((action) => {
       if (action === MovieAction.PLAY) {
         this.vgPlayer.play();
       } else if (action === MovieAction.PAUSE) {
@@ -191,7 +191,6 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private unmute() {
-    console.log(this.hasPrivileges())
     this.vgVolume.setVolume(this.userConfig.getPreferredVolume()! * 100);
   }
 

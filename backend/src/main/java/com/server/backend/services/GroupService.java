@@ -108,27 +108,41 @@ public class GroupService {
         }
     }
 
-    public void removeUserFromGroup(Long groupId, String username) {
+    @Transactional
+    public User removeUserFromGroup(Long groupId, User removedUser, String whoRemovedUsername) {
         Group group = groupRepository.findById(groupId).orElseThrow();
-        User user = userRepository.findByUsername(username).orElseThrow();
+        removedUser = userRepository.findByUsername(removedUser.getUsername()).orElseThrow();
 
-        group.getUsers().remove(user);
-        user.getGroups().remove(group);
-        userRepository.save(user);
+        group.getUsers().remove(removedUser);
+
+        group.getGroupSettings().getUsersWithPrivileges().remove(removedUser);
+        groupSettingsRepository.save(group.getGroupSettings());
+
+        removedUser.getGroups().remove(group);
+        userRepository.save(removedUser);
 
         if (group.getUsers().isEmpty()) {
             groupRepository.delete(group);
         } else {
-            if (group.getAdmin().equals(user)) {
+            if (group.getAdmin().equals(removedUser)) {
                 User newAdmin = group.getUsers().stream().findFirst().get();
+                group.getGroupSettings().getUsersWithPrivileges().add(newAdmin);
+                groupSettingsRepository.save(group.getGroupSettings());
                 group.setAdmin(newAdmin);
+            }
+
+            if (removedUser.getUsername().equals(whoRemovedUsername)) {
+                chatService.addSystemMessageToGroupChat(groupId,
+                        chatService.generateUserLeaveMessage(removedUser.getUsername()));
+            } else {
+                chatService.addSystemMessageToGroupChat(groupId,
+                        chatService.generateUserKickedMessage(removedUser.getUsername(), whoRemovedUsername));
             }
 
             groupRepository.save(group);
         }
 
-        chatService.addSystemMessageToGroupChat(
-                group.getId(), chatService.generateUserLeaveMessage(username));
+        return removedUser;
     }
 
     public void changeMovieTranslation(Long groupId, Translation translation) {

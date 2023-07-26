@@ -76,10 +76,6 @@ export class GroupService {
     this.api.sendPostRequest(`/groups/${group.id}/users`, user).subscribe()
   }
 
-  removeUserFromGroup(groupId: number, username: string) {
-    this.api.sendDeleteRequest(`/groups/${groupId}/users/${username}`).subscribe()
-  }
-
   public changeMovieTranslation(selectedTranslation: Translation, group: Group) {
     this.api.sendPutRequest(`/groups/${group.id}/translation`, selectedTranslation).subscribe()
   }

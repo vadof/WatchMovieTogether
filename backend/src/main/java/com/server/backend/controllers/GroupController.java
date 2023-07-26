@@ -40,11 +40,6 @@ public class GroupController {
         this.groupService.addUserToGroup(groupId, user);
     }
 
-    @DeleteMapping("/{groupId}/users/{username}")
-    public void removeUserFromGroup(@PathVariable Long groupId, @PathVariable String username) {
-        this.groupService.removeUserFromGroup(groupId, username);
-    }
-
     @PutMapping("/{groupId}/translation")
     public void changeMovieTranslationForGroup(@PathVariable Long groupId, @RequestBody Translation translation) {
         this.groupService.changeMovieTranslation(groupId, translation);
