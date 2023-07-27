@@ -42,6 +42,6 @@ public class GroupController {
 
     @PutMapping("/{groupId}/translation")
     public void changeMovieTranslationForGroup(@PathVariable Long groupId, @RequestBody Translation translation) {
-        this.groupService.changeMovieTranslation(groupId, translation);
+        this.groupService.changeSelectedMovieTranslation(groupId, translation);
     }
 }

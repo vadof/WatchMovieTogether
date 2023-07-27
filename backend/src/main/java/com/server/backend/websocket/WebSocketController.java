@@ -30,10 +30,11 @@ public class WebSocketController {
                 header.getFirstNativeHeader("username"));
     }
 
-    @MessageMapping("/{groupId}/movie")
-    @SendTo("/group/{groupId}/movie")
+    @MessageMapping("/{groupId}/movie/action")
+    @SendTo("/group/{groupId}/movie/action")
     public String moviePlayPause(@Payload String movieAction,
                                  @DestinationVariable Long groupId) {
+        System.out.println(movieAction);
         return movieAction;
     }
 

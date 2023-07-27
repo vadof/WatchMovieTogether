@@ -91,7 +91,6 @@ export class RegisterFormComponent {
 
       this.authService.register(rr).subscribe(
         response => {
-          console.log(response)
           this.storage.saveToken(response.token)
           this.storage.saveUsername(this.registerForm.value.username)
           this.router.navigate([''])

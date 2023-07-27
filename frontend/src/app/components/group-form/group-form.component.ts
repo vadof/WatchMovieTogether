@@ -16,7 +16,6 @@ export class GroupFormComponent {
 
   // @ts-ignore
   groupForm: FormGroup;
-
   chooseMovie = false;
   errorMessage = ''
 
@@ -47,11 +46,13 @@ export class GroupFormComponent {
         .then(group=> {
           this.groupService.selectMovieForGroup(group, movie, selectedTranslation)
           this.router.navigate(['group/' + group.id])
+            .then(() => window.location.reload())
         })
     } else if (this.groupForm.valid) {
       this.createGroup()
         .then(group=>
-          this.router.navigate(['group/' + group.id]))
+          this.router.navigate(['group/' + group.id])
+        )
     } else {
       this.errorMessage = 'Fill in the empty fields!'
     }

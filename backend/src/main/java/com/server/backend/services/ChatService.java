@@ -8,8 +8,8 @@ import com.server.backend.repository.ChatRepository;
 import com.server.backend.repository.GroupRepository;
 import com.server.backend.repository.MessageRepository;
 import com.server.backend.repository.UserRepository;
+import com.server.backend.websocket.WebSocketService;
 import lombok.AllArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +20,7 @@ public class ChatService {
     private final GroupRepository groupRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate template;
+    private final WebSocketService webSocketService;
 
     public Message addMessageToGroupChat(Long groupId, String message, String username) {
         Chat chat = groupRepository.findById(groupId).orElseThrow().getChat();
@@ -52,7 +52,7 @@ public class ChatService {
         chat.getMessages().add(systemMessage);
         chatRepository.save(chat);
 
-        template.convertAndSend("/group/" + groupId + "/chat", systemMessage);
+        webSocketService.sendObjectByWebsocket("/group/" + groupId + "/chat", systemMessage);
     }
 
     public String generateMovieChangeMessage(String movieName, String selectedTranslation) {
