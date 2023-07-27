@@ -32,6 +32,7 @@ export class VideoPlayerComponent implements OnInit {
   public selectedResolution: any;
   public resolutions: Resolution[] = []
   public videoLink: string = ''
+  private body = document.querySelector('body');
 
   constructor(
     private movieService: MovieService,
@@ -42,8 +43,7 @@ export class VideoPlayerComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    let msgInput = document.getElementById('message-input');
-    if (msgInput !== document.activeElement
+    if (this.body === document.activeElement
       && trackedKeys.find(k => event.key === k)) {
       this.handleKeyPress(event)
     }
@@ -57,20 +57,15 @@ export class VideoPlayerComponent implements OnInit {
       this.setInitialResolution();
       this.getNewVideoLink(this.selectedResolution);
       this.setPreferredVolume();
-      this.handleMovieActionSubscription();
-      this.handleRewindSubscription();
-      this.handleMovieSubscription()
     }
+
+    this.handleMovieActionSubscription();
+    this.handleRewindSubscription();
+    this.handleMovieSubscription()
   }
 
   public onPlayerReady() {
-    this.vgPlayer.getDefaultMedia().subscriptions.play.subscribe(() => {
-      this.play();
-    })
 
-    this.vgPlayer.getDefaultMedia().subscriptions.pause.subscribe(() => {
-      this.pause();
-    })
   }
 
   private setInitialResolution() {
@@ -95,13 +90,15 @@ export class VideoPlayerComponent implements OnInit {
 
   private handleMovieSubscription() {
     this.wsService.getMovieSubject().subscribe((ms) => {
-      if (this.group.groupSettings.selectedMovie.name !== ms.movie.name) {
+      if (!this.group.groupSettings.selectedMovie) {
+        window.location.reload()
+      } else {
         this.group.groupSettings.selectedMovie = ms.movie;
+        this.group.groupSettings.selectedTranslation = ms.selectedTranslation;
+        this.resolutions = ms.selectedTranslation.resolutions.reverse();
+        this.setInitialResolution();
+        this.getNewVideoLink(this.selectedResolution);
       }
-      this.group.groupSettings.selectedTranslation = ms.selectedTranslation;
-      this.resolutions = ms.selectedTranslation.resolutions.reverse();
-      this.setInitialResolution();
-      this.getNewVideoLink(this.selectedResolution);
     })
   }
 
@@ -144,6 +141,7 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
+  // TODO if video paused no need to play
   public changeResolution(resolution: Resolution) {
     if (this.selectedResolution.value !== resolution.value) {
       const start = performance.now();

@@ -34,6 +34,7 @@ public class WebSocketController {
     @SendTo("/group/{groupId}/movie/action")
     public String moviePlayPause(@Payload String movieAction,
                                  @DestinationVariable Long groupId) {
+        System.out.println(movieAction);
         return movieAction;
     }
 

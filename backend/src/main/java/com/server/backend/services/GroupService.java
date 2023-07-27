@@ -63,22 +63,32 @@ public class GroupService {
         try {
             Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).get();
             Group group = groupRepository.findById(msr.getGroupId()).get();
-            Translation translation = movie.getTranslations()
-                    .stream()
-                    .filter(t -> t.equals(msr.getSelectedTranslation()))
-                    .findFirst().get();
 
-            GroupSettings groupSettings = group.getGroupSettings();
-            groupSettings.setSelectedMovie(movie);
-            groupSettings.setSelectedTranslation(translation);
+            Movie oldMovie = group.getGroupSettings().getSelectedMovie();
 
-            groupSettingsRepository.save(groupSettings);
+            if (oldMovie != null && movie.getName().equals(oldMovie.getName())) {
+                if (!msr.getSelectedTranslation()
+                        .equals(group.getGroupSettings().getSelectedTranslation())) {
+                    this.changeSelectedMovieTranslation(msr.getGroupId(), msr.getSelectedTranslation());
+                }
+            } else {
+                Translation translation = movie.getTranslations()
+                        .stream()
+                        .filter(t -> t.equals(msr.getSelectedTranslation()))
+                        .findFirst().get();
 
-            String movieChangeMessage = chatService.generateMovieChangeMessage(
-                    movie.getName(), translation.getName());
-            chatService.addSystemMessageToGroupChat(group.getId(), movieChangeMessage);
+                GroupSettings groupSettings = group.getGroupSettings();
+                groupSettings.setSelectedMovie(movie);
+                groupSettings.setSelectedTranslation(translation);
 
-            this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
+                groupSettingsRepository.save(groupSettings);
+
+                String movieChangeMessage = chatService.generateMovieChangeMessage(
+                        movie.getName(), translation.getName());
+                chatService.addSystemMessageToGroupChat(group.getId(), movieChangeMessage);
+
+                this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
+            }
         } catch (Exception e) {
             LOG.error("Failed to set up movie for group " + e.getMessage());
         }

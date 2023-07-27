@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Client} from "@stomp/stompjs";
+import {Client, StompSubscription} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
@@ -20,6 +20,8 @@ export class WebSocketService {
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
   private userLeaveSubject: Subject<User> = new Subject<User>();
   private userAddSubject: Subject<User> = new Subject<User>();
+
+  private subscriptions: StompSubscription[] = [];
 
   constructor(
     private tokenStorage: TokenStorageService,
@@ -52,52 +54,66 @@ export class WebSocketService {
   }
 
   private subscribeToGroupChat() {
-    this.client.subscribe(`/group/${this.groupId}/chat`, (msg) => {
-      this.messageSubject.next(msg.body);
-    })
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/chat`, (msg) => {
+        this.messageSubject.next(msg.body);
+    }))
   }
 
   private subscribeToMovieAction() {
-    this.client.subscribe(`/group/${this.groupId}/movie/action`, (action) => {
-      this.movieActionSubject.next(action.body)
-    })
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/movie/action`, (action) => {
+        this.movieActionSubject.next(action.body)
+    }))
+
   }
 
   private subscribeToMovieChange() {
-    this.client.subscribe(`/group/${this.groupId}/movie`, (newMovie) => {
-      const msr: MovieSelectionObject = JSON.parse(newMovie.body);
-      this.movieSubject.next(msr);
-    })
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/movie`, (newMovie) => {
+        const msr: MovieSelectionObject = JSON.parse(newMovie.body);
+        this.movieSubject.next(msr);
+    }))
+
   }
 
   private subscribeToRewind() {
-    this.client.subscribe(`/group/${this.groupId}/movie/rewind`, (time) => {
-      this.rewindSubject.next(Number(time.body))
-    })
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/movie/rewind`, (time) => {
+        this.rewindSubject.next(Number(time.body))
+      })
+    )
+
   }
 
   private subscribeToPrivilegeChange() {
-    this.client.subscribe(`/group/${this.groupId}/user/privileges`,
-      (usersWithPrivileges) => {
-        let users: User[] = JSON.parse(usersWithPrivileges.body);
-      this.privilegesSubject.next(users)
-    })
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/user/privileges`,
+        (usersWithPrivileges) => {
+          let users: User[] = JSON.parse(usersWithPrivileges.body);
+          this.privilegesSubject.next(users)
+      })
+    )
   }
 
   private subscribeToUserAdd() {
-    this.client.subscribe(`/group/${this.groupId}/user/add`,
-      (leftUser) => {
-        let user: User = JSON.parse(leftUser.body);
-        this.userAddSubject.next(user)
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/user/add`,
+        (leftUser) => {
+          let user: User = JSON.parse(leftUser.body);
+          this.userAddSubject.next(user)
       })
+    )
   }
 
   private subscribeToUserLeave() {
-    this.client.subscribe(`/group/${this.groupId}/user/leave`,
-      (leftUser) => {
-        let user: User = JSON.parse(leftUser.body);
-        this.userLeaveSubject.next(user)
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/user/leave`,
+        (leftUser) => {
+          let user: User = JSON.parse(leftUser.body);
+          this.userLeaveSubject.next(user)
       })
+    )
   }
 
   public getMessageSubject(): Subject<string> {
@@ -156,6 +172,7 @@ export class WebSocketService {
   }
 
   public sendMovieAction(action: MovieAction) {
+    console.log("SEND ")
     this.client.publish({
       destination: `/app/${this.groupId}/movie/action`,
       body: action
@@ -181,7 +198,18 @@ export class WebSocketService {
 
   public disconnect(): void {
     if (this.client.active) {
-      this.client.deactivate()
+      this.client.deactivate();
+
+      this.subscriptions.forEach(s => s.unsubscribe());
+      this.subscriptions = []
+
+      this.messageSubject = new Subject<string>();
+      this.movieActionSubject = new Subject<string>();
+      this.movieSubject = new Subject<MovieSelectionObject>();
+      this.rewindSubject = new Subject<number>();
+      this.privilegesSubject = new Subject<User[]>();
+      this.userLeaveSubject = new Subject<User>();
+      this.userAddSubject = new Subject<User>();
     }
   }
 }

@@ -40,4 +40,17 @@ public class Movie {
     public void addSearch() {
         this.searches++;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Movie)) return false;
+        Movie otherMovie = (Movie) o;
+        return Objects.equals(this.id, otherMovie.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
