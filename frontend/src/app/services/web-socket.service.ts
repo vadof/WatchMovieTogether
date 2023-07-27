@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Client, StompSubscription} from "@stomp/stompjs";
+import {Client, StompHeaders, StompSubscription} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
@@ -34,9 +34,15 @@ export class WebSocketService {
   }
 
   public connect() {
+    const headers = {
+      'Authorization': `Bearer ${this.tokenStorage.getToken()}`,
+      'groupId': this.groupId.toString()
+    }
     if (this.groupId) {
+
       this.client.configure({
         brokerURL: `ws://localhost:8080/websocket/group/${this.groupId}`,
+        connectHeaders: headers,
         onConnect: () => {
           this.subscribeToGroupChat();
           this.subscribeToMovieAction();
@@ -50,7 +56,6 @@ export class WebSocketService {
 
       this.client.activate();
     }
-
   }
 
   private subscribeToGroupChat() {
