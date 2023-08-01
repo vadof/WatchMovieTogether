@@ -162,4 +162,8 @@ export class GroupPageComponent implements OnInit, OnDestroy {
       this.wsService.changeUserPrivileges(user);
     }
   }
+
+  public synchronizeMovie() {
+    this.wsService.synchronizeMovie();
+  }
 }

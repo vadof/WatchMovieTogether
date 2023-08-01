@@ -267,4 +267,11 @@ export class WebSocketService {
       this.movieStateSubject = new Subject<string>();
     }
   }
+
+  public synchronizeMovie() {
+    this.getMovieState();
+    this.getCurrentMovieTime();
+
+    setTimeout(() => {this.getCurrentMovieTime()}, 1000)
+  }
 }

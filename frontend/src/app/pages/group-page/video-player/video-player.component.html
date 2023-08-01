@@ -1,5 +1,4 @@
 <div class="video-player-wrapper">
-  <div class="btn btn-main" (click)="synchronize()">Synchronize</div>
   <vg-player (onPlayerReady)="onPlayerReady()">
     <vg-overlay-play (click)="playPause()" [ngClass]="{'disabled': !hasPrivileges()}"></vg-overlay-play>
     <vg-buffering></vg-buffering>

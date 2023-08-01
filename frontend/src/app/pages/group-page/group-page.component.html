@@ -35,6 +35,10 @@
     </div>
   </div>
 
+  <div class="synchronize-button" *ngIf="group.groupSettings.selectedMovie">
+    <div class="btn btn-main mt-3" (click)="synchronizeMovie()">Synchronize</div>
+  </div>
+
   <div class="d-flex content">
 
     <div class="video-content">
