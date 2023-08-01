@@ -57,11 +57,14 @@ export class VideoPlayerComponent implements OnInit {
       this.setInitialResolution();
       this.getNewVideoLink(this.selectedResolution);
       this.setPreferredVolume();
+      setTimeout(() => {this.synchronize()}, 3000)
     }
 
     this.handleMovieActionSubscription();
     this.handleRewindSubscription();
-    this.handleMovieSubscription()
+    this.handleMovieSubscription();
+    this.handleMovieTimeSubscription();
+    this.handleMovieStateSubscription();
   }
 
   public onPlayerReady() {
@@ -102,6 +105,22 @@ export class VideoPlayerComponent implements OnInit {
     })
   }
 
+  private handleMovieTimeSubscription() {
+    this.wsService.getMovieTimeSubject().subscribe((time) => {
+      this.vgPlayer.currentTime = time;
+    })
+  }
+
+  private handleMovieStateSubscription() {
+    this.wsService.getMovieStateSubject().subscribe((state) => {
+      if (state === MovieAction.PLAY) {
+        this.vgPlayer.play()
+      } else if (state === MovieAction.PAUSE) {
+        this.vgPlayer.pause();
+      }
+    })
+  }
+
   private handleMovieActionSubscription() {
     this.wsService.getMovieActionSubject().subscribe((action) => {
       if (action === MovieAction.PLAY) {
@@ -116,7 +135,7 @@ export class VideoPlayerComponent implements OnInit {
     this.wsService.getMovieRewindSubject().subscribe((time) => {
       this.vgPlayer.pause();
       this.vgPlayer.currentTime = time;
-      setTimeout(() => {this.vgPlayer.play();}, 1000)
+      setTimeout(() => {this.vgPlayer.play()}, 1000)
     })
   }
 
@@ -132,31 +151,26 @@ export class VideoPlayerComponent implements OnInit {
   private play() {
     if (this.hasPrivileges()) {
       this.wsService.sendMovieAction(MovieAction.PLAY)
+      this.wsService.sendCurrentMovieTime(this.getCurrentMovieTime())
     }
   }
 
   private pause() {
     if (this.hasPrivileges()) {
       this.wsService.sendMovieAction(MovieAction.PAUSE)
+      this.wsService.sendCurrentMovieTime(this.getCurrentMovieTime())
     }
   }
 
-  // TODO if video paused no need to play
   public changeResolution(resolution: Resolution) {
     if (this.selectedResolution.value !== resolution.value) {
-      const start = performance.now();
-      const currentTime = this.getCurrentMovieTime();
-
       this.vgPlayer.pause();
-
       this.selectedResolution = resolution;
       this.userConfig.setPreferredResolution(resolution.value);
 
       this.getNewVideoLink(resolution).then(() => {
         setTimeout(() => {
-          const end = performance.now();
-          this.vgPlayer.currentTime = currentTime + ((end - start) / 1000);
-          this.vgPlayer.play();
+          this.synchronize();
         }, 5000)
       });
     }
@@ -212,5 +226,12 @@ export class VideoPlayerComponent implements OnInit {
   public hasPrivileges(): boolean {
     return this.group.groupSettings.usersWithPrivileges
       .some((u) => u.username === this.tokenStorage.getUsername());
+  }
+
+  public synchronize() {
+    this.wsService.getMovieState();
+    this.wsService.getCurrentMovieTime();
+
+    setTimeout(() => {this.wsService.getCurrentMovieTime()}, 1000)
   }
 }
