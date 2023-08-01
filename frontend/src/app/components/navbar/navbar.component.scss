@@ -11,6 +11,10 @@ svg {
   li:not(:last-child) {
     margin-right: 0.5rem;
   }
+
+  transform: translateX(-50%);
+  left: 50%;
+  position: absolute;
 }
 
 .eye {
