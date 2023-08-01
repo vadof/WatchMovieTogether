@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {TokenStorageService} from "../../auth/token-storage.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-navbar',
@@ -9,8 +10,14 @@ import {TokenStorageService} from "../../auth/token-storage.service";
 export class NavbarComponent {
   username: string;
 
-  constructor(private storage: TokenStorageService) {
+  constructor(private storage: TokenStorageService,
+              private router: Router
+  ) {
     this.username = storage.getUsername();
   }
 
+  public logout() {
+    this.storage.signOut();
+    this.router.navigate(['/login'])
+  }
 }

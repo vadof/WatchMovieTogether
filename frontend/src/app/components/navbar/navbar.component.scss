@@ -26,3 +26,27 @@ svg {
 .logo {
   font-weight: 800;
 }
+
+.profile {
+  cursor: pointer;
+
+  ul {
+    padding: 0;
+    background: transparent;
+    border: 1px solid #b1d6fd;
+
+    a {
+      color: #b1d6fd;
+
+      &:hover {
+        border-radius: 2px;
+        background: #b1d6fd;
+        color: black;
+      }
+    }
+  }
+}
+
+.dropdown-toggle::after {
+  content: none;
+}
