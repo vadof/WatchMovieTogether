@@ -30,7 +30,6 @@ public class WebSocketService {
         simpMessagingTemplate.convertAndSend(destination, o);
     }
 
-    // TODO синхронизировать на определенном пользователе тайминг
     public void addUser(SessionConnectedEvent event) {
         Map<String, String> nativeHeaders = extractNativeHeadersFromString(event.getMessage().getHeaders());
 
@@ -86,5 +85,21 @@ public class WebSocketService {
         }
 
         return nativeHeaders;
+    }
+
+    public void setGroupMovieTime(Long groupId, String time) {
+        this.groupSessionMap.get(groupId).setCurrentMovieTime(time);
+    }
+
+    public void changeGroupMovieState(Long groupId, String state) {
+        this.groupSessionMap.get(groupId).setMovieState(state);
+    }
+
+    public String getGroupMovieTime(Long groupId) {
+        return this.groupSessionMap.get(groupId).getCurrentMovieTime();
+    }
+
+    public String getGroupMovieState(Long groupId) {
+        return this.groupSessionMap.get(groupId).getMovieState();
     }
 }
