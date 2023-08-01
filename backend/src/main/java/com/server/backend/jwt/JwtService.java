@@ -81,11 +81,6 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Optional<User> getUserFromToken(String token) {
-        String username = extractUsername(token);
-        return userRepository.findByUsername(username);
-    }
-
     public Optional<User> getUserFromBearerToken(String token) {
         String username = extractUsername(token.substring(7));
         return userRepository.findByUsername(username);

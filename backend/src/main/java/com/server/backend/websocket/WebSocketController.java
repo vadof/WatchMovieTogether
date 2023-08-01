@@ -20,6 +20,7 @@ public class WebSocketController {
 
     private final GroupService groupService;
     private final ChatService chatService;
+    private final WebSocketService webSocketService;
 
     @MessageMapping("/{groupId}/chat")
     @SendTo("/group/{groupId}/chat")
@@ -34,7 +35,7 @@ public class WebSocketController {
     @SendTo("/group/{groupId}/movie/action")
     public String moviePlayPause(@Payload String movieAction,
                                  @DestinationVariable Long groupId) {
-        System.out.println(movieAction);
+        this.webSocketService.changeGroupMovieState(groupId, movieAction);
         return movieAction;
     }
 
@@ -42,7 +43,26 @@ public class WebSocketController {
     @SendTo("/group/{groupId}/movie/rewind")
     public String rewindMovie(@Payload String time,
                              @DestinationVariable Long groupId) {
+        this.webSocketService.setGroupMovieTime(groupId, time);
         return time;
+    }
+
+    @MessageMapping("/{groupId}/movie/time/set")
+    public void setGroupMovieTime(@Payload String time,
+                                  @DestinationVariable Long groupId) {
+        this.webSocketService.setGroupMovieTime(groupId, time);
+    }
+
+    @MessageMapping("/{groupId}/{username}/movie/time")
+    @SendTo("/topic/{groupId}/{username}/movie/time")
+    public String getCurrentMovieTime(@DestinationVariable Long groupId) {
+        return this.webSocketService.getGroupMovieTime(groupId);
+    }
+
+    @MessageMapping("/{groupId}/{username}/movie/state")
+    @SendTo("/topic/{groupId}/{username}/movie/state")
+    public String getCurrentMovieState(@DestinationVariable Long groupId) {
+        return this.webSocketService.getGroupMovieState(groupId);
     }
 
     @MessageMapping("/{groupId}/user/privileges")

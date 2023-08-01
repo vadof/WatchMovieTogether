@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Client, StompSubscription} from "@stomp/stompjs";
+import {Client, StompHeaders, StompSubscription} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
@@ -20,6 +20,8 @@ export class WebSocketService {
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
   private userLeaveSubject: Subject<User> = new Subject<User>();
   private userAddSubject: Subject<User> = new Subject<User>();
+  private movieTimeSubject: Subject<string> = new Subject<string>();
+  private movieStateSubject: Subject<string> = new Subject<string>();
 
   private subscriptions: StompSubscription[] = [];
 
@@ -34,9 +36,15 @@ export class WebSocketService {
   }
 
   public connect() {
+    const headers = {
+      'Authorization': `Bearer ${this.tokenStorage.getToken()}`,
+      'groupId': this.groupId.toString()
+    }
     if (this.groupId) {
+
       this.client.configure({
         brokerURL: `ws://localhost:8080/websocket/group/${this.groupId}`,
+        connectHeaders: headers,
         onConnect: () => {
           this.subscribeToGroupChat();
           this.subscribeToMovieAction();
@@ -45,12 +53,13 @@ export class WebSocketService {
           this.subscribeToUserAdd();
           this.subscribeToUserLeave();
           this.subscribeToMovieChange();
+          this.subscribeToMovieTime();
+          this.subscribeToMovieState();
         },
       });
 
       this.client.activate();
     }
-
   }
 
   private subscribeToGroupChat() {
@@ -116,6 +125,24 @@ export class WebSocketService {
     )
   }
 
+  private subscribeToMovieTime() {
+    this.subscriptions.push(
+      this.client.subscribe(`/topic/${this.groupId}/${this.tokenStorage.getUsername()}/movie/time`,
+        (time) => {
+          this.movieTimeSubject.next(time.body)
+        })
+    )
+  }
+
+  private subscribeToMovieState() {
+    this.subscriptions.push(
+      this.client.subscribe(`/topic/${this.groupId}/${this.tokenStorage.getUsername()}/movie/state`,
+        (state) => {
+          this.movieStateSubject.next(state.body)
+        })
+    )
+  }
+
   public getMessageSubject(): Subject<string> {
     return this.messageSubject;
   }
@@ -144,6 +171,14 @@ export class WebSocketService {
     return this.userAddSubject;
   }
 
+  public getMovieTimeSubject(): Subject<string> {
+    return this.movieTimeSubject;
+  }
+
+  public getMovieStateSubject(): Subject<string> {
+    return this.movieStateSubject;
+  }
+
   public sendMessage(message: string): void {
     this.client.publish({
       destination: `/app/${this.groupId}/chat`,
@@ -151,6 +186,25 @@ export class WebSocketService {
       headers: {
         'username': this.tokenStorage.getUsername()
       }
+    })
+  }
+
+  public sendCurrentMovieTime(time: string) {
+    this.client.publish({
+      destination: `/app/${this.groupId}/movie/time/set`,
+      body: time
+    })
+  }
+
+  public getCurrentMovieTime() {
+    this.client.publish({
+      destination: `/app/${this.groupId}/${this.tokenStorage.getUsername()}/movie/time`
+    })
+  }
+
+  public getMovieState() {
+    this.client.publish({
+      destination: `/app/${this.groupId}/${this.tokenStorage.getUsername()}/movie/state`
     })
   }
 
@@ -172,7 +226,6 @@ export class WebSocketService {
   }
 
   public sendMovieAction(action: MovieAction) {
-    console.log("SEND ")
     this.client.publish({
       destination: `/app/${this.groupId}/movie/action`,
       body: action
@@ -210,6 +263,8 @@ export class WebSocketService {
       this.privilegesSubject = new Subject<User[]>();
       this.userLeaveSubject = new Subject<User>();
       this.userAddSubject = new Subject<User>();
+      this.movieTimeSubject = new Subject<string>();
+      this.movieStateSubject = new Subject<string>();
     }
   }
 }
