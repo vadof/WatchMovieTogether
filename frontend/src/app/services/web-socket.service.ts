@@ -190,10 +190,12 @@ export class WebSocketService {
   }
 
   public sendCurrentMovieTime(time: string) {
-    this.client.publish({
-      destination: `/app/${this.groupId}/movie/time/set`,
-      body: time
-    })
+    if (time) {
+      this.client.publish({
+        destination: `/app/${this.groupId}/movie/time/set`,
+        body: time
+      })
+    }
   }
 
   public getCurrentMovieTime() {
