@@ -1,4 +1,4 @@
-<div class="chat-content custom-scrollbar" #chatContent>
+<div class="chat-content custom-scrollbar pb-2" #chatContent>
 
   <div *ngFor="let m of chat.messages; let i = index">
     <div *ngIf="m.messageType === 'USER'" class="message"
@@ -19,7 +19,7 @@
 
 </div>
 
-<div class="input-group mt-3">
+<div class="input-group">
   <input id="message-input" type="text" class="form-control" placeholder="Write a message..." [(ngModel)]="message" (keyup.enter)="sendMessage()">
   <button class="btn btn-main btn-scale" type="button" (click)="sendMessage()">Send</button>
 </div>

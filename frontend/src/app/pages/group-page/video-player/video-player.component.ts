@@ -57,7 +57,7 @@ export class VideoPlayerComponent implements OnInit {
       this.setInitialResolution();
       this.getNewVideoLink(this.selectedResolution);
       this.setPreferredVolume();
-      setTimeout(() => {this.synchronize()}, 3000)
+      setTimeout(() => {this.wsService.synchronizeMovie()}, 3000)
     }
 
     this.handleMovieActionSubscription();
@@ -170,7 +170,7 @@ export class VideoPlayerComponent implements OnInit {
 
       this.getNewVideoLink(resolution).then(() => {
         setTimeout(() => {
-          this.synchronize();
+          this.wsService.synchronizeMovie();
         }, 5000)
       });
     }
@@ -226,12 +226,5 @@ export class VideoPlayerComponent implements OnInit {
   public hasPrivileges(): boolean {
     return this.group.groupSettings.usersWithPrivileges
       .some((u) => u.username === this.tokenStorage.getUsername());
-  }
-
-  public synchronize() {
-    this.wsService.getMovieState();
-    this.wsService.getCurrentMovieTime();
-
-    setTimeout(() => {this.wsService.getCurrentMovieTime()}, 1000)
   }
 }

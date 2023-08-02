@@ -35,16 +35,13 @@
     </div>
   </div>
 
+  <div class="synchronize-button" *ngIf="group.groupSettings.selectedMovie">
+    <div class="btn btn-main mt-3" (click)="synchronizeMovie()">Synchronize</div>
+  </div>
+
   <div class="d-flex content">
-
-    <div class="video-content">
-      <app-video-player [group]="group"></app-video-player>
-    </div>
-
-    <div *ngIf="chat" class="text-color-primary chat">
-      <app-chat [chat]="chat"></app-chat>
-    </div>
-
+    <app-video-player [group]="group" class="video-content"></app-video-player>
+    <app-chat *ngIf="chat" [chat]="chat" class="chat d-flex flex-column justify-content-between"></app-chat>
   </div>
 </div>
 

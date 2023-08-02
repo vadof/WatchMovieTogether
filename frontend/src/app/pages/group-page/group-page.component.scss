@@ -6,6 +6,12 @@
   }
 }
 
+.movie-info {
+  transform: translateX(-50%);
+  left: 50%;
+  position: absolute;
+}
+
 .group-settings {
 
   svg {
@@ -31,14 +37,14 @@
 }
 
 .content {
-  padding-top: 5rem;
+  padding-top: 2rem;
 }
 
-.video-content {
+app-video-player {
   width: 70%;
 }
 
-.chat {
+app-chat {
   width: 30%;
 }
 
