@@ -13,9 +13,7 @@ class Movie:
         }
 
     def __str__(self):
-        return 'link=' + self.link + ',' + \
-                'name=' + self.name + ',' + \
-                'translations=' + self.translations
+        return f'link={self.link}, name={self.name}, translations={self.translations}'
 
 
 class Translation:
