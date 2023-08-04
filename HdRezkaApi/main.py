@@ -8,18 +8,35 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/api/movie/type')
+def getMovieType():
+    try:
+        data = request.get_json()
+        url = data.get('url')
+        rezka = HdRezkaApi(url)
+        return make_response(jsonify(rezka.type[6:]))
+    except:
+        return make_response(jsonify(error='Invalid URL provided.'), 400)
+
+
 @app.route('/api/movie', methods=['POST'])
 def getMovie():
     data = request.get_json()
     url = data.get('url')
     try:
-        rezka = HdRezkaApi(url)
-        if rezka.type == 'video.tv_series':
-            series = getSeriesObject(rezka)
-            return make_response(jsonify(series=series.to_dict()), 200)
-        else:
-            movie = getMovieObject(rezka)
-            return make_response(jsonify(movie=movie.to_dict()), 200)
+        movie = getMovieObject(url)
+        return make_response(jsonify(movie=movie.to_dict()), 200)
+    except:
+        return make_response(jsonify(error='Invalid URL provided.'), 400)
+
+
+@app.route('/api/series', methods=['POST'])
+def getSeries():
+    data = request.get_json()
+    url = data.get('url')
+    try:
+        series = getSeriesObject(url)
+        return make_response(jsonify(series=series.to_dict()), 200)
     except:
         return make_response(jsonify(error='Invalid URL provided.'), 400)
 
@@ -42,8 +59,9 @@ def getMovieStreamLink():
                 return make_response(jsonify(error='Invalid URL provided.'), 400)
 
 
-def getMovieObject(rezka, attempts=3):
+def getMovieObject(url, attempts=3):
     try:
+        rezka = HdRezkaApi(url)
         translations = []
         for t in rezka.getTranslations().keys():
             resolutions = []
@@ -56,13 +74,14 @@ def getMovieObject(rezka, attempts=3):
         return movie
     except:
         if (attempts - 1 > 0):
-            getMovieObject(rezka, attempts - 1)
+            getMovieObject(url, attempts - 1)
         else:
             return None
 
 
-def getSeriesObject(rezka, attempts=3):
+def getSeriesObject(url, attempts=3):
     try:
+        rezka = HdRezkaApi(url)
         seriesInfo = rezka.getSeasons()
         translations = seriesInfo.keys()
         seriesTranslations = []
@@ -84,7 +103,7 @@ def getSeriesObject(rezka, attempts=3):
         return Series(rezka.url, rezka.getName(), seriesTranslations)
     except:
         if (attempts - 1 > 0):
-            return getSeriesObject(rezka, attempts - 1)
+            return getSeriesObject(url, attempts - 1)
         else:
             return None
 
