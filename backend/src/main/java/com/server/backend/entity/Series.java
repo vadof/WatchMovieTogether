@@ -3,17 +3,18 @@ package com.server.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
 @NoArgsConstructor
-public class Movie {
+@Builder
+public class Series {
 
     @JsonIgnore
     @Id
@@ -31,22 +32,9 @@ public class Movie {
     private int searches = 1;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Translation> translations = new ArrayList<>();
+    private List<SeriesTranslation> seriesTranslations = new ArrayList<>();
 
     public void addSearch() {
         this.searches++;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Movie)) return false;
-        Movie otherMovie = (Movie) o;
-        return Objects.equals(this.id, otherMovie.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

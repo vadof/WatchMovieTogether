@@ -21,10 +21,6 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonIgnore
-    @ManyToOne
-    private Chat chat;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MessageType messageType;

@@ -30,7 +30,7 @@ public class ChatService {
                 .message(message)
                 .messageType(MessageType.USER)
                 .user(user)
-                .chat(chat).build();
+                .build();
 
         messageRepository.save(message1);
 
@@ -45,7 +45,7 @@ public class ChatService {
         Message systemMessage = Message.builder()
                 .message(message)
                 .messageType(MessageType.SYSTEM)
-                .chat(chat).build();
+                .build();
 
         messageRepository.save(systemMessage);
 

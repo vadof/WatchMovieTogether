@@ -27,14 +27,6 @@ public class Translation {
     @NotBlank
     private String name;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "selectedTranslation")
-    private List<GroupSettings> groupSettings;
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "translations")
-    private List<Movie> movies;
-
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Resolution> resolutions = new ArrayList<>();
 
