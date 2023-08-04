@@ -18,9 +18,9 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<?> getMovieFromLink(@RequestBody String link) {
-        Optional<Movie> movie = movieService.getMovie(link);
-        if (movie.isPresent()) {
-            return ResponseEntity.ok(movie.get());
+        Optional<?> movieOrSeries = movieService.getMovieOrSeries(link);
+        if (movieOrSeries.isPresent()) {
+            return ResponseEntity.ok(movieOrSeries.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid URL provided");
         }
