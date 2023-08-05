@@ -55,29 +55,32 @@ public class ChatService {
         webSocketService.sendObjectByWebsocket("/group/" + groupId + "/chat", systemMessage);
     }
 
-    public String generateMovieChangeMessage(String movieName, String selectedTranslation) {
-        return String.format("Selected a new movie \"%s\" translated by \"%s\"",
+    public void sendUserLeaveMessage(Long groupId, String username) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s left the group", username));
+    }
+
+    public void sendUserKickedMessage(Long groupId, String kickedUserUsername, String whoKickedUsername) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s was kicked by %s from the group",
+                kickedUserUsername, whoKickedUsername));
+    }
+
+    public void sendUserJoinMessage(Long groupId, String username) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s joined the group", username));
+    }
+
+    public void sendTranslationChangeMessage(Long groupId, String translationName) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("\"%s\" was chosen as the translation", translationName));
+    }
+
+    public void sendGroupCreateMessage(Long groupId, String userUsername) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s created a group", userUsername));
+    }
+
+    public void sendMovieChangeMessage(Long groupId, String movieName, String selectedTranslation) {
+        String msg = String.format("Selected a new movie \"%s\" translated by \"%s\"",
                 movieName, selectedTranslation);
-    }
 
-    public String generateUserLeaveMessage(String username) {
-        return String.format("%s left the group", username);
-    }
-
-    public String generateUserKickedMessage(String kickedUserUsername, String whoKickedUsername) {
-        return String.format("%s was kicked by %s from the group",
-                kickedUserUsername, whoKickedUsername);
-    }
-
-    public String generateUserJoinMessage(String username) {
-        return String.format("%s joined the group", username);
-    }
-
-    public String generateTranslationChangeMessage(String translationName) {
-        return String.format("\"%s\" was chosen as the translation", translationName);
-    }
-
-    public String generateGroupCreateMessage(String userUsername) {
-        return String.format("%s created a group", userUsername);
+        this.addSystemMessageToGroupChat(groupId, msg);
     }
 }

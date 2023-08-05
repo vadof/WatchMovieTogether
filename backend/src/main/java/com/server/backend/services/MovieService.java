@@ -220,26 +220,28 @@ public class MovieService {
         return responseBody.toString();
     }
 
-    public Optional<String> getVideoLinkByResolution(Long groupId, String resolution) {
+    public Optional<String> getMovieLinkByResolution(Long groupId, String resolution) {
         try {
             Group group = this.groupRepository.findById(groupId).orElseThrow();
+            MovieSettings movieSettings = group.getGroupSettings().getMovieSettings();
 
-            String movieUrl = group.getGroupSettings().getSelectedMovie().getLink();
-            Translation groupSelectedTranslation = group.getGroupSettings().getSelectedTranslation();
-            String resolutionValue = groupSelectedTranslation.getResolutions().stream()
-                    .filter(r -> r.getValue().equals(resolution))
-                    .findFirst().orElseThrow().getValue();
+            String movieUrl = movieSettings.getSelectedMovie().getLink();
+            Translation selectedTranslation = movieSettings.getSelectedTranslation();
 
-            String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
-                    movieUrl, groupSelectedTranslation.getName(), resolutionValue);
+            boolean resolutionExists = selectedTranslation.getResolutions().stream()
+                    .anyMatch(r -> r.getValue().equals(resolution));
+            if (resolutionExists) {
+                String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
+                        movieUrl, selectedTranslation.getName(), resolution);
 
-            String videoLink = sendHttpRequest(requestBody, new URL(REZKA_API_URL + "/movie/link"));
-            videoLink = videoLink.substring(videoLink.indexOf("http"), videoLink.lastIndexOf(".mp4") + 4);
+                String videoLink = sendHttpRequest(requestBody, new URL(REZKA_API_URL + "/movie/link"));
+                videoLink = videoLink.substring(videoLink.indexOf("http"), videoLink.lastIndexOf(".mp4") + 4);
 
-            return Optional.of(videoLink);
+                return Optional.of(videoLink);
+            }
         } catch (Exception e) {
-            return Optional.empty();
+            LOG.error("Error getting movie link by resolution {}", e.getMessage());
         }
-
+        return Optional.empty();
     }
 }

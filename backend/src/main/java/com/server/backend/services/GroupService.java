@@ -4,6 +4,7 @@ import com.server.backend.entity.*;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.*;
 import com.server.backend.requests.MovieSelectionRequest;
+import com.server.backend.requests.SeriesSelectionRequest;
 import com.server.backend.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -20,10 +21,17 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final GroupSettingsRepository groupSettingsRepository;
-    private final MovieRepository movieRepository;
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
     private final ChatRepository chatRepository;
+
+    private final MovieRepository movieRepository;
+    private final SeriesRepository seriesRepository;
+
+    private final UserRepository userRepository;
+
+    private final MovieSettingsRepository movieSettingsRepository;
+    private final SeriesSettingsRepository seriesSettingsRepository;
+
+    private final JwtService jwtService;
     private final ChatService chatService;
     private final WebSocketService webSocketService;
 
@@ -52,8 +60,7 @@ public class GroupService {
         user.getGroups().add(group);
         userRepository.save(user);
 
-        chatService.addSystemMessageToGroupChat(group.getId(),
-                chatService.generateGroupCreateMessage(user.getUsername()));
+        this.chatService.sendGroupCreateMessage(group.getId(), user.getUsername());
 
         return group;
     }
@@ -61,37 +68,47 @@ public class GroupService {
     @Transactional
     public void setUpMovieForGroup(MovieSelectionRequest msr) {
         try {
-            Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).get();
-            Group group = groupRepository.findById(msr.getGroupId()).get();
+            Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).orElseThrow();
+            GroupSettings groupSettings = groupRepository.findById(msr.getGroupId()).orElseThrow()
+                    .getGroupSettings();
 
-            Movie oldMovie = group.getGroupSettings().getSelectedMovie();
+            MovieSettings movieSettings = groupSettings.getMovieSettings();
 
-            if (oldMovie != null && movie.getName().equals(oldMovie.getName())) {
-                if (!msr.getSelectedTranslation()
-                        .equals(group.getGroupSettings().getSelectedTranslation())) {
-                    this.changeSelectedMovieTranslation(msr.getGroupId(), msr.getSelectedTranslation());
-                }
+            if (groupSettings.getSeriesSettings() != null) {
+                seriesSettingsRepository.delete(groupSettings.getSeriesSettings());
+                groupSettings.setSeriesSettings(null);
+            }
+
+            if (movieSettings != null && movie.getName().equals(movieSettings.getSelectedMovie().getName())) {
+                this.changeSelectedMovieTranslation(msr.getGroupId(), msr.getSelectedTranslation());
             } else {
                 Translation translation = movie.getTranslations()
                         .stream()
                         .filter(t -> t.equals(msr.getSelectedTranslation()))
                         .findFirst().get();
 
-                GroupSettings groupSettings = group.getGroupSettings();
-                groupSettings.setSelectedMovie(movie);
-                groupSettings.setSelectedTranslation(translation);
+                MovieSettings newMovieSettings = MovieSettings.builder()
+                        .selectedMovie(movie)
+                        .selectedTranslation(translation)
+                        .build();
+                movieSettingsRepository.save(newMovieSettings);
 
+                groupSettings.setMovieSettings(newMovieSettings);
                 groupSettingsRepository.save(groupSettings);
 
-                String movieChangeMessage = chatService.generateMovieChangeMessage(
-                        movie.getName(), translation.getName());
-                chatService.addSystemMessageToGroupChat(group.getId(), movieChangeMessage);
-
+                this.chatService.sendMovieChangeMessage(msr.getGroupId(), movie.getName(), translation.getName());
                 this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
             }
         } catch (Exception e) {
             LOG.error("Failed to set up movie for group " + e.getMessage());
         }
+    }
+
+    public void setUpSeriesForGroup(SeriesSelectionRequest ssr) {
+        Group group = groupRepository.findById(ssr.getGroupId()).orElseThrow();
+        Series series = seriesRepository.findByLink(ssr.getSeries().getLink()).orElseThrow();
+
+
     }
 
     public Optional<Chat> getGroupChat(Long groupId, String token) {
@@ -116,8 +133,7 @@ public class GroupService {
 
             this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/user/add", user);
 
-            chatService.addSystemMessageToGroupChat(group.getId(),
-                    chatService.generateUserJoinMessage(user.getUsername()));
+            this.chatService.sendUserJoinMessage(groupId, user.getUsername());
         }
     }
 
@@ -145,13 +161,11 @@ public class GroupService {
             }
 
             if (removedUser.getUsername().equals(whoRemovedUsername)) {
-                chatService.addSystemMessageToGroupChat(groupId,
-                        chatService.generateUserLeaveMessage(removedUser.getUsername()));
+                this.chatService.sendUserLeaveMessage(groupId, removedUser.getUsername());
             } else {
-                chatService.addSystemMessageToGroupChat(groupId,
-                        chatService.generateUserKickedMessage(removedUser.getUsername(), whoRemovedUsername));
+                this.chatService.sendUserKickedMessage(groupId, removedUser.getUsername(),
+                        whoRemovedUsername);
             }
-
             groupRepository.save(group);
         }
 
@@ -160,22 +174,24 @@ public class GroupService {
 
     public void changeSelectedMovieTranslation(Long groupId, Translation translation) {
         Group group = groupRepository.findById(groupId).orElseThrow();
-        Movie movie = group.getGroupSettings().getSelectedMovie();
+        MovieSettings movieSettings = group.getGroupSettings().getMovieSettings();
+        if (movieSettings != null) {
+            Movie movie = movieSettings.getSelectedMovie();
 
-        if (!translation.equals(group.getGroupSettings().getSelectedTranslation())) {
-            Translation translation1 = movie.getTranslations()
-                    .stream()
-                    .filter(t -> t.getName().equals(translation.getName()))
-                    .findFirst().orElseThrow();
+            if (!translation.equals(movieSettings.getSelectedTranslation())) {
+                Translation translation1 = movie.getTranslations()
+                        .stream()
+                        .filter(t -> t.getName().equals(translation.getName()))
+                        .findFirst().orElseThrow();
 
-            group.getGroupSettings().setSelectedTranslation(translation1);
-            groupRepository.save(group);
+                movieSettings.setSelectedTranslation(translation1);
+                movieSettingsRepository.save(movieSettings);
 
-            this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie",
-                    new MovieSelectionRequest(groupId, movie, translation1));
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie",
+                        new MovieSelectionRequest(groupId, movie, translation1));
 
-            chatService.addSystemMessageToGroupChat(group.getId(),
-                    chatService.generateTranslationChangeMessage(translation.getName()));
+                this.chatService.sendTranslationChangeMessage(groupId, translation.getName());
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.server.backend.controllers;
 
-import com.server.backend.entity.Movie;
 import com.server.backend.services.MovieService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,7 @@ public class MovieController {
 
     @GetMapping("/{groupId}/{resolution}")
     public ResponseEntity<?> getVideoLinkByResolution(@PathVariable Long groupId, @PathVariable String resolution) {
-        Optional<String> videoLink = this.movieService.getVideoLinkByResolution(groupId, resolution);
+        Optional<String> videoLink = this.movieService.getMovieLinkByResolution(groupId, resolution);
         if (videoLink.isPresent()) {
             return ResponseEntity.ok(videoLink);
         } else {
