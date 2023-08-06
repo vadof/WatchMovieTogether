@@ -1,10 +1,8 @@
 package com.server.backend.controllers;
 
-import com.server.backend.entity.Chat;
-import com.server.backend.entity.Group;
-import com.server.backend.entity.Translation;
-import com.server.backend.entity.User;
+import com.server.backend.entity.*;
 import com.server.backend.requests.MovieSelectionRequest;
+import com.server.backend.requests.SeriesSelectionRequest;
 import com.server.backend.services.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +19,23 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<Group> createGroup(@RequestHeader("Authorization") String token,
                                              @RequestBody String name) {
-        return ResponseEntity.ok(groupService.createGroup(name, token));
+        return ResponseEntity.ok(this.groupService.createGroup(name, token));
     }
 
     @PostMapping("/movie")
     public void setUpMovieForGroup(@RequestBody MovieSelectionRequest movieSelectionRequest) {
-        groupService.setUpMovieForGroup(movieSelectionRequest);
+        this.groupService.setUpMovieForGroup(movieSelectionRequest);
+    }
+
+    @PostMapping("/series")
+    public void setUpSeriesForGroup(@RequestBody SeriesSelectionRequest seriesSelectionRequest) {
+        this.groupService.setUpSeriesForGroup(seriesSelectionRequest);
     }
 
     @GetMapping("/chat/{id}")
     public ResponseEntity<Chat> getGroupChat(@PathVariable(value = "id") Long groupId,
                                              @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(groupService.getGroupChat(groupId, token).orElseThrow());
+        return ResponseEntity.ok(this.groupService.getGroupChat(groupId, token).orElseThrow());
     }
 
     @PostMapping("/{groupId}/users")

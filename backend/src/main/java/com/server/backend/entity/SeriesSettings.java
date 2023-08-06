@@ -26,7 +26,7 @@ public class SeriesSettings {
     @ManyToOne
     private Season selectedSeason;
 
-    private int selectedEpisode;
+    private Integer selectedEpisode;
 
     @JsonIgnore
     @OneToOne(mappedBy = "seriesSettings")

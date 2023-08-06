@@ -22,9 +22,9 @@ public class Season {
     private Long id;
 
     @NotNull
-    private int number;
+    private Integer number;
 
     @NotNull
-    private int episodes;
+    private Integer episodes;
 
 }

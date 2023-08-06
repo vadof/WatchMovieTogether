@@ -13,6 +13,6 @@ public class SeriesSelectionRequest {
     private Series series;
     private SeriesTranslation seriesTranslation;
     private Season season;
-    private int episode;
+    private Integer episode;
 
 }
