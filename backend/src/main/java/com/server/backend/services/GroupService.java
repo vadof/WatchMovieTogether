@@ -97,7 +97,7 @@ public class GroupService {
                 this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
             }
         } catch (Exception e) {
-            LOG.error("Failed to set up movie for group " + e.getMessage());
+            LOG.error("Failed to set up movie for group {}" + e.getMessage(), e);
         }
     }
 
@@ -112,7 +112,7 @@ public class GroupService {
             this.removeMovieSettings(groupSettings);
 
             SeriesTranslation seriesTranslation = series.getSeriesTranslations().stream()
-                    .filter(t -> t.equals(ssr.getSeriesTranslation()))
+                    .filter(t -> t.equals(ssr.getSelectedSeriesTranslation()))
                     .findFirst().orElseThrow();
 
             Season season = seriesTranslation.getSeasons().stream()
@@ -126,7 +126,7 @@ public class GroupService {
                     seriesSettings.setSelectedTranslation(seriesTranslation);
 
                     this.chatService.sendSeriesTranslationChangeMessage(ssr.getGroupId(),
-                            ssr.getSeriesTranslation().getName());
+                            ssr.getSelectedSeriesTranslation().getName());
                 }
 
                 seriesSettings.setSelectedSeason(season);
@@ -138,6 +138,7 @@ public class GroupService {
                 this.seriesSettingsRepository.save(seriesSettings);
             } else {
                 seriesSettings = SeriesSettings.builder()
+                        .selectedSeries(series)
                         .selectedTranslation(seriesTranslation)
                         .selectedSeason(season)
                         .selectedEpisode(ssr.getEpisode())
@@ -151,7 +152,7 @@ public class GroupService {
                         seriesTranslation.getName());
             }
         } catch (Exception e) {
-            LOG.error("Failed to set up series for group " + e.getMessage());
+            LOG.error("Failed to set up series for group {}" + e.getMessage(), e);
         }
     }
 

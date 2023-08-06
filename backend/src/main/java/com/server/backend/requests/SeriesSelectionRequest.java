@@ -11,7 +11,7 @@ public class SeriesSelectionRequest {
 
     private Long groupId;
     private Series series;
-    private SeriesTranslation seriesTranslation;
+    private SeriesTranslation selectedSeriesTranslation;
     private Season season;
     private Integer episode;
 
