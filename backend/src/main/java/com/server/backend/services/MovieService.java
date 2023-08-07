@@ -10,15 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
@@ -32,13 +24,15 @@ public class MovieService {
     private final SeasonRepository seasonRepository;
     private final GroupRepository groupRepository;
 
+    private final HTTPSerivce httpSerivce;
+
     private final String REZKA_API_URL = "http://localhost:5000/api";
     private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
 
     private Optional<MovieType> getMovieType(String link) {
         try {
             String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String response = this.sendHttpRequest(requestBody, new URL(REZKA_API_URL + "/movie/type"));
+            String response = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/type");
             if (response.contains("movie")) {
                 return Optional.of(MovieType.MOVIE);
             } else if (response.contains("tv_series")) {
@@ -69,7 +63,8 @@ public class MovieService {
     private Optional<Movie> getMovie(String link) {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
-            String movieJsonString = sendHTTPRequest(link, REZKA_API_URL + "/movie");
+            String requestBody = String.format("{\"url\":\"%s\"}", link);
+            String movieJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
             optionalMovie = parseMovieFromString(movieJsonString);
             optionalMovie.ifPresent(this::saveMovie);
         } else {
@@ -86,7 +81,9 @@ public class MovieService {
         }
         Optional<Series> optionalSeries = seriesRepository.findByLink(link);
         if (optionalSeries.isEmpty()) {
-            String seriesJsonString = sendHTTPRequest(link, REZKA_API_URL + "/series");
+            String requestBody = String.format("{\"url\":\"%s\"}", link);
+            String seriesJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/series");
+
             optionalSeries = parseSeriesFromString(seriesJsonString);
             optionalSeries.ifPresent(this::saveSeries);
         } else {
@@ -136,33 +133,6 @@ public class MovieService {
         }
     }
 
-    private String sendHTTPRequest(String link, String url) {
-        try {
-            String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String responseBody = this.sendHttpRequest(requestBody, new URL(url));
-            return decodeUnicodeEscapeSequences(responseBody);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            return e.getMessage();
-        }
-    }
-
-    private String decodeUnicodeEscapeSequences(String input) {
-        Pattern pattern = Pattern.compile("\\\\u([0-9a-fA-F]{4})");
-        Matcher matcher = pattern.matcher(input);
-
-        StringBuilder output = new StringBuilder();
-        while (matcher.find()) {
-            String unicodeSequence = matcher.group(1);
-            int unicodeValue = Integer.parseInt(unicodeSequence, 16);
-            String replacement = Character.toString((char) unicodeValue);
-            matcher.appendReplacement(output, replacement);
-        }
-
-        matcher.appendTail(output);
-        return output.toString();
-    }
-
     private Optional<Movie> parseMovieFromString(String s) {
         try {
             String elementToCut = "{\"movie\":";
@@ -189,38 +159,7 @@ public class MovieService {
         return Optional.empty();
     }
 
-    private String sendHttpRequest(String requestBody, URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        connection.setDoOutput(true);
-        OutputStream outputStream = connection.getOutputStream();
-        outputStream.write(requestBody.getBytes());
-        outputStream.flush();
-        outputStream.close();
-
-        int responseCode = connection.getResponseCode();
-
-        BufferedReader reader;
-        if (responseCode >= 200 && responseCode < 300) {
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        } else {
-            LOG.error("Error sending HTTP request  " + requestBody);
-            reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-        }
-
-        StringBuilder responseBody = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            responseBody.append(line);
-        }
-        reader.close();
-
-        return responseBody.toString();
-    }
-
-    public Optional<String> getMovieLinkByResolution(Long groupId, String resolution) {
+    public Optional<String> getMovieStreamLink(Long groupId, String resolution) {
         try {
             Group group = this.groupRepository.findById(groupId).orElseThrow();
             MovieSettings movieSettings = group.getGroupSettings().getMovieSettings();
@@ -234,13 +173,13 @@ public class MovieService {
                 String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
                         movieUrl, selectedTranslation.getName(), resolution);
 
-                String videoLink = sendHttpRequest(requestBody, new URL(REZKA_API_URL + "/movie/link"));
-                videoLink = videoLink.substring(videoLink.indexOf("http"), videoLink.lastIndexOf(".mp4") + 4);
+                String streamLink = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/link");
+                streamLink = streamLink.substring(streamLink.indexOf("http"), streamLink.lastIndexOf(".mp4") + 4);
 
-                return Optional.of(videoLink);
+                return Optional.of(streamLink);
             }
         } catch (Exception e) {
-            LOG.error("Error getting movie link by resolution {}", e.getMessage());
+            LOG.error("Error getting movie stream link {}", e.getMessage());
         }
         return Optional.empty();
     }
