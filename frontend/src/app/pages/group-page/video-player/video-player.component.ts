@@ -12,6 +12,7 @@ import {
 } from "@videogular/ngx-videogular/controls";
 import {UserConfigService} from "../../../config/user-config.service";
 import {TokenStorageService} from "../../../auth/token-storage.service";
+import {Season} from "../../../models/Seson";
 
 const trackedKeys: string[] = [' ', 'p', 'm', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
 
@@ -29,6 +30,11 @@ export class VideoPlayerComponent implements OnInit {
   @ViewChild(VgScrubBarComponent, {static: true}) vgBar!: VgScrubBarComponent;
 
   public movie: any;
+
+  public series: any;
+  public season: any;
+  public episode: any;
+
   public selectedResolution: any;
   public resolutions: Resolution[] = []
   public videoLink: string = ''
@@ -50,14 +56,22 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.group.groupSettings.selectedMovie) {
-      this.resolutions = this.group.groupSettings.selectedTranslation.resolutions.reverse();
-      this.movie = this.group.groupSettings.selectedMovie
+    if (this.group.groupSettings.movieSettings) {
+      this.movie = this.group.groupSettings.movieSettings.selectedMovie;
+      this.resolutions = this.group.groupSettings.movieSettings.selectedTranslation.resolutions.reverse();
+    } else if (this.group.groupSettings.seriesSettings) {
+      this.series = this.group.groupSettings.seriesSettings.selectedSeries;
+      this.season = this.group.groupSettings.seriesSettings.selectedSeason;
+      this.episode = this.group.groupSettings.seriesSettings.selectedEpisode;
+      this.resolutions = this.group.groupSettings.seriesSettings.selectedTranslation.resolutions.reverse();
+    }
 
+    if (this.movie || this.series) {
       this.setInitialResolution();
-      this.getNewVideoLink(this.selectedResolution);
+      this.movie ? this.getNewMovieLink() : this.getNewSeriesLink();
       this.setPreferredVolume();
-      setTimeout(() => {this.wsService.synchronizeMovie()}, 3000)
+
+      setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
     }
 
     this.handleMovieActionSubscription();
@@ -73,12 +87,12 @@ export class VideoPlayerComponent implements OnInit {
 
   private setInitialResolution() {
     let preferredResolution = this.userConfig.getPreferredResolution();
-    if (!preferredResolution || !this.group.groupSettings.selectedTranslation.resolutions
+    if (!preferredResolution || !this.resolutions
       .find((r) => r.value === preferredResolution)) {
       preferredResolution = '1080p'
     }
 
-    this.selectedResolution = this.group.groupSettings.selectedTranslation.resolutions
+    this.selectedResolution = this.resolutions
       .find((n) => n.value === preferredResolution)
   }
 
@@ -93,14 +107,14 @@ export class VideoPlayerComponent implements OnInit {
 
   private handleMovieSubscription() {
     this.wsService.getMovieSubject().subscribe((ms) => {
-      if (!this.group.groupSettings.selectedMovie) {
+      if (!this.group.groupSettings.movieSettings.selectedMovie) {
         window.location.reload()
       } else {
-        this.group.groupSettings.selectedMovie = ms.movie;
-        this.group.groupSettings.selectedTranslation = ms.selectedTranslation;
+        this.group.groupSettings.movieSettings.selectedMovie = ms.movie;
+        this.group.groupSettings.movieSettings.selectedTranslation = ms.selectedTranslation;
         this.resolutions = ms.selectedTranslation.resolutions.reverse();
         this.setInitialResolution();
-        this.getNewVideoLink(this.selectedResolution);
+        this.movie ? this.getNewMovieLink() : this.getNewSeriesLink();
       }
     })
   }
@@ -139,8 +153,13 @@ export class VideoPlayerComponent implements OnInit {
     })
   }
 
-  private async getNewVideoLink(resolution: Resolution) {
-    await this.movieService.getVideoLink(this.group.id, resolution)
+  private async getNewMovieLink() {
+    await this.movieService.getMovieLink(this.group.id, this.selectedResolution)
+      .then(res => this.videoLink = res);
+  }
+
+  private async getNewSeriesLink() {
+    await this.movieService.getSeriesLink(this.group.id, this.selectedResolution, this.season, this.episode)
       .then(res => this.videoLink = res);
   }
 
@@ -162,17 +181,22 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
+  // TODO if video 00:00 and change resolution, it still should be 00:00
   public changeResolution(resolution: Resolution) {
     if (this.selectedResolution.value !== resolution.value) {
       this.vgPlayer.pause();
       this.selectedResolution = resolution;
       this.userConfig.setPreferredResolution(resolution.value);
 
-      this.getNewVideoLink(resolution).then(() => {
-        setTimeout(() => {
-          this.wsService.synchronizeMovie();
-        }, 5000)
-      });
+      if (this.movie) {
+        this.getNewMovieLink().then(() => {
+          setTimeout(() => {
+            this.wsService.synchronizeVideo();
+          }, 5000)
+        });
+      } else {
+        this.getNewSeriesLink()
+      }
     }
   }
 

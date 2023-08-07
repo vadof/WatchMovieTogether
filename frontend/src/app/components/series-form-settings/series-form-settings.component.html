@@ -1,0 +1,22 @@
+<div class="series-settings d-flex flex-column justify-content-center align-items-center">
+  <h3 class="text-center">{{ series.name }}</h3>
+
+  <div class="translations">
+    <h4 class="text-center">Choose translation:</h4>
+    <div class="buttons">
+      <div *ngFor="let t of series.seriesTranslations">
+        <button type="button" class="btn mb-2"
+                [ngClass]="{
+                'btn-selected': t.name === selectedTranslation.name,
+                'btn-main btn-scale': t.name !== selectedTranslation.name
+                }"
+                (click)="selectTranslation(t)">
+          {{ t.name }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+

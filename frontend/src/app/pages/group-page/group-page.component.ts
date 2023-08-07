@@ -8,7 +8,6 @@ import {User} from "../../models/User";
 import {FriendService} from "../../services/friend.service";
 import {MovieService} from "../../services/movie.service";
 import {WebSocketService} from "../../services/web-socket.service";
-import {MovieAction} from "./MovieAction";
 
 @Component({
   selector: 'app-group-page',
@@ -41,8 +40,12 @@ export class GroupPageComponent implements OnInit, OnDestroy {
       if (group) {
         this.group = group;
 
-        if (group.groupSettings.selectedMovie) {
-          this.movieService.selectedTranslation = group.groupSettings.selectedTranslation
+        if (group.groupSettings.movieSettings) {
+          this.movieService.selectedTranslation = group.groupSettings.movieSettings.selectedTranslation
+        }
+
+        if (group.groupSettings.seriesSettings) {
+          this.movieService.selectedSeriesTranslation = group.groupSettings.seriesSettings.selectedTranslation
         }
 
         await this.groupService.getGroupChat(this.group)
@@ -146,7 +149,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   changeMovieTranslation() {
-    if (this.group.groupSettings.selectedTranslation.name !== this.movieService.selectedTranslation?.name
+    if (this.group.groupSettings.movieSettings.selectedTranslation.name !== this.movieService.selectedTranslation?.name
                   && this.movieService.selectedTranslation) {
       this.groupService.changeMovieTranslation(this.movieService.selectedTranslation, this.group)
     }
@@ -164,6 +167,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   public synchronizeMovie() {
-    this.wsService.synchronizeMovie();
+    this.wsService.synchronizeVideo();
   }
 }

@@ -8,14 +8,31 @@
       <a class="group-people h5" data-bs-toggle="modal" data-bs-target="#membersModal">{{ group.users.length + (group.users.length === 1 ? ' member': ' members')}}</a>
     </div>
 
-    <div class="movie-info text-color-primary text-center">
-      <h2 class="movie-name text-color-primary" *ngIf="group.groupSettings.selectedMovie">
-        {{ group.groupSettings.selectedMovie.name }}
-      </h2>
-      <h5 *ngIf="group.groupSettings.selectedMovie">
-        Translation: {{ group.groupSettings.selectedTranslation.name }}
-      </h5>
-    </div>
+    <ng-template [ngIf]="group.groupSettings.movieSettings">
+      <div class="movie-info text-color-primary text-center">
+        <h2 class="movie-name text-color-primary">
+          {{ group.groupSettings.movieSettings.selectedMovie.name }}
+        </h2>
+        <h5>
+          Translation: {{ group.groupSettings.movieSettings.selectedTranslation.name }}
+        </h5>
+      </div>
+    </ng-template>
+
+    <ng-template [ngIf]="group.groupSettings.seriesSettings">
+      <div class="series-info text-color-primary text-center">
+        <h2 class="movie-name text-color-primary">
+          {{ group.groupSettings.seriesSettings.selectedSeries.name }}
+        </h2>
+        <h5>
+          Translation: {{ group.groupSettings.seriesSettings.selectedTranslation.name }}
+        </h5>
+        <h6>
+          Season: {{ group.groupSettings.seriesSettings.selectedSeason.number }},
+          Episode: {{ group.groupSettings.seriesSettings.selectedEpisode }}
+        </h6>
+      </div>
+    </ng-template>
 
     <div class="group-settings dropstart">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -35,7 +52,7 @@
     </div>
   </div>
 
-  <div class="synchronize-button" *ngIf="group.groupSettings.selectedMovie">
+  <div class="synchronize-button" *ngIf="group.groupSettings.movieSettings || group.groupSettings.seriesSettings">
     <div class="btn btn-main mt-3" (click)="synchronizeMovie()">Synchronize</div>
   </div>
 
@@ -149,9 +166,16 @@
     <div class="modal-content">
 
       <div class="header d-flex justify-content-between align-items-center">
-        <h2 class="header-title">
-          {{ group.groupSettings.selectedMovie ? group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}
+        <h2 *ngIf="group.groupSettings.movieSettings" class="header-title">
+          {{ group.groupSettings.movieSettings.selectedMovie.name }}
         </h2>
+        <h2 *ngIf="group.groupSettings.seriesSettings" class="header-title">
+          {{ group.groupSettings.seriesSettings.selectedSeries.name }}
+        </h2>
+        <h2 *ngIf="!group.groupSettings.seriesSettings && !group.groupSettings.movieSettings" class="header-title">
+          Movie not selected yet
+        </h2>
+
         <svg data-bs-dismiss="modal" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
         </svg>
       </div>
@@ -159,13 +183,20 @@
       <div class="line d-flex justify-content-between align-items-center border-bottom"></div>
 
       <div class="movie-settings-body">
-        <div *ngIf="group.groupSettings.selectedMovie && !chooseAnotherMovie; else selectMovie">
+        <ng-template #movieSettings [ngIf]="group.groupSettings.movieSettings && !chooseAnotherMovie">
           <button class="btn btn-main mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
-          <app-movie-form-settings [movie]="group.groupSettings.selectedMovie"></app-movie-form-settings>
+          <app-movie-form-settings [movie]="group.groupSettings.movieSettings.selectedMovie"></app-movie-form-settings>
           <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
-        </div>
+        </ng-template>
 
-        <ng-template #selectMovie>
+        <ng-template #seriesSettings [ngIf]="group.groupSettings.seriesSettings && !chooseAnotherMovie">
+          <button class="btn btn-main mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
+          <app-series-form-settings [series]="group.groupSettings.seriesSettings.selectedSeries"></app-series-form-settings>
+          <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
+        </ng-template>
+
+        <ng-template #selectMovie
+                     [ngIf]="!group.groupSettings.movieSettings && !group.groupSettings.seriesSettings || chooseAnotherMovie">
           <button *ngIf="chooseAnotherMovie" class="btn btn-main mb-3 text-center w-100"
                   (click)="chooseAnotherMovie = !chooseAnotherMovie">Cancel</button>
           <app-movie-form></app-movie-form>

@@ -270,7 +270,7 @@ export class WebSocketService {
     }
   }
 
-  public synchronizeMovie() {
+  public synchronizeVideo() {
     this.getMovieState();
     this.getCurrentMovieTime();
 

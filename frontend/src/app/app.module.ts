@@ -28,6 +28,7 @@ import {VgOverlayPlayModule} from "@videogular/ngx-videogular/overlay-play";
 import {VgCoreModule} from "@videogular/ngx-videogular/core";
 import {VgModuloModule} from "@videogular/ngx-videogular/modulo";
 import {VgImaAdsModule} from "@videogular/ngx-videogular/ima-ads";
+import { SeriesFormSettingsComponent } from './components/series-form-settings/series-form-settings.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import {VgImaAdsModule} from "@videogular/ngx-videogular/ima-ads";
     FriendRequestsComponent,
     SearchFriendsComponent,
     VideoPlayerComponent,
+    SeriesFormSettingsComponent,
   ],
   imports: [
     BrowserModule,

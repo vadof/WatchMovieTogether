@@ -5,7 +5,9 @@ import {Router} from "@angular/router";
 import {GroupService} from "../../services/group.service";
 import {MovieService} from "../../services/movie.service";
 import {Movie} from "../../models/Movie";
-import {Translation} from "../../models/Translation";
+import {Series} from "../../models/Series";
+import {Season} from "../../models/Seson";
+import {SeriesTranslation} from "../../models/SeriesTranslation";
 
 @Component({
   selector: 'app-group-form',
@@ -14,8 +16,7 @@ import {Translation} from "../../models/Translation";
 })
 export class GroupFormComponent {
 
-  // @ts-ignore
-  groupForm: FormGroup;
+  groupForm!: FormGroup;
   chooseMovie = false;
   errorMessage = ''
 
@@ -37,26 +38,33 @@ export class GroupFormComponent {
     })
   }
 
+  // TODO season and episode choice
   public create() {
     const movie: Movie | null = this.movieService.movie
-    const selectedTranslation: Translation | null = this.movieService.selectedTranslation
+    const series: Series | null = this.movieService.series
 
-    if (movie && selectedTranslation && this.groupForm.valid) {
-      this.createGroup()
-        .then(group=> {
-          this.groupService.selectMovieForGroup(group, movie, selectedTranslation)
-          this.router.navigate(['group/' + group.id])
-            .then(() => window.location.reload())
+    if (this.groupForm.valid) {
+      if (movie) {
+        this.createGroup()
+          .then(group=> {
+            this.groupService.selectMovieForGroup(group, movie, this.movieService.selectedTranslation!)
+            this.router.navigate(['group/' + group.id]).then(() => window.location.reload())
         })
-    } else if (this.groupForm.valid) {
-      this.createGroup()
-        .then(group=>
-          this.router.navigate(['group/' + group.id])
-        )
+      } else if (series) {
+        this.createGroup()
+          .then(group => {
+            let translation: SeriesTranslation = this.movieService.selectedSeriesTranslation!
+            let season: Season = translation.seasons[0]
+            let episode = 1;
+            this.groupService.selectSeriesForGroup(group, series, translation, season, episode)
+            this.router.navigate(['group/' + group.id]).then(() => window.location.reload())
+        })
+      }
     } else {
       this.errorMessage = 'Fill in the empty fields!'
     }
   }
+
   private async createGroup() {
     return await this.groupService.createGroup(this.groupForm.value.name);
   }
