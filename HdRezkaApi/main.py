@@ -8,13 +8,13 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/api/movie/type')
+@app.route('/api/movie/type', methods=['POST'])
 def getMovieType():
     try:
         data = request.get_json()
         url = data.get('url')
         rezka = HdRezkaApi(url)
-        return make_response(jsonify(rezka.type[6:]))
+        return make_response(jsonify(type=rezka.type[6:]))
     except:
         return make_response(jsonify(error='Invalid URL provided.'), 400)
 
@@ -52,6 +52,26 @@ def getMovieStreamLink():
         try:
             rezka = HdRezkaApi(url)
             stream = rezka.getStream(translation=translation)(resolution)
+            return make_response(jsonify(stream, 200))
+        except:
+            attempts -= 1
+            if attempts == 0:
+                return make_response(jsonify(error='Invalid URL provided.'), 400)
+
+
+@app.route('/api/series/link', methods=["POST"])
+def getSeriestStreamLink():
+    data = request.get_json()
+    url = data.get('url')
+    translation = data.get('translation')
+    resolution = data.get('resolution')
+    season = data.get('season')
+    episode = data.get('episode')
+    attempts = 3
+    while True:
+        try:
+            rezka = HdRezkaApi(url)
+            stream = rezka.getStream(season=season, episode=episode, translation=translation)(resolution)
             return make_response(jsonify(stream, 200))
         except:
             attempts -= 1
