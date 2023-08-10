@@ -56,10 +56,35 @@
     <div class="btn btn-main mt-3" (click)="synchronizeMovie()">Synchronize</div>
   </div>
 
-  <div class="d-flex content">
+  <ng-template [ngIf]="group.groupSettings.seriesSettings">
+    <div class="seasons">
+      <div *ngFor="let season of group.groupSettings.seriesSettings.selectedTranslation.seasons">
+        <div
+          [ngClass]="season.number === group.groupSettings.seriesSettings.selectedSeason.number ?
+          'btn-selected' : 'season-btn'" class="btn"
+             (click)="changeSeason(season)">
+          Season {{ season.number }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="d-flex content" [ngClass]="{'pb-5': !group.groupSettings.seriesSettings}">
     <app-video-player [group]="group" class="video-content"></app-video-player>
-    <app-chat *ngIf="chat" [chat]="chat" class="chat d-flex flex-column justify-content-between"></app-chat>
+    <app-chat *ngIf="chat" [chat]="chat" class="d-flex flex-column justify-content-between"></app-chat>
   </div>
+
+  <ng-template [ngIf]="group.groupSettings.seriesSettings">
+    <div class="season-episodes pb-5">
+      <div *ngFor="let episode of seasonEpisodes;">
+        <div [ngClass]="episode === group.groupSettings.seriesSettings.selectedEpisode ?
+       'btn-selected' : 'season-btn'" class="btn"
+        (click)="changeEpisode(episode)">
+          Episode {{ episode }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
 </div>
 
 

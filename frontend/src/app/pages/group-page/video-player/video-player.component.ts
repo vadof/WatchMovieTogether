@@ -87,13 +87,16 @@ export class VideoPlayerComponent implements OnInit {
 
   private setInitialResolution() {
     let preferredResolution = this.userConfig.getPreferredResolution();
-    if (!preferredResolution || !this.resolutions
-      .find((r) => r.value === preferredResolution)) {
-      preferredResolution = '1080p'
+    if (!preferredResolution || !this.resolutionExists(preferredResolution)) {
+      preferredResolution = this.resolutions[0].value;
     }
 
     this.selectedResolution = this.resolutions
       .find((n) => n.value === preferredResolution)
+  }
+
+  private resolutionExists(resolutionValue: string): boolean {
+    return this.resolutions.some((r) => r.value === resolutionValue);
   }
 
   private setPreferredVolume() {
