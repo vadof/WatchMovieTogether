@@ -133,7 +133,7 @@ public class GroupService {
                 seriesSettings.setSelectedEpisode(ssr.getEpisode());
 
                 this.chatService.sendSeriesEpisodeChange(ssr.getGroupId(),
-                        String.valueOf(ssr.getSeason()), String.valueOf(ssr.getEpisode()));
+                        String.valueOf(ssr.getSeason().getNumber()), String.valueOf(ssr.getEpisode()));
 
                 this.seriesSettingsRepository.save(seriesSettings);
             } else {

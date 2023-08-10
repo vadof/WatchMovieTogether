@@ -95,8 +95,8 @@ public class ChatService {
                 String.format("\"%s\" was chosen as the translation", translationName));
     }
 
-    public void sendSeriesEpisodeChange(Long groupId, String season, String episode) {
+    public void sendSeriesEpisodeChange(Long groupId, String seasonNumber, String episode) {
         this.addSystemMessageToGroupChat(groupId,
-                String.format("Selected %s episode of %s season", episode, season));
+                String.format("Selected %s episode of %s season", episode, seasonNumber));
     }
 }
