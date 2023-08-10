@@ -1,4 +1,4 @@
-<div class="chat-content custom-scrollbar pb-2" #chatContent>
+<div class="chat-content custom-scrollbar pb-2" #chatContent [style.height.px]="getChatContentHeight()">
 
   <div *ngFor="let m of chat.messages; let i = index">
     <div *ngIf="m.messageType === 'USER'" class="message"

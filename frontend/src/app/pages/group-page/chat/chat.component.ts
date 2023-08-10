@@ -14,7 +14,6 @@ export class ChatComponent implements OnInit {
   message: string = ''
   @ViewChild('chatContent', { static: true }) chatContentRef!: ElementRef;
 
-  // TODO fix chat-content height if video is very high
   constructor(
     private tokenStorage: TokenStorageService,
     private wsService: WebSocketService
@@ -63,5 +62,10 @@ export class ChatComponent implements OnInit {
       const chatContentEl: HTMLElement = this.chatContentRef.nativeElement;
       chatContentEl.scrollTop = chatContentEl.scrollHeight;
     }, 0)
+  }
+
+  public getChatContentHeight() {
+    const videoHeight = document.querySelector(".video-player-wrapper")!.clientHeight;
+    return videoHeight - 50;
   }
 }

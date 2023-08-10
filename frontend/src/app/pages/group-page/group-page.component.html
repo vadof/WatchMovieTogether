@@ -71,7 +71,7 @@
 
   <div class="d-flex content" [ngClass]="{'pb-5': !group.groupSettings.seriesSettings}">
     <app-video-player [group]="group" class="video-content"></app-video-player>
-    <app-chat *ngIf="chat" [chat]="chat" class="d-flex flex-column justify-content-between"></app-chat>
+    <app-chat *ngIf="chat" [chat]="chat" class="chat d-flex flex-column justify-content-between"></app-chat>
   </div>
 
   <ng-template [ngIf]="group.groupSettings.seriesSettings">
