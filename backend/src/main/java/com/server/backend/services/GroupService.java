@@ -101,6 +101,7 @@ public class GroupService {
         }
     }
 
+    // TODO send object by websocket
     @Transactional
     public void setUpSeriesForGroup(SeriesSelectionRequest ssr) {
         try {
@@ -151,6 +152,8 @@ public class GroupService {
                 this.chatService.sendSeriesChangeMesasge(ssr.getGroupId(), series.getName(),
                         seriesTranslation.getName());
             }
+
+            this.webSocketService.sendObjectByWebsocket("/group/" + ssr.getGroupId() + "/series", ssr);
         } catch (Exception e) {
             LOG.error("Failed to set up series for group {}" + e.getMessage(), e);
         }

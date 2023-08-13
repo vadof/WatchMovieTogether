@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import {MovieAction} from "../pages/group-page/MovieAction";
 import {User} from "../models/User";
 import {MovieSelectionObject} from "../requests/MovieSelectionObject";
+import {SeriesSelectionObject} from "../requests/SeriesSelectionObject";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class WebSocketService {
   private messageSubject: Subject<string> = new Subject<string>();
   private movieActionSubject: Subject<string> = new Subject<string>();
   private movieSubject: Subject<MovieSelectionObject> = new Subject<MovieSelectionObject>();
+  private seriesSubject: Subject<SeriesSelectionObject> = new Subject<SeriesSelectionObject>();
   private rewindSubject: Subject<number> = new Subject<number>();
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
   private userLeaveSubject: Subject<User> = new Subject<User>();
@@ -53,6 +55,7 @@ export class WebSocketService {
           this.subscribeToUserAdd();
           this.subscribeToUserLeave();
           this.subscribeToMovieChange();
+          this.subscribeToSeriesChange();
           this.subscribeToMovieTime();
           this.subscribeToMovieState();
         },
@@ -83,7 +86,6 @@ export class WebSocketService {
         const msr: MovieSelectionObject = JSON.parse(newMovie.body);
         this.movieSubject.next(msr);
     }))
-
   }
 
   private subscribeToRewind() {
@@ -92,7 +94,6 @@ export class WebSocketService {
         this.rewindSubject.next(Number(time.body))
       })
     )
-
   }
 
   private subscribeToPrivilegeChange() {
@@ -143,12 +144,24 @@ export class WebSocketService {
     )
   }
 
+  private subscribeToSeriesChange() {
+    this.subscriptions.push(
+      this.client.subscribe(`/group/${this.groupId}/series`, (newSeries) => {
+        const sso: SeriesSelectionObject = JSON.parse(newSeries.body);
+        this.seriesSubject.next(sso);
+      }))
+  }
+
   public getMessageSubject(): Subject<string> {
     return this.messageSubject;
   }
 
   public getMovieSubject(): Subject<MovieSelectionObject> {
     return this.movieSubject;
+  }
+
+  public getSeriesSubject(): Subject<SeriesSelectionObject> {
+    return this.seriesSubject;
   }
 
   public getMovieActionSubject(): Subject<string> {
@@ -261,6 +274,7 @@ export class WebSocketService {
       this.messageSubject = new Subject<string>();
       this.movieActionSubject = new Subject<string>();
       this.movieSubject = new Subject<MovieSelectionObject>();
+      this.seriesSubject = new Subject<SeriesSelectionObject>();
       this.rewindSubject = new Subject<number>();
       this.privilegesSubject = new Subject<User[]>();
       this.userLeaveSubject = new Subject<User>();

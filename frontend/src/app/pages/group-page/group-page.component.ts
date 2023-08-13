@@ -146,8 +146,20 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     let movie = this.movieService.movie
     if (selectedTranslation && movie) {
       this.groupService.selectMovieForGroup(this.group, movie, selectedTranslation)
-      this.movieService.selectedTranslation = null;
-      this.movieService.movie = null;
+      this.movieService.refresh();
+    } else {
+      this.setSeries();
+    }
+  }
+
+  private setSeries() {
+    let translation: any = this.movieService.selectedSeriesTranslation;
+    let series: any = this.movieService.series;
+
+    if (translation && series) {
+      this.groupService.selectSeriesForGroup(this.group, series, translation,
+        translation.seasons[0], 1);
+      this.movieService.refresh();
     }
   }
 

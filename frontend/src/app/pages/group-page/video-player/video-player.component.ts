@@ -56,32 +56,47 @@ export class VideoPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.group.groupSettings.movieSettings) {
-      this.movie = this.group.groupSettings.movieSettings.selectedMovie;
-      this.resolutions = this.group.groupSettings.movieSettings.selectedTranslation.resolutions.reverse();
+      this.setMovieSettings(false);
     } else if (this.group.groupSettings.seriesSettings) {
-      this.series = this.group.groupSettings.seriesSettings.selectedSeries;
-      this.season = this.group.groupSettings.seriesSettings.selectedSeason;
-      this.episode = this.group.groupSettings.seriesSettings.selectedEpisode;
-      this.resolutions = this.group.groupSettings.seriesSettings.selectedTranslation.resolutions.reverse();
-    }
-
-    if (this.movie || this.series) {
-      this.setInitialResolution();
-      this.movie ? this.getMovieLink(false) : this.getNewSeriesLink();
-      this.setPreferredVolume();
-
-      setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
+      this.setSeriesSettings(false);
     }
 
     this.handleMovieActionSubscription();
     this.handleRewindSubscription();
     this.handleMovieSubscription();
+    this.handleSeriesSubscription();
     this.handleMovieTimeSubscription();
     this.handleMovieStateSubscription();
   }
 
   public onPlayerReady() {
 
+  }
+
+  private setMovieSettings(newVideoLink: boolean) {
+    this.series = null;
+
+    this.movie = this.group.groupSettings.movieSettings.selectedMovie;
+    this.resolutions = this.group.groupSettings.movieSettings.selectedTranslation.resolutions.reverse();
+    this.setUserSettings(newVideoLink);
+  }
+
+  private setSeriesSettings(newVideoLink: boolean) {
+    this.movie = null;
+
+    this.series = this.group.groupSettings.seriesSettings.selectedSeries;
+    this.season = this.group.groupSettings.seriesSettings.selectedSeason;
+    this.episode = this.group.groupSettings.seriesSettings.selectedEpisode;
+    this.resolutions = this.group.groupSettings.seriesSettings.selectedTranslation.resolutions.reverse();
+
+    this.setUserSettings(newVideoLink);
+  }
+
+  private setUserSettings(newVideoLink: boolean) {
+    this.setInitialResolution();
+    this.movie ? this.getMovieLink(newVideoLink) : this.getNewSeriesLink();
+    this.setPreferredVolume();
+    setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
   }
 
   private setInitialResolution() {
@@ -107,17 +122,38 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
-  // TODO handle series subscription
   private handleMovieSubscription() {
     this.wsService.getMovieSubject().subscribe((ms) => {
-      if (!this.group.groupSettings.movieSettings.selectedMovie) {
+      window.location.reload();
+      // if (!this.group.groupSettings.movieSettings) {
+      //   window.location.reload()
+      // } else {
+      //   this.group.groupSettings.movieSettings.selectedMovie = ms.movie;
+      //   this.group.groupSettings.movieSettings.selectedTranslation = ms.selectedTranslation;
+      //   this.resolutions = ms.selectedTranslation.resolutions.reverse();
+      //   this.setInitialResolution();
+      //   this.getMovieLink(true)
+      //
+      //   this.movieService.setMovie(ms.movie, ms.selectedTranslation)
+      // }
+    })
+  }
+
+  private handleSeriesSubscription() {
+    this.wsService.getSeriesSubject().subscribe((sso) => {
+      if (!this.group.groupSettings.seriesSettings || this.group.groupSettings.movieSettings) {
         window.location.reload()
       } else {
-        this.group.groupSettings.movieSettings.selectedMovie = ms.movie;
-        this.group.groupSettings.movieSettings.selectedTranslation = ms.selectedTranslation;
-        this.resolutions = ms.selectedTranslation.resolutions.reverse();
+        this.group.groupSettings.seriesSettings.selectedSeries = sso.series;
+        this.group.groupSettings.seriesSettings.selectedTranslation = sso.selectedSeriesTranslation;
+        this.group.groupSettings.seriesSettings.selectedSeason = sso.season;
+        this.group.groupSettings.seriesSettings.selectedEpisode = sso.episode;
+
+        this.resolutions = sso.selectedSeriesTranslation.resolutions.reverse();
         this.setInitialResolution();
-        this.movie ? this.getMovieLink(true) : this.getNewSeriesLink();
+        this.getNewSeriesLink();
+
+        this.movieService.setSeries(sso.series, sso.selectedSeriesTranslation)
       }
     })
   }
@@ -156,8 +192,7 @@ export class VideoPlayerComponent implements OnInit {
     })
   }
 
-  // TODO save link for 5 minutes on client
-  private async getMovieLink(newLink: boolean) {
+  private getMovieLink(newLink: boolean) {
     if (newLink) {
       this.getNewMovieLink();
     } else {
@@ -212,13 +247,11 @@ export class VideoPlayerComponent implements OnInit {
       this.userConfig.setPreferredResolution(resolution.value);
 
       if (this.movie) {
-        this.getMovieLink(true).then(() => {
-          setTimeout(() => {
-            this.wsService.synchronizeVideo();
-          }, 5000)
-        });
+        this.getNewMovieLink()
+          .then(() => this.synchronizeVideoWithTimeout(5000));
       } else {
         this.getNewSeriesLink()
+          .then(() => this.synchronizeVideoWithTimeout(5000));
       }
     }
   }
@@ -273,5 +306,11 @@ export class VideoPlayerComponent implements OnInit {
   public hasPrivileges(): boolean {
     return this.group.groupSettings.usersWithPrivileges
       .some((u) => u.username === this.tokenStorage.getUsername());
+  }
+
+  private synchronizeVideoWithTimeout(ms: number) {
+    setTimeout(() => {
+      this.wsService.synchronizeVideo();
+    }, ms)
   }
 }

@@ -31,7 +31,7 @@ export class MovieService {
               name: res.name,
               seriesTranslations: res.seriesTranslations
             };
-            this.setSeries(series);
+            this.setSeries(series, null);
             resolve(series);
           } else {
             let movie: Movie = {
@@ -40,7 +40,7 @@ export class MovieService {
               name: res.name,
               translations: res.translations
             }
-            this.setMovie(movie)
+            this.setMovie(movie, null)
             resolve(movie);
           }
         },
@@ -51,20 +51,16 @@ export class MovieService {
     });
   }
 
-  private setMovie(movie: Movie) {
+  public setMovie(movie: Movie, translation: Translation | null) {
+    this.refresh();
     this.movie = movie;
-    this.selectedTranslation = movie.translations[0];
-
-    this.series = null;
-    this.selectedSeriesTranslation = null
+    this.selectedTranslation = translation ? translation : movie.translations[0];
   }
 
-  private setSeries(series: Series) {
+  public setSeries(series: Series, seriesTranslation: SeriesTranslation | null) {
+    this.refresh();
     this.series = series;
-    this.selectedSeriesTranslation = series.seriesTranslations[0]
-
-    this.movie = null;
-    this.selectedTranslation = null;
+    this.selectedSeriesTranslation = seriesTranslation ? seriesTranslation : series.seriesTranslations[0]
   }
 
   public getMovieLink(groupId: number, resolution: Resolution) {
@@ -93,5 +89,11 @@ export class MovieService {
     });
   }
 
+  public refresh() {
+    this.movie = null;
+    this.selectedTranslation = null;
 
+    this.series = null;
+    this.selectedSeriesTranslation = null
+  }
 }

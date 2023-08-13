@@ -40,6 +40,7 @@ export class UserConfigService {
     sessionStorage.setItem(dateKey, Date())
   }
 
+  // TODO add movie translation
   public getGroupMovieStreamLink(groupId: number, movieName: string): string | null {
     const linkKey = `GROUP_${groupId}_LINK`;
     const movieKey = `GROUP_${groupId}_MOVIE`;
