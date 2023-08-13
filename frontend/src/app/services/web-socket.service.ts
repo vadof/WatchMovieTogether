@@ -2,10 +2,10 @@ import {Injectable} from '@angular/core';
 import {Client, StompHeaders, StompSubscription} from "@stomp/stompjs";
 import {TokenStorageService} from "../auth/token-storage.service";
 import { Subject } from 'rxjs';
-import {MovieAction} from "../pages/group-page/MovieAction";
+import {VideoAction} from "../pages/group-page/VideoAction";
 import {User} from "../models/User";
-import {MovieSelectionObject} from "../requests/MovieSelectionObject";
-import {SeriesSelectionObject} from "../requests/SeriesSelectionObject";
+import {MovieSettings} from "../models/MovieSettings";
+import {SeriesSettings} from "../models/SeriesSettings";
 
 @Injectable({
   providedIn: 'root'
@@ -15,15 +15,15 @@ export class WebSocketService {
   private groupId!: number;
 
   private messageSubject: Subject<string> = new Subject<string>();
-  private movieActionSubject: Subject<string> = new Subject<string>();
-  private movieSubject: Subject<MovieSelectionObject> = new Subject<MovieSelectionObject>();
-  private seriesSubject: Subject<SeriesSelectionObject> = new Subject<SeriesSelectionObject>();
+  private videoActionSubject: Subject<string> = new Subject<string>();
+  private movieSubject: Subject<MovieSettings> = new Subject<MovieSettings>();
+  private seriesSubject: Subject<SeriesSettings> = new Subject<SeriesSettings>();
   private rewindSubject: Subject<number> = new Subject<number>();
   private privilegesSubject: Subject<User[]> = new Subject<User[]>();
   private userLeaveSubject: Subject<User> = new Subject<User>();
   private userAddSubject: Subject<User> = new Subject<User>();
-  private movieTimeSubject: Subject<string> = new Subject<string>();
-  private movieStateSubject: Subject<string> = new Subject<string>();
+  private videoTimeSubject: Subject<string> = new Subject<string>();
+  private videoStateSubject: Subject<string> = new Subject<string>();
 
   private subscriptions: StompSubscription[] = [];
 
@@ -75,16 +75,16 @@ export class WebSocketService {
   private subscribeToMovieAction() {
     this.subscriptions.push(
       this.client.subscribe(`/group/${this.groupId}/movie/action`, (action) => {
-        this.movieActionSubject.next(action.body)
+        this.videoActionSubject.next(action.body)
     }))
 
   }
 
   private subscribeToMovieChange() {
     this.subscriptions.push(
-      this.client.subscribe(`/group/${this.groupId}/movie`, (newMovie) => {
-        const msr: MovieSelectionObject = JSON.parse(newMovie.body);
-        this.movieSubject.next(msr);
+      this.client.subscribe(`/group/${this.groupId}/movie`, (ms) => {
+        const movieSettings: MovieSettings = JSON.parse(ms.body);
+        this.movieSubject.next(movieSettings);
     }))
   }
 
@@ -130,7 +130,7 @@ export class WebSocketService {
     this.subscriptions.push(
       this.client.subscribe(`/topic/${this.groupId}/${this.tokenStorage.getUsername()}/movie/time`,
         (time) => {
-          this.movieTimeSubject.next(time.body)
+          this.videoTimeSubject.next(time.body)
         })
     )
   }
@@ -139,16 +139,16 @@ export class WebSocketService {
     this.subscriptions.push(
       this.client.subscribe(`/topic/${this.groupId}/${this.tokenStorage.getUsername()}/movie/state`,
         (state) => {
-          this.movieStateSubject.next(state.body)
+          this.videoStateSubject.next(state.body)
         })
     )
   }
 
   private subscribeToSeriesChange() {
     this.subscriptions.push(
-      this.client.subscribe(`/group/${this.groupId}/series`, (newSeries) => {
-        const sso: SeriesSelectionObject = JSON.parse(newSeries.body);
-        this.seriesSubject.next(sso);
+      this.client.subscribe(`/group/${this.groupId}/series`, (ss) => {
+        const seriesSettings: SeriesSettings = JSON.parse(ss.body);
+        this.seriesSubject.next(seriesSettings);
       }))
   }
 
@@ -156,19 +156,19 @@ export class WebSocketService {
     return this.messageSubject;
   }
 
-  public getMovieSubject(): Subject<MovieSelectionObject> {
+  public getMovieSubject(): Subject<MovieSettings> {
     return this.movieSubject;
   }
 
-  public getSeriesSubject(): Subject<SeriesSelectionObject> {
+  public getSeriesSubject(): Subject<SeriesSettings> {
     return this.seriesSubject;
   }
 
-  public getMovieActionSubject(): Subject<string> {
-    return this.movieActionSubject;
+  public getVideoActionSubject(): Subject<string> {
+    return this.videoActionSubject;
   }
 
-  public getMovieRewindSubject(): Subject<number> {
+  public getVideoRewindSubject(): Subject<number> {
     return this.rewindSubject;
   }
 
@@ -184,12 +184,12 @@ export class WebSocketService {
     return this.userAddSubject;
   }
 
-  public getMovieTimeSubject(): Subject<string> {
-    return this.movieTimeSubject;
+  public getVideoTimeSubject(): Subject<string> {
+    return this.videoTimeSubject;
   }
 
-  public getMovieStateSubject(): Subject<string> {
-    return this.movieStateSubject;
+  public getVideoStateSubject(): Subject<string> {
+    return this.videoStateSubject;
   }
 
   public sendMessage(message: string): void {
@@ -240,7 +240,7 @@ export class WebSocketService {
     })
   }
 
-  public sendMovieAction(action: MovieAction) {
+  public sendMovieAction(action: VideoAction) {
     this.client.publish({
       destination: `/app/${this.groupId}/movie/action`,
       body: action
@@ -272,15 +272,15 @@ export class WebSocketService {
       this.subscriptions = []
 
       this.messageSubject = new Subject<string>();
-      this.movieActionSubject = new Subject<string>();
-      this.movieSubject = new Subject<MovieSelectionObject>();
-      this.seriesSubject = new Subject<SeriesSelectionObject>();
+      this.videoActionSubject = new Subject<string>();
+      this.movieSubject = new Subject<MovieSettings>();
+      this.seriesSubject = new Subject<SeriesSettings>();
       this.rewindSubject = new Subject<number>();
       this.privilegesSubject = new Subject<User[]>();
       this.userLeaveSubject = new Subject<User>();
       this.userAddSubject = new Subject<User>();
-      this.movieTimeSubject = new Subject<string>();
-      this.movieStateSubject = new Subject<string>();
+      this.videoTimeSubject = new Subject<string>();
+      this.videoStateSubject = new Subject<string>();
     }
   }
 

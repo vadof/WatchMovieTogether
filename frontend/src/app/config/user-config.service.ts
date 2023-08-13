@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {MovieSettings} from "../models/MovieSettings";
 
 const VOLUME_KEY = "PREFERRED_VOLUME"
 const RESOLUTION_KEY = "PREFERRED_RESOLUTION"
@@ -40,7 +41,7 @@ export class UserConfigService {
     sessionStorage.setItem(dateKey, Date())
   }
 
-  // TODO add movie translation
+  // TODO if any element of movie was changed return null
   public getGroupMovieStreamLink(groupId: number, movieName: string): string | null {
     const linkKey = `GROUP_${groupId}_LINK`;
     const movieKey = `GROUP_${groupId}_MOVIE`;

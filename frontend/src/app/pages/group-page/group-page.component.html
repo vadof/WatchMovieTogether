@@ -217,7 +217,7 @@
         <ng-template #seriesSettings [ngIf]="group.groupSettings.seriesSettings && !chooseAnotherMovie">
           <button class="btn btn-main mb-3 text-center w-100" (click)="chooseAnotherMovie = !chooseAnotherMovie">Choose another movie</button>
           <app-series-form-settings [series]="group.groupSettings.seriesSettings.selectedSeries"></app-series-form-settings>
-          <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeMovieTranslation()" data-bs-dismiss="modal">Save</button>
+          <button class="btn btn-main btn-scale mt-3 text-center w-100" (click)="changeSeriesTranslation()" data-bs-dismiss="modal">Save</button>
         </ng-template>
 
         <ng-template #selectMovie

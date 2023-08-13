@@ -37,7 +37,7 @@ export class GroupFormComponent {
       ]]
     })
   }
-  
+
   public create() {
     const movie: Movie | null = this.movieService.movie
     const series: Series | null = this.movieService.series
@@ -58,6 +58,9 @@ export class GroupFormComponent {
             this.groupService.selectSeriesForGroup(group, series, translation, season, episode)
             this.router.navigate(['group/' + group.id]).then(() => window.location.reload())
         })
+      } else {
+        this.createGroup().then(group =>
+            this.router.navigate(['group/' + group.id]))
       }
     } else {
       this.errorMessage = 'Fill in the empty fields!'

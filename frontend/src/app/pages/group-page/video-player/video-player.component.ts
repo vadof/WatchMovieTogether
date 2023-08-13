@@ -4,7 +4,7 @@ import {Resolution} from "../../../models/Resolution";
 import {MovieService} from "../../../services/movie.service";
 import {WebSocketService} from "../../../services/web-socket.service";
 import {VgApiService, VgStates} from "@videogular/ngx-videogular/core";
-import {MovieAction} from "../MovieAction";
+import {VideoAction} from "../VideoAction";
 import {
   VgControlsComponent,
   VgScrubBarComponent,
@@ -12,6 +12,8 @@ import {
 } from "@videogular/ngx-videogular/controls";
 import {UserConfigService} from "../../../config/user-config.service";
 import {TokenStorageService} from "../../../auth/token-storage.service";
+import {MovieSettings} from "../../../models/MovieSettings";
+import {SeriesSettings} from "../../../models/SeriesSettings";
 
 const trackedKeys: string[] = [' ', 'p', 'm', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
 
@@ -28,11 +30,8 @@ export class VideoPlayerComponent implements OnInit {
   @ViewChild(VgVolumeComponent, {static: true}) vgVolume!: VgVolumeComponent;
   @ViewChild(VgScrubBarComponent, {static: true}) vgBar!: VgScrubBarComponent;
 
-  public movie: any;
-
-  public series: any;
-  public season: any;
-  public episode: any;
+  private movieSettings: MovieSettings | null = null;
+  private seriesSettings: SeriesSettings | null = null;
 
   public selectedResolution: any;
   public resolutions: Resolution[] = []
@@ -56,61 +55,41 @@ export class VideoPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.group.groupSettings.movieSettings) {
-      this.setMovieSettings(false);
+      this.movieSettings = this.group.groupSettings.movieSettings;
+      this.resolutions = this.movieSettings.selectedTranslation.resolutions.reverse();
     } else if (this.group.groupSettings.seriesSettings) {
-      this.setSeriesSettings(false);
+      this.seriesSettings = this.group.groupSettings.seriesSettings;
+      this.resolutions = this.seriesSettings.selectedTranslation.resolutions.reverse();
     }
 
-    this.handleMovieActionSubscription();
+    if (this.movieSettings || this.seriesSettings) {
+      this.setInitialResolution();
+      this.movieSettings ? this.getMovieLink(false) : this.getNewSeriesLink();
+      this.setPreferredVolume();
+      setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
+    }
+
+    this.handleVideoActionSubscription();
     this.handleRewindSubscription();
     this.handleMovieSubscription();
     this.handleSeriesSubscription();
-    this.handleMovieTimeSubscription();
-    this.handleMovieStateSubscription();
+    this.handleVideoTimeSubscription();
+    this.handleVideoStateSubscription();
   }
 
   public onPlayerReady() {
 
   }
 
-  private setMovieSettings(newVideoLink: boolean) {
-    this.series = null;
-
-    this.movie = this.group.groupSettings.movieSettings.selectedMovie;
-    this.resolutions = this.group.groupSettings.movieSettings.selectedTranslation.resolutions.reverse();
-    this.setUserSettings(newVideoLink);
-  }
-
-  private setSeriesSettings(newVideoLink: boolean) {
-    this.movie = null;
-
-    this.series = this.group.groupSettings.seriesSettings.selectedSeries;
-    this.season = this.group.groupSettings.seriesSettings.selectedSeason;
-    this.episode = this.group.groupSettings.seriesSettings.selectedEpisode;
-    this.resolutions = this.group.groupSettings.seriesSettings.selectedTranslation.resolutions.reverse();
-
-    this.setUserSettings(newVideoLink);
-  }
-
-  private setUserSettings(newVideoLink: boolean) {
-    this.setInitialResolution();
-    this.movie ? this.getMovieLink(newVideoLink) : this.getNewSeriesLink();
-    this.setPreferredVolume();
-    setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
-  }
-
   private setInitialResolution() {
     let preferredResolution = this.userConfig.getPreferredResolution();
-    if (!preferredResolution || !this.resolutionExists(preferredResolution)) {
+    if (!preferredResolution || !this.resolutions
+      .some((r) => r.value === preferredResolution)) {
       preferredResolution = this.resolutions[0].value;
     }
 
     this.selectedResolution = this.resolutions
       .find((n) => n.value === preferredResolution)
-  }
-
-  private resolutionExists(resolutionValue: string): boolean {
-    return this.resolutions.some((r) => r.value === resolutionValue);
   }
 
   private setPreferredVolume() {
@@ -124,68 +103,65 @@ export class VideoPlayerComponent implements OnInit {
 
   private handleMovieSubscription() {
     this.wsService.getMovieSubject().subscribe((ms) => {
-      window.location.reload();
-      // if (!this.group.groupSettings.movieSettings) {
-      //   window.location.reload()
-      // } else {
-      //   this.group.groupSettings.movieSettings.selectedMovie = ms.movie;
-      //   this.group.groupSettings.movieSettings.selectedTranslation = ms.selectedTranslation;
-      //   this.resolutions = ms.selectedTranslation.resolutions.reverse();
-      //   this.setInitialResolution();
-      //   this.getMovieLink(true)
-      //
-      //   this.movieService.setMovie(ms.movie, ms.selectedTranslation)
-      // }
+      this.group.groupSettings.seriesSettings = null!;
+      this.seriesSettings = null;
+
+      this.group.groupSettings.movieSettings = ms;
+      this.movieSettings = ms;
+
+      this.resolutions = ms.selectedTranslation.resolutions.reverse();
+
+      this.setInitialResolution();
+      this.getMovieLink(true)
+
+      this.movieService.setMovie(ms.selectedMovie, ms.selectedTranslation)
     })
   }
 
   private handleSeriesSubscription() {
     this.wsService.getSeriesSubject().subscribe((sso) => {
-      if (!this.group.groupSettings.seriesSettings || this.group.groupSettings.movieSettings) {
-        window.location.reload()
-      } else {
-        this.group.groupSettings.seriesSettings.selectedSeries = sso.series;
-        this.group.groupSettings.seriesSettings.selectedTranslation = sso.selectedSeriesTranslation;
-        this.group.groupSettings.seriesSettings.selectedSeason = sso.season;
-        this.group.groupSettings.seriesSettings.selectedEpisode = sso.episode;
+      this.group.groupSettings.movieSettings = null!;
+      this.movieSettings = null;
 
-        this.resolutions = sso.selectedSeriesTranslation.resolutions.reverse();
-        this.setInitialResolution();
-        this.getNewSeriesLink();
+      this.group.groupSettings.seriesSettings = sso;
+      this.seriesSettings = sso;
 
-        this.movieService.setSeries(sso.series, sso.selectedSeriesTranslation)
-      }
+      this.resolutions = sso.selectedTranslation.resolutions.reverse();
+      this.setInitialResolution();
+      this.getNewSeriesLink();
+
+      this.movieService.setSeries(sso.selectedSeries, sso.selectedTranslation)
     })
   }
 
-  private handleMovieTimeSubscription() {
-    this.wsService.getMovieTimeSubject().subscribe((time) => {
+  private handleVideoTimeSubscription() {
+    this.wsService.getVideoTimeSubject().subscribe((time) => {
       this.vgPlayer.currentTime = time;
     })
   }
 
-  private handleMovieStateSubscription() {
-    this.wsService.getMovieStateSubject().subscribe((state) => {
-      if (state === MovieAction.PLAY) {
+  private handleVideoStateSubscription() {
+    this.wsService.getVideoStateSubject().subscribe((state) => {
+      if (state === VideoAction.PLAY) {
         this.vgPlayer.play()
-      } else if (state === MovieAction.PAUSE) {
+      } else if (state === VideoAction.PAUSE) {
         this.vgPlayer.pause();
       }
     })
   }
 
-  private handleMovieActionSubscription() {
-    this.wsService.getMovieActionSubject().subscribe((action) => {
-      if (action === MovieAction.PLAY) {
+  private handleVideoActionSubscription() {
+    this.wsService.getVideoActionSubject().subscribe((action) => {
+      if (action === VideoAction.PLAY) {
         this.vgPlayer.play();
-      } else if (action === MovieAction.PAUSE) {
+      } else if (action === VideoAction.PAUSE) {
         this.vgPlayer.pause();
       }
     })
   }
 
   private handleRewindSubscription() {
-    this.wsService.getMovieRewindSubject().subscribe((time) => {
+    this.wsService.getVideoRewindSubject().subscribe((time) => {
       this.vgPlayer.pause();
       this.vgPlayer.currentTime = time;
       setTimeout(() => {this.vgPlayer.play()}, 1000)
@@ -217,8 +193,11 @@ export class VideoPlayerComponent implements OnInit {
 
   // TODO save link for 5 minutes on client
   private async getNewSeriesLink() {
-    await this.movieService.getSeriesLink(this.group.id, this.selectedResolution, this.season, this.episode)
-      .then(res => this.videoLink = res);
+    if (this.seriesSettings) {
+      await this.movieService.getSeriesLink(this.group.id, this.selectedResolution,
+        this.seriesSettings.selectedSeason, this.seriesSettings.selectedEpisode)
+        .then(res => this.videoLink = res);
+    }
   }
 
   public playPause() {
@@ -227,14 +206,14 @@ export class VideoPlayerComponent implements OnInit {
 
   private play() {
     if (this.hasPrivileges()) {
-      this.wsService.sendMovieAction(MovieAction.PLAY)
+      this.wsService.sendMovieAction(VideoAction.PLAY)
       this.wsService.sendCurrentMovieTime(this.getCurrentMovieTime())
     }
   }
 
   private pause() {
     if (this.hasPrivileges()) {
-      this.wsService.sendMovieAction(MovieAction.PAUSE)
+      this.wsService.sendMovieAction(VideoAction.PAUSE)
       this.wsService.sendCurrentMovieTime(this.getCurrentMovieTime())
     }
   }
@@ -246,7 +225,7 @@ export class VideoPlayerComponent implements OnInit {
       this.selectedResolution = resolution;
       this.userConfig.setPreferredResolution(resolution.value);
 
-      if (this.movie) {
+      if (this.movieSettings) {
         this.getNewMovieLink()
           .then(() => this.synchronizeVideoWithTimeout(5000));
       } else {
@@ -262,6 +241,7 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
+  // TODO video is paused if rewind
   public mouseUpRewind() {
     setTimeout(() => {
       this.rewind(this.getCurrentMovieTime())

@@ -9,7 +9,6 @@ import {FriendService} from "../../services/friend.service";
 import {MovieService} from "../../services/movie.service";
 import {WebSocketService} from "../../services/web-socket.service";
 import {Season} from "../../models/Seson";
-import {Series} from "../../models/Series";
 
 @Component({
   selector: 'app-group-page',
@@ -62,6 +61,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         this.handlePrivilegesSubscription();
         this.handleUserAddSubscription();
         this.handleUserLeaveSubscription();
+        this.handleSeriesSubscription();
       } else {
         this.router.navigate([''])
       }
@@ -70,6 +70,15 @@ export class GroupPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.wsService.disconnect();
+  }
+
+  private handleSeriesSubscription() {
+    this.wsService.getSeriesSubject().subscribe((sso) => {
+      this.group.groupSettings.movieSettings = null!;
+      this.group.groupSettings.seriesSettings = sso;
+
+      this.refreshSeasonEpisodesArray();
+    })
   }
 
   private handlePrivilegesSubscription() {
@@ -142,11 +151,14 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   setMovie() {
+    this.chooseAnotherMovie = false;
+
     let selectedTranslation: any = this.movieService.selectedTranslation
     let movie = this.movieService.movie
+
     if (selectedTranslation && movie) {
       this.groupService.selectMovieForGroup(this.group, movie, selectedTranslation)
-      this.movieService.refresh();
+      this.movieService.setMovie(movie, selectedTranslation)
     } else {
       this.setSeries();
     }
@@ -159,15 +171,20 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     if (translation && series) {
       this.groupService.selectSeriesForGroup(this.group, series, translation,
         translation.seasons[0], 1);
-      this.movieService.refresh();
+      this.movieService.setSeries(series, translation);
     }
   }
 
   changeMovieTranslation() {
-    if (this.group.groupSettings.movieSettings.selectedTranslation.name !== this.movieService.selectedTranslation?.name
-                  && this.movieService.selectedTranslation) {
+    if (this.movieService.selectedTranslation
+      && this.group.groupSettings.movieSettings.selectedTranslation.name !== this.movieService.selectedTranslation.name) {
       this.groupService.changeMovieTranslation(this.movieService.selectedTranslation, this.group)
     }
+  }
+
+  // TODO
+  changeSeriesTranslation() {
+
   }
 
   public userHasPrivileges(user: User): boolean {
@@ -193,6 +210,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO make websocket subscription
   public changeSeason(season: Season) {
     this.group.groupSettings.seriesSettings.selectedSeason = season;
     this.group.groupSettings.seriesSettings.selectedEpisode = 1;
@@ -200,6 +218,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     this.submitSeriesChanges();
   }
 
+  // TODO make websocket subscription
   public changeEpisode(episode: number) {
     this.group.groupSettings.seriesSettings.selectedEpisode = episode;
     this.submitSeriesChanges();
