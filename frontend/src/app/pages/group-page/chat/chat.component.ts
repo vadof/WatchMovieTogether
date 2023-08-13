@@ -63,4 +63,9 @@ export class ChatComponent implements OnInit {
       chatContentEl.scrollTop = chatContentEl.scrollHeight;
     }, 0)
   }
+
+  public getChatContentHeight() {
+    const videoHeight = document.querySelector(".video-player-wrapper")!.clientHeight;
+    return videoHeight - 50;
+  }
 }

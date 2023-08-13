@@ -5,6 +5,11 @@ import {ApiService} from "./api.service";
 import {Movie} from "../models/Movie";
 import {Translation} from "../models/Translation";
 import {Chat} from "../models/Chat";
+import {Series} from "../models/Series";
+import {SeriesTranslation} from "../models/SeriesTranslation";
+import {Season} from "../models/Seson";
+import {SeriesSettings} from "../models/SeriesSettings";
+import {MovieSettings} from "../models/MovieSettings";
 
 @Injectable({
   providedIn: 'root'
@@ -60,12 +65,24 @@ export class GroupService {
 
   public selectMovieForGroup(group: Group, movie: Movie,
                              selectedTranslation: Translation) {
-    let requestObj = {
-      groupId: group.id,
-      movie,
-      selectedTranslation
+    const movieSettings: MovieSettings = {
+      selectedMovie: movie,
+        selectedTranslation: selectedTranslation
     }
-    this.api.sendPostRequest('/groups/movie', requestObj).subscribe();
+    this.api.sendPostRequest(`/groups/${group.id}/movie`, movieSettings).subscribe();
+  }
+
+  public selectSeriesForGroup(group: Group, series: Series,
+                              selectedSeriesTranslation: SeriesTranslation,
+                              season: Season, episode: number) {
+    const seriesSettings: SeriesSettings = {
+      selectedSeries: series,
+      selectedTranslation: selectedSeriesTranslation,
+      selectedSeason: season,
+      selectedEpisode: episode
+    }
+
+    this.api.sendPostRequest(`/groups/${group.id}/series`, seriesSettings).subscribe();
   }
 
   public addUserToGroup(group: Group, user: User) {

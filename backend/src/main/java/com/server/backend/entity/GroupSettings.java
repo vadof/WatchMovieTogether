@@ -19,11 +19,11 @@ public class GroupSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Movie selectedMovie;
+    @OneToOne
+    private MovieSettings movieSettings;
 
-    @ManyToOne
-    private Translation selectedTranslation;
+    @OneToOne
+    private SeriesSettings seriesSettings;
 
     @JsonIgnore
     @OneToOne(mappedBy = "groupSettings")

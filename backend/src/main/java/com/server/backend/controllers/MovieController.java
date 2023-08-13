@@ -1,6 +1,5 @@
 package com.server.backend.controllers;
 
-import com.server.backend.entity.Movie;
 import com.server.backend.services.MovieService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,19 +17,19 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<?> getMovieFromLink(@RequestBody String link) {
-        Optional<Movie> movie = movieService.getMovie(link);
-        if (movie.isPresent()) {
-            return ResponseEntity.ok(movie.get());
+        Optional<?> movieOrSeries = movieService.getMovieOrSeries(link);
+        if (movieOrSeries.isPresent()) {
+            return ResponseEntity.ok(movieOrSeries.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid URL provided");
         }
     }
 
     @GetMapping("/{groupId}/{resolution}")
-    public ResponseEntity<?> getVideoLinkByResolution(@PathVariable Long groupId, @PathVariable String resolution) {
-        Optional<String> videoLink = this.movieService.getVideoLinkByResolution(groupId, resolution);
-        if (videoLink.isPresent()) {
-            return ResponseEntity.ok(videoLink);
+    public ResponseEntity<?> getMovieStreamLink(@PathVariable Long groupId, @PathVariable String resolution) {
+        Optional<String> streamLink = this.movieService.getMovieStreamLink(groupId, resolution);
+        if (streamLink.isPresent()) {
+            return ResponseEntity.ok(streamLink);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Failed to get video link");
         }

@@ -3,8 +3,7 @@
    (click)="navigateToGroup(group.id)">
 
   <div class="name"><strong>{{ group.name }}</strong></div>
-  <div class="current-movie">{{ group.groupSettings.selectedMovie ?
-    group.groupSettings.selectedMovie.name : 'Movie not selected yet' }}</div>
-
+  <div class="current-movie">{{ name ?
+    name : 'Movie not selected yet' }}</div>
 </a>
 

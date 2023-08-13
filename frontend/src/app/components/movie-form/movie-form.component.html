@@ -1,5 +1,5 @@
 <div class="mb-3">
-  <label for="link" class="form-label">Paste the link to the movie
+  <label for="link" class="form-label">Paste the link to the movie from
     <a href="https://rezka.ag/" class="text-color-primary" target="_blank">HDREZKA</a>
   </label>
   <div class="d-flex">
@@ -13,4 +13,7 @@
 
 <div *ngIf="movie">
   <app-movie-form-settings [movie]="movie"></app-movie-form-settings>
+</div>
+<div *ngIf="series">
+  <app-series-form-settings [series]="series"></app-series-form-settings>
 </div>

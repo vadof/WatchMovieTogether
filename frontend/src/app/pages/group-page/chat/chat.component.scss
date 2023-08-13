@@ -24,10 +24,11 @@
 }
 
 .chat-content {
-  height: 25rem;
+  //height: 25rem;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .message {

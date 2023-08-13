@@ -9,7 +9,7 @@ import {Group} from "../../models/Group";
 })
 export class UserGroupsPageComponent implements OnInit {
 
-  createGroup = false;
+  createGroup: boolean = false;
   groups: Group[] = []
 
   constructor(
@@ -17,6 +17,7 @@ export class UserGroupsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.createGroup = false;
     this.service.getAllGroups().then((res) => {
       this.groups = res.sort((a, b) => b.id - a.id);
     })

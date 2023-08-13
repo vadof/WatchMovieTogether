@@ -1,0 +1,18 @@
+.series-settings {
+  button {
+    width: 15em;
+  }
+}
+
+.btn-selected {
+  font-weight: 600;
+  color: black;
+  border: none;
+
+  background: rgb(154,25,209);
+  background: linear-gradient(134deg, rgba(154,25,209,1) 0%, rgba(185,21,196,1) 81%);
+
+  &:hover {
+    color: black;
+  }
+}

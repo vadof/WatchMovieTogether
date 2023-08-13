@@ -30,7 +30,7 @@ public class ChatService {
                 .message(message)
                 .messageType(MessageType.USER)
                 .user(user)
-                .chat(chat).build();
+                .build();
 
         messageRepository.save(message1);
 
@@ -45,7 +45,7 @@ public class ChatService {
         Message systemMessage = Message.builder()
                 .message(message)
                 .messageType(MessageType.SYSTEM)
-                .chat(chat).build();
+                .build();
 
         messageRepository.save(systemMessage);
 
@@ -55,29 +55,48 @@ public class ChatService {
         webSocketService.sendObjectByWebsocket("/group/" + groupId + "/chat", systemMessage);
     }
 
-    public String generateMovieChangeMessage(String movieName, String selectedTranslation) {
-        return String.format("Selected a new movie \"%s\" translated by \"%s\"",
-                movieName, selectedTranslation);
+    public void sendGroupCreateMessage(Long groupId, String userUsername) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s created a group", userUsername));
     }
 
-    public String generateUserLeaveMessage(String username) {
-        return String.format("%s left the group", username);
+    public void sendUserLeaveMessage(Long groupId, String username) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s left the group", username));
     }
 
-    public String generateUserKickedMessage(String kickedUserUsername, String whoKickedUsername) {
-        return String.format("%s was kicked by %s from the group",
-                kickedUserUsername, whoKickedUsername);
+    public void sendUserKickedMessage(Long groupId, String kickedUserUsername, String whoKickedUsername) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("%s was kicked by %s from the group",
+                        kickedUserUsername, whoKickedUsername));
     }
 
-    public String generateUserJoinMessage(String username) {
-        return String.format("%s joined the group", username);
+    public void sendUserJoinMessage(Long groupId, String username) {
+        this.addSystemMessageToGroupChat(groupId, String.format("%s joined the group", username));
     }
 
-    public String generateTranslationChangeMessage(String translationName) {
-        return String.format("\"%s\" was chosen as the translation", translationName);
+    public void sendMovieChangeMessage(Long groupId, String movieName, String translationName) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("Selected a new movie \"%s\" translated by \"%s\"",
+                        movieName, translationName));
     }
 
-    public String generateGroupCreateMessage(String userUsername) {
-        return String.format("%s created a group", userUsername);
+    public void sendTranslationChangeMessage(Long groupId, String translationName) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("\"%s\" was chosen as the translation", translationName));
+    }
+
+    public void sendSeriesChangeMessage(Long groupId, String seriesName, String translationName) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("Selected a new series \"%s\" translated by \"%s\"",
+                        seriesName, translationName));
+    }
+
+    public void sendSeriesTranslationChangeMessage(Long groupId, String translationName) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("\"%s\" was chosen as the translation", translationName));
+    }
+
+    public void sendSeriesEpisodeChange(Long groupId, String seasonNumber, String episode) {
+        this.addSystemMessageToGroupChat(groupId,
+                String.format("Selected %s episode of %s season", episode, seasonNumber));
     }
 }

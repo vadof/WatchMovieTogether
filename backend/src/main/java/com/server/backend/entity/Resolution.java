@@ -1,15 +1,12 @@
 package com.server.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -25,10 +22,6 @@ public class Resolution {
 
     @NotBlank
     private String value;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "resolutions")
-    private List<Translation> translations = new ArrayList<>();
 
     public Resolution(String value) {
         this.value = value;

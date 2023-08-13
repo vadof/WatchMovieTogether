@@ -37,7 +37,59 @@
 }
 
 .content {
-  padding-top: 2rem;
+  //padding-top: 2rem;
+}
+
+.synchronize-button {
+  padding-bottom: 1rem;
+}
+
+.seasons, .season-episodes {
+  display: flex;
+  flex-wrap: wrap;
+  width: 70%;
+
+  div:not(:last-child) {
+    margin-right: 0.3rem;
+  }
+}
+
+.seasons {
+  div {
+    margin-bottom: 0.1rem;
+  }
+}
+
+.season-episodes {
+  div {
+    margin-top: 0.1rem;
+  }
+}
+
+.btn-selected {
+  color: #b4cfe6;
+  border: none;
+  min-width: 6rem !important;
+  border-radius: 0;
+  font-weight: 600;
+
+  background: rgba(43,41,133,1);
+}
+
+.season-btn {
+  min-width: 6rem;
+  color: #b4cfe6;
+  border: none;
+  border-radius: 0;
+  font-weight: 600;
+
+  background: rgba(24,4,96,1);
+  transition: ease 0.5s;
+
+  &:hover {
+    color: #b4cfe6;
+    background: rgba(43,41,133,1);
+  }
 }
 
 app-video-player {
