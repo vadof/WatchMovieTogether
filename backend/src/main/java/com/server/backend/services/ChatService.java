@@ -84,7 +84,7 @@ public class ChatService {
                 String.format("\"%s\" was chosen as the translation", translationName));
     }
 
-    public void sendSeriesChangeMesasge(Long groupId, String seriesName, String translationName) {
+    public void sendSeriesChangeMessage(Long groupId, String seriesName, String translationName) {
         this.addSystemMessageToGroupChat(groupId,
                 String.format("Selected a new series \"%s\" translated by \"%s\"",
                         seriesName, translationName));

@@ -1,8 +1,6 @@
 package com.server.backend.controllers;
 
 import com.server.backend.entity.*;
-import com.server.backend.requests.MovieSelectionRequest;
-import com.server.backend.requests.SeriesSelectionRequest;
 import com.server.backend.services.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +20,14 @@ public class GroupController {
         return ResponseEntity.ok(this.groupService.createGroup(name, token));
     }
 
-    @PostMapping("/movie")
-    public void setUpMovieForGroup(@RequestBody MovieSelectionRequest movieSelectionRequest) {
-        this.groupService.setUpMovieForGroup(movieSelectionRequest);
+    @PostMapping("/{groupId}/movie")
+    public void setUpMovieForGroup(@PathVariable Long groupId, @RequestBody MovieSettings movieSettings) {
+        this.groupService.setUpMovieForGroup(groupId, movieSettings);
     }
 
-    @PostMapping("/series")
-    public void setUpSeriesForGroup(@RequestBody SeriesSelectionRequest seriesSelectionRequest) {
-        this.groupService.setUpSeriesForGroup(seriesSelectionRequest);
+    @PostMapping("/{groupId}/series")
+    public void setUpSeriesForGroup(@PathVariable Long groupId, @RequestBody SeriesSettings seriesSettings) {
+        this.groupService.setUpSeriesForGroup(groupId, seriesSettings);
     }
 
     @GetMapping("/chat/{id}")

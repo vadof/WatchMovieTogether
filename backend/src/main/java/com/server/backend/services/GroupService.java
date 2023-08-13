@@ -3,8 +3,6 @@ package com.server.backend.services;
 import com.server.backend.entity.*;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.*;
-import com.server.backend.requests.MovieSelectionRequest;
-import com.server.backend.requests.SeriesSelectionRequest;
 import com.server.backend.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -66,22 +64,22 @@ public class GroupService {
     }
 
     @Transactional
-    public void setUpMovieForGroup(MovieSelectionRequest msr) {
+    public void setUpMovieForGroup(Long groupId, MovieSettings ms) {
         try {
-            Movie movie = movieRepository.findByLink(msr.getMovie().getLink()).orElseThrow();
-            GroupSettings groupSettings = groupRepository.findById(msr.getGroupId()).orElseThrow()
+            Movie movie = movieRepository.findByLink(ms.getSelectedMovie().getLink()).orElseThrow();
+            GroupSettings groupSettings = groupRepository.findById(groupId).orElseThrow()
                     .getGroupSettings();
 
             MovieSettings movieSettings = groupSettings.getMovieSettings();
 
-           this.removeSeriesSettings(groupSettings);
+            this.removeSeriesSettings(groupSettings);
 
             if (movieSettings != null && movie.getId().equals(movieSettings.getSelectedMovie().getId())) {
-                this.changeSelectedMovieTranslation(msr.getGroupId(), msr.getSelectedTranslation());
+                this.changeSelectedMovieTranslation(groupId, ms.getSelectedTranslation());
             } else {
                 Translation translation = movie.getTranslations()
                         .stream()
-                        .filter(t -> t.equals(msr.getSelectedTranslation()))
+                        .filter(t -> t.equals(ms.getSelectedTranslation()))
                         .findFirst().orElseThrow();
 
                 MovieSettings newMovieSettings = MovieSettings.builder()
@@ -93,31 +91,31 @@ public class GroupService {
                 groupSettings.setMovieSettings(newMovieSettings);
                 this.groupSettingsRepository.save(groupSettings);
 
-                this.chatService.sendMovieChangeMessage(msr.getGroupId(), movie.getName(), translation.getName());
-                this.webSocketService.sendObjectByWebsocket("/group/" + msr.getGroupId() + "/movie", msr);
+                this.chatService.sendMovieChangeMessage(groupId, movie.getName(), translation.getName());
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", ms);
             }
         } catch (Exception e) {
             LOG.error("Failed to set up movie for group {}" + e.getMessage(), e);
         }
     }
 
-    // TODO send object by websocket
+    // TODO do only the setting, without checking for episodes and voice acting
     @Transactional
-    public void setUpSeriesForGroup(SeriesSelectionRequest ssr) {
+    public void setUpSeriesForGroup(Long groupId, SeriesSettings ss) {
         try {
-            GroupSettings groupSettings = groupRepository.findById(ssr.getGroupId()).orElseThrow().getGroupSettings();
-            Series series = seriesRepository.findByLink(ssr.getSeries().getLink()).orElseThrow();
+            GroupSettings groupSettings = groupRepository.findById(groupId).orElseThrow().getGroupSettings();
+            Series series = seriesRepository.findByLink(ss.getSelectedSeries().getLink()).orElseThrow();
 
             SeriesSettings seriesSettings = groupSettings.getSeriesSettings();
 
             this.removeMovieSettings(groupSettings);
 
             SeriesTranslation seriesTranslation = series.getSeriesTranslations().stream()
-                    .filter(t -> t.equals(ssr.getSelectedSeriesTranslation()))
+                    .filter(t -> t.equals(ss.getSelectedTranslation()))
                     .findFirst().orElseThrow();
 
             Season season = seriesTranslation.getSeasons().stream()
-                    .filter(s -> s.getNumber().equals(ssr.getSeason().getNumber()))
+                    .filter(s -> s.getNumber().equals(ss.getSelectedSeason().getNumber()))
                     .findFirst().orElseThrow();
 
             if (seriesSettings != null
@@ -126,15 +124,15 @@ public class GroupService {
                 if (!seriesSettings.getSelectedTranslation().equals(seriesTranslation)) {
                     seriesSettings.setSelectedTranslation(seriesTranslation);
 
-                    this.chatService.sendSeriesTranslationChangeMessage(ssr.getGroupId(),
-                            ssr.getSelectedSeriesTranslation().getName());
+                    this.chatService.sendSeriesTranslationChangeMessage(groupId,
+                            ss.getSelectedTranslation().getName());
                 }
 
                 seriesSettings.setSelectedSeason(season);
-                seriesSettings.setSelectedEpisode(ssr.getEpisode());
+                seriesSettings.setSelectedEpisode(ss.getSelectedEpisode());
 
-                this.chatService.sendSeriesEpisodeChange(ssr.getGroupId(),
-                        String.valueOf(ssr.getSeason().getNumber()), String.valueOf(ssr.getEpisode()));
+                this.chatService.sendSeriesEpisodeChange(groupId,
+                        String.valueOf(ss.getSelectedSeason().getNumber()), String.valueOf(ss.getSelectedEpisode()));
 
                 this.seriesSettingsRepository.save(seriesSettings);
             } else {
@@ -142,18 +140,18 @@ public class GroupService {
                         .selectedSeries(series)
                         .selectedTranslation(seriesTranslation)
                         .selectedSeason(season)
-                        .selectedEpisode(ssr.getEpisode())
+                        .selectedEpisode(ss.getSelectedEpisode())
                         .build();
                 this.seriesSettingsRepository.save(seriesSettings);
 
                 groupSettings.setSeriesSettings(seriesSettings);
                 this.groupSettingsRepository.save(groupSettings);
 
-                this.chatService.sendSeriesChangeMesasge(ssr.getGroupId(), series.getName(),
+                this.chatService.sendSeriesChangeMessage(groupId, series.getName(),
                         seriesTranslation.getName());
             }
 
-            this.webSocketService.sendObjectByWebsocket("/group/" + ssr.getGroupId() + "/series", ssr);
+            this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", ss);
         } catch (Exception e) {
             LOG.error("Failed to set up series for group {}" + e.getMessage(), e);
         }
@@ -235,8 +233,7 @@ public class GroupService {
                 movieSettings.setSelectedTranslation(translation1);
                 movieSettingsRepository.save(movieSettings);
 
-                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie",
-                        new MovieSelectionRequest(groupId, movie, translation1));
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", movieSettings);
 
                 this.chatService.sendTranslationChangeMessage(groupId, translation.getName());
             }
