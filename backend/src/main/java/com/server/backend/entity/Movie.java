@@ -20,7 +20,6 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO save link for 5 minutes
     @NotBlank
     @Column(unique = true)
     private String link;

@@ -37,8 +37,7 @@ export class GroupFormComponent {
       ]]
     })
   }
-
-  // TODO season and episode choice
+  
   public create() {
     const movie: Movie | null = this.movieService.movie
     const series: Series | null = this.movieService.series

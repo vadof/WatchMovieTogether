@@ -12,7 +12,6 @@ import {
 } from "@videogular/ngx-videogular/controls";
 import {UserConfigService} from "../../../config/user-config.service";
 import {TokenStorageService} from "../../../auth/token-storage.service";
-import {Season} from "../../../models/Seson";
 
 const trackedKeys: string[] = [' ', 'p', 'm', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
 
@@ -68,7 +67,7 @@ export class VideoPlayerComponent implements OnInit {
 
     if (this.movie || this.series) {
       this.setInitialResolution();
-      this.movie ? this.getNewMovieLink() : this.getNewSeriesLink();
+      this.movie ? this.getMovieLink(false) : this.getNewSeriesLink();
       this.setPreferredVolume();
 
       setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
@@ -108,6 +107,7 @@ export class VideoPlayerComponent implements OnInit {
     }
   }
 
+  // TODO handle series subscription
   private handleMovieSubscription() {
     this.wsService.getMovieSubject().subscribe((ms) => {
       if (!this.group.groupSettings.movieSettings.selectedMovie) {
@@ -117,7 +117,7 @@ export class VideoPlayerComponent implements OnInit {
         this.group.groupSettings.movieSettings.selectedTranslation = ms.selectedTranslation;
         this.resolutions = ms.selectedTranslation.resolutions.reverse();
         this.setInitialResolution();
-        this.movie ? this.getNewMovieLink() : this.getNewSeriesLink();
+        this.movie ? this.getMovieLink(true) : this.getNewSeriesLink();
       }
     })
   }
@@ -156,11 +156,31 @@ export class VideoPlayerComponent implements OnInit {
     })
   }
 
-  private async getNewMovieLink() {
-    await this.movieService.getMovieLink(this.group.id, this.selectedResolution)
-      .then(res => this.videoLink = res);
+  // TODO save link for 5 minutes on client
+  private async getMovieLink(newLink: boolean) {
+    if (newLink) {
+      this.getNewMovieLink();
+    } else {
+      const movieName = this.group.groupSettings.movieSettings.selectedMovie.name;
+      const movieLink = this.userConfig.getGroupMovieStreamLink(this.group.id, movieName);
+      if (movieLink) {
+        this.videoLink = movieLink;
+      } else {
+        this.getNewMovieLink();
+      }
+    }
   }
 
+  private async getNewMovieLink() {
+    await this.movieService.getMovieLink(this.group.id, this.selectedResolution)
+      .then((res) => {
+        this.videoLink = res;
+        const movieName = this.group.groupSettings.movieSettings.selectedMovie.name;
+        this.userConfig.saveGroupMovieStreamLink(this.group.id, res, movieName);
+      });
+  }
+
+  // TODO save link for 5 minutes on client
   private async getNewSeriesLink() {
     await this.movieService.getSeriesLink(this.group.id, this.selectedResolution, this.season, this.episode)
       .then(res => this.videoLink = res);
@@ -192,7 +212,7 @@ export class VideoPlayerComponent implements OnInit {
       this.userConfig.setPreferredResolution(resolution.value);
 
       if (this.movie) {
-        this.getNewMovieLink().then(() => {
+        this.getMovieLink(true).then(() => {
           setTimeout(() => {
             this.wsService.synchronizeVideo();
           }, 5000)
