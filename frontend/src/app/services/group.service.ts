@@ -90,6 +90,10 @@ export class GroupService {
   }
 
   public changeMovieTranslation(selectedTranslation: Translation, group: Group) {
-    this.api.sendPutRequest(`/groups/${group.id}/translation`, selectedTranslation).subscribe()
+    this.api.sendPutRequest(`/groups/${group.id}/movie/translation`, selectedTranslation).subscribe()
+  }
+
+  public changeSeriesEpisode(seriesSettings: SeriesSettings, group: Group) {
+    this.api.sendPutRequest(`/groups/${group.id}/series/episode`, seriesSettings).subscribe()
   }
 }

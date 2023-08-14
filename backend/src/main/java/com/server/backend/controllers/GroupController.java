@@ -48,7 +48,8 @@ public class GroupController {
 
     @PutMapping("/{groupId}/series/episode")
     public void changeSeriesEpisode(@PathVariable Long groupId,
-                                    @RequestBody Season season, @RequestBody Integer episode) {
-        this.groupService.changeEpisodeInSeries(groupId, season, episode);
+                                    @RequestBody SeriesSettings seriesSettings) {
+        this.groupService.changeEpisodeInSeries(groupId,
+                seriesSettings.getSelectedSeason(), seriesSettings.getSelectedEpisode());
     }
 }

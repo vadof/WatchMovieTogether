@@ -9,6 +9,7 @@ import {FriendService} from "../../services/friend.service";
 import {MovieService} from "../../services/movie.service";
 import {WebSocketService} from "../../services/web-socket.service";
 import {Season} from "../../models/Seson";
+import {SeriesSettings} from "../../models/SeriesSettings";
 
 @Component({
   selector: 'app-group-page',
@@ -23,6 +24,10 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   checkedUsers: User[] = []
   chooseAnotherMovie: boolean = false
   seasonEpisodes: number[] = []
+
+  selectedSeason: any = null;
+  selectedEpisode: any = null;
+  seriesChanges: boolean = false;
 
   constructor(
     private groupService: GroupService,
@@ -46,6 +51,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         }
 
         if (group.groupSettings.seriesSettings) {
+          this.setEpisodeAndSeries();
           this.movieService.selectedSeriesTranslation = group.groupSettings.seriesSettings.selectedTranslation
           this.refreshSeasonEpisodesArray();
         }
@@ -77,8 +83,14 @@ export class GroupPageComponent implements OnInit, OnDestroy {
       this.group.groupSettings.movieSettings = null!;
       this.group.groupSettings.seriesSettings = sso;
 
+      this.setEpisodeAndSeries();
       this.refreshSeasonEpisodesArray();
     })
+  }
+
+  private setEpisodeAndSeries() {
+    this.selectedSeason = this.group.groupSettings.seriesSettings.selectedSeason
+    this.selectedEpisode = this.group.groupSettings.seriesSettings.selectedEpisode
   }
 
   private handlePrivilegesSubscription() {
@@ -150,7 +162,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     return this.group.admin.username === user.username
   }
 
-  setMovie() {
+  public setMovie() {
     this.chooseAnotherMovie = false;
 
     let selectedTranslation: any = this.movieService.selectedTranslation
@@ -183,7 +195,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   // TODO
-  changeSeriesTranslation() {
+  public changeSeriesTranslation() {
 
   }
 
@@ -203,33 +215,43 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   private refreshSeasonEpisodesArray() {
+    console.log("REFRESH")
     this.seasonEpisodes.length = 0;
-    const episodes = this.group.groupSettings.seriesSettings.selectedSeason.episodes;
+    const episodes = this.selectedSeason.episodes;
     for (let i = 1; i <= episodes; i++) {
       this.seasonEpisodes.push(i);
     }
   }
 
-  // TODO make websocket subscription
   public changeSeason(season: Season) {
-    this.group.groupSettings.seriesSettings.selectedSeason = season;
-    this.group.groupSettings.seriesSettings.selectedEpisode = 1;
+    this.selectedSeason = season;
+    this.selectedEpisode = 1;
     this.refreshSeasonEpisodesArray();
-    this.submitSeriesChanges();
+
+    this.seriesChanges = this.episodeOrSeasonChanged();
   }
 
-  // TODO make websocket subscription
   public changeEpisode(episode: number) {
-    this.group.groupSettings.seriesSettings.selectedEpisode = episode;
-    this.submitSeriesChanges();
+    this.selectedEpisode = episode;
+    this.seriesChanges = this.episodeOrSeasonChanged();
   }
 
-  private submitSeriesChanges() {
-    if (this.isAdmin()) {
-      const seriesSettings = this.group.groupSettings.seriesSettings;
-      this.groupService.selectSeriesForGroup(this.group, seriesSettings.selectedSeries,
-        seriesSettings.selectedTranslation, seriesSettings.selectedSeason,
-        seriesSettings.selectedEpisode);
+  private episodeOrSeasonChanged(): boolean {
+    const seriesSettings = this.group.groupSettings.seriesSettings;
+    const sameSeason = seriesSettings.selectedSeason.number === this.selectedSeason.number;
+    const sameEpisode = seriesSettings.selectedEpisode === this.selectedEpisode;
+
+    return !sameSeason || !sameEpisode;
+  }
+
+  public saveSeriesChanges() {
+    if (this.seriesChanges && this.isAdmin()) {
+      let currentSettings: SeriesSettings = { ...this.group.groupSettings.seriesSettings };
+      currentSettings.selectedSeason = this.selectedSeason;
+      currentSettings.selectedEpisode = this.selectedEpisode;
+
+      this.seriesChanges = false;
+      this.groupService.changeSeriesEpisode(currentSettings, this.group);
     }
   }
 }
