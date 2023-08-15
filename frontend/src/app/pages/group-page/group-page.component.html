@@ -52,17 +52,17 @@
     </div>
   </div>
 
-  <div class="synchronize-button" *ngIf="group.groupSettings.movieSettings || group.groupSettings.seriesSettings">
-    <div class="btn btn-main mt-3" (click)="synchronizeMovie()">Synchronize</div>
+  <div class="synchronize-button d-flex justify-content-between mt-3" *ngIf="group.groupSettings.movieSettings || group.groupSettings.seriesSettings">
+    <div class="btn btn-main" (click)="synchronizeMovie()">Synchronize</div>
+    <div class="btn save-btn" *ngIf="seriesChanges && isAdmin()" (click)="saveSeriesChanges()">Save</div>
   </div>
 
   <ng-template [ngIf]="group.groupSettings.seriesSettings">
     <div class="seasons">
       <div *ngFor="let season of group.groupSettings.seriesSettings.selectedTranslation.seasons">
         <div
-          [ngClass]="season.number === group.groupSettings.seriesSettings.selectedSeason.number ?
-          'btn-selected' : 'season-btn'" class="btn"
-             (click)="changeSeason(season)">
+          [ngClass]="season.number === selectedSeason.number ? 'btn-selected' : 'season-btn'" class="btn"
+          (click)="changeSeason(season)">
           Season {{ season.number }}
         </div>
       </div>
@@ -77,9 +77,8 @@
   <ng-template [ngIf]="group.groupSettings.seriesSettings">
     <div class="season-episodes pb-5">
       <div *ngFor="let episode of seasonEpisodes;">
-        <div [ngClass]="episode === group.groupSettings.seriesSettings.selectedEpisode ?
-       'btn-selected' : 'season-btn'" class="btn"
-        (click)="changeEpisode(episode)">
+        <div [ngClass]="episode === selectedEpisode ? 'btn-selected' : 'season-btn'" class="btn"
+             (click)="changeEpisode(episode)">
           Episode {{ episode }}
         </div>
       </div>

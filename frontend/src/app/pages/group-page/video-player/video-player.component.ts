@@ -183,6 +183,7 @@ export class VideoPlayerComponent implements OnInit {
   }
 
   private async getNewMovieLink() {
+    this.videoLink = '';
     await this.movieService.getMovieLink(this.group.id, this.selectedResolution)
       .then((res) => {
         this.videoLink = res;
@@ -193,6 +194,7 @@ export class VideoPlayerComponent implements OnInit {
 
   // TODO save link for 5 minutes on client
   private async getNewSeriesLink() {
+    this.videoLink = '';
     if (this.seriesSettings) {
       await this.movieService.getSeriesLink(this.group.id, this.selectedResolution,
         this.seriesSettings.selectedSeason, this.seriesSettings.selectedEpisode)

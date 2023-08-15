@@ -89,7 +89,15 @@ export class GroupService {
     this.api.sendPostRequest(`/groups/${group.id}/users`, user).subscribe()
   }
 
-  public changeMovieTranslation(selectedTranslation: Translation, group: Group) {
-    this.api.sendPutRequest(`/groups/${group.id}/translation`, selectedTranslation).subscribe()
+  public changeMovieTranslation(translation: Translation, group: Group) {
+    this.api.sendPutRequest(`/groups/${group.id}/movie/translation`, translation).subscribe()
+  }
+
+  public changeSeriesTranslation(seriesTranslation: SeriesTranslation, group: Group) {
+    this.api.sendPutRequest(`/groups/${group.id}/series/translation`, seriesTranslation).subscribe()
+  }
+
+  public changeSeriesEpisode(seriesSettings: SeriesSettings, group: Group) {
+    this.api.sendPutRequest(`/groups/${group.id}/series/episode`, seriesSettings).subscribe()
   }
 }

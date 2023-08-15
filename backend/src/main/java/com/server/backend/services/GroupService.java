@@ -4,6 +4,7 @@ import com.server.backend.entity.*;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.*;
 import com.server.backend.websocket.WebSocketService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -132,7 +133,7 @@ public class GroupService {
                 seriesSettings.setSelectedEpisode(ss.getSelectedEpisode());
 
                 this.chatService.sendSeriesEpisodeChange(groupId,
-                        String.valueOf(ss.getSelectedSeason().getNumber()), String.valueOf(ss.getSelectedEpisode()));
+                        ss.getSelectedSeason().getNumber().toString(), ss.getSelectedEpisode().toString());
 
                 this.seriesSettingsRepository.save(seriesSettings);
             } else {
@@ -154,6 +155,40 @@ public class GroupService {
             this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", ss);
         } catch (Exception e) {
             LOG.error("Failed to set up series for group {}" + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public void changeEpisodeInSeries(Long groupId, Season season, Integer episode) {
+        try {
+            SeriesSettings seriesSettings = this.groupRepository.findById(groupId)
+                    .orElseThrow().getGroupSettings().getSeriesSettings();
+
+            boolean sameSeason = seriesSettings.getSelectedSeason().equals(season);
+            boolean sameEpisode = seriesSettings.getSelectedEpisode().equals(episode);
+
+            if (!sameSeason || !sameEpisode) {
+                Season dbSeason = seriesSettings.getSelectedTranslation().getSeasons()
+                        .stream().filter(s -> s.equals(season))
+                        .findFirst().orElseThrow();
+
+                seriesSettings.setSelectedSeason(dbSeason);
+
+                if (dbSeason.getEpisodes() >= episode) {
+                    seriesSettings.setSelectedEpisode(episode);
+                } else {
+                    episode = dbSeason.getEpisodes();
+                    seriesSettings.setSelectedEpisode(episode);
+                }
+
+                this.seriesSettingsRepository.save(seriesSettings);
+
+                this.chatService.sendSeriesEpisodeChange(groupId,
+                        season.getNumber().toString(), episode.toString());
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", seriesSettings);
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to change series episode {}" + e.getMessage(), e);
         }
     }
 
@@ -225,17 +260,40 @@ public class GroupService {
             Movie movie = movieSettings.getSelectedMovie();
 
             if (!translation.equals(movieSettings.getSelectedTranslation())) {
-                Translation translation1 = movie.getTranslations()
-                        .stream()
+                Translation translation1 = movie.getTranslations().stream()
                         .filter(t -> t.getName().equals(translation.getName()))
                         .findFirst().orElseThrow();
 
                 movieSettings.setSelectedTranslation(translation1);
-                movieSettingsRepository.save(movieSettings);
+                this.movieSettingsRepository.save(movieSettings);
 
                 this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", movieSettings);
-
                 this.chatService.sendTranslationChangeMessage(groupId, translation.getName());
+            }
+        }
+    }
+
+    public void changeSelectedSeriesTranslation(Long groupId, SeriesTranslation seriesTranslation) {
+        Group group = this.groupRepository.findById(groupId).orElseThrow();
+        SeriesSettings seriesSettings = group.getGroupSettings().getSeriesSettings();
+        if (seriesSettings != null) {
+            Series series = seriesSettings.getSelectedSeries();
+
+            if (!seriesTranslation.equals(seriesSettings.getSelectedTranslation())) {
+                SeriesTranslation newTranslation = series.getSeriesTranslations().stream()
+                        .filter(st -> st.equals(seriesTranslation))
+                        .findFirst().orElseThrow();
+
+                Season season = newTranslation.getSeasons().get(0);
+
+                seriesSettings.setSelectedTranslation(newTranslation);
+                seriesSettings.setSelectedSeason(season);
+                seriesSettings.setSelectedEpisode(1);
+
+                this.seriesSettingsRepository.save(seriesSettings);
+
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", seriesSettings);
+                this.chatService.sendSeriesTranslationChangeMessage(groupId, newTranslation.getName());
             }
         }
     }
