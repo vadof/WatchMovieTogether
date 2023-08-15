@@ -46,6 +46,12 @@ public class GroupController {
         this.groupService.changeSelectedMovieTranslation(groupId, translation);
     }
 
+    @PutMapping("/{groupId}/series/translation")
+    public void changeSeriesTranslationForGroup(@PathVariable Long groupId,
+                                                @RequestBody SeriesTranslation seriesTranslation) {
+        this.groupService.changeSelectedSeriesTranslation(groupId, seriesTranslation);
+    }
+
     @PutMapping("/{groupId}/series/episode")
     public void changeSeriesEpisode(@PathVariable Long groupId,
                                     @RequestBody SeriesSettings seriesSettings) {

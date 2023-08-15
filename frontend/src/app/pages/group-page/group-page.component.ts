@@ -51,6 +51,7 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         }
 
         if (group.groupSettings.seriesSettings) {
+          console.log(group.groupSettings.seriesSettings)
           this.setEpisodeAndSeries();
           this.movieService.selectedSeriesTranslation = group.groupSettings.seriesSettings.selectedTranslation
           this.refreshSeasonEpisodesArray();
@@ -188,15 +189,20 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   changeMovieTranslation() {
-    if (this.movieService.selectedTranslation
-      && this.group.groupSettings.movieSettings.selectedTranslation.name !== this.movieService.selectedTranslation.name) {
-      this.groupService.changeMovieTranslation(this.movieService.selectedTranslation, this.group)
+    const newTranslation = this.movieService.selectedTranslation;
+    const currentTranslation = this.group.groupSettings.movieSettings.selectedTranslation;
+    if (newTranslation && currentTranslation.name !== newTranslation.name) {
+      this.groupService.changeMovieTranslation(newTranslation, this.group)
     }
   }
 
-  // TODO
   public changeSeriesTranslation() {
-
+    const newTranslation = this.movieService.selectedSeriesTranslation;
+    const currentTranslation = this.group.groupSettings.seriesSettings.selectedTranslation;
+    if (newTranslation && currentTranslation.name !== newTranslation.name) {
+      console.log("CHANGE")
+      this.groupService.changeSeriesTranslation(newTranslation, this.group);
+    }
   }
 
   public userHasPrivileges(user: User): boolean {
@@ -215,7 +221,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
   }
 
   private refreshSeasonEpisodesArray() {
-    console.log("REFRESH")
     this.seasonEpisodes.length = 0;
     const episodes = this.selectedSeason.episodes;
     for (let i = 1; i <= episodes; i++) {
