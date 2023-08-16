@@ -28,18 +28,11 @@ public class Resolution {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Resolution that)) return false;
 
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Resolution other = (Resolution) obj;
-
-        return Objects.equals(value, other.value);
+        return Objects.equals(value, that.value);
     }
 
     @Override

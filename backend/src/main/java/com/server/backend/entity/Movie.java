@@ -40,13 +40,26 @@ public class Movie {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Movie)) return false;
-        Movie otherMovie = (Movie) o;
-        return Objects.equals(this.id, otherMovie.id);
+        if (!(o instanceof Movie that)) return false;
+
+        return Objects.equals(link, that.link) &&
+                Objects.equals(name, that.name) &&
+                translationsEqual(that);
+    }
+
+    private boolean translationsEqual(Movie otherMovie) {
+        if (translations.size() == otherMovie.translations.size()) {
+            for (int i = 0; i < translations.size(); i++) {
+                if (!translations.get(i).equals(otherMovie.translations.get(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(link, name, translations);
     }
 }

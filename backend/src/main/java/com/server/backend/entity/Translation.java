@@ -8,10 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -33,13 +30,25 @@ public class Translation {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Translation that = (Translation) o;
-        return Objects.equals(name, that.name);
+        if (!(o instanceof Translation that)) return false;
+
+        return Objects.equals(name, that.name) &&
+                this.resolutionsEqual(that);
+    }
+
+    private boolean resolutionsEqual(Translation otherTranslation) {
+        if (resolutions.size() == otherTranslation.resolutions.size()) {
+            for (int i = 0; i < resolutions.size(); i++) {
+                if (!resolutions.get(i).equals(otherTranslation.resolutions.get(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(name, resolutions);
     }
 }
