@@ -8,8 +8,7 @@ import {MovieService} from "../../services/movie.service";
   styleUrls: ['./movie-form-settings.component.scss']
 })
 export class MovieFormSettingsComponent {
-  // @ts-ignore
-  @Input() movie: Movie
+  @Input() movie!: Movie
 
   selectedTranslation: any = this.movieService.selectedTranslation
 
@@ -17,5 +16,14 @@ export class MovieFormSettingsComponent {
 
   selectTranslation(translation: any) {
     this.selectedTranslation = this.movieService.selectedTranslation = translation;
+  }
+
+  public updateMovieInfo() {
+    const movie = this.movieService.movie;
+    if (movie) {
+      this.movieService.updateMovieInfo().then(
+        res => console.log(res)
+      );
+    }
   }
 }

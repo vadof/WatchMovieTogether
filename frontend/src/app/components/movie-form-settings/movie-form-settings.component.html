@@ -5,7 +5,7 @@
     <h4 class="text-center">Choose translation:</h4>
     <div class="buttons">
       <div *ngFor="let t of movie.translations">
-        <button type="button" class="btn mb-2"
+        <button type="button" class="btn translation-button"
                 [ngClass]="{
                 'btn-selected': t.name === selectedTranslation.name,
                 'btn-main btn-scale': t.name !== selectedTranslation.name
@@ -17,6 +17,7 @@
     </div>
   </div>
 
+  <div class="btn btn-danger update-info-btn" (click)="updateMovieInfo()">Update info</div>
 </div>
 
 
