@@ -63,9 +63,7 @@ public class MovieService {
     private Optional<Movie> getMovie(String link) {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
-            String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String movieJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
-            optionalMovie = parseMovieFromString(movieJsonString);
+            optionalMovie = sendMovieRequest(link);
             optionalMovie.ifPresent(this::saveMovie);
         } else {
             Movie movie = optionalMovie.get();
@@ -73,6 +71,12 @@ public class MovieService {
             movieRepository.save(movie);
         }
         return optionalMovie;
+    }
+
+    private Optional<Movie> sendMovieRequest(String movieLink) {
+        String requestBody = String.format("{\"url\":\"%s\"}", movieLink);
+        String movieJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
+        return parseMovieFromString(movieJsonString);
     }
 
     private Optional<Series> getSeries(String link) {
@@ -182,5 +186,22 @@ public class MovieService {
             LOG.error("Error getting movie stream link {}", e.getMessage());
         }
         return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Movie> updateMovieInfo(Movie movie) {
+        try {
+            movie = movieRepository.findByLink(movie.getLink()).orElseThrow();
+            Movie updatedMovie = this.sendMovieRequest(movie.getLink()).orElseThrow();
+
+            if (!movie.equals(updatedMovie)) {
+
+            }
+
+            return Optional.of(updatedMovie);
+        } catch (Exception e) {
+            LOG.error("Error updating movie with link {}, Error: {}", movie.getLink(), e.getMessage());
+            return Optional.empty();
+        }
     }
 }

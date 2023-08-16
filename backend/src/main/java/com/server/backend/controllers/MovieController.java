@@ -1,5 +1,6 @@
 package com.server.backend.controllers;
 
+import com.server.backend.entity.Movie;
 import com.server.backend.services.MovieService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,4 +36,13 @@ public class MovieController {
         }
     }
 
+    @PutMapping
+    public ResponseEntity<?> updateMovieInfo(@RequestBody Movie movie) {
+        Optional<Movie> updatedMovie = this.movieService.updateMovieInfo(movie);
+        if (updatedMovie.isPresent()) {
+            return ResponseEntity.ok(updatedMovie.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.METHOD_FAILURE).body("Something went wrong");
+        }
+    }
 }
