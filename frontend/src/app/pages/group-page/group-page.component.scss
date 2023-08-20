@@ -6,10 +6,15 @@
   }
 }
 
-.movie-info {
+.movie-info, .series-info {
   transform: translateX(-50%);
   left: 50%;
   position: absolute;
+}
+
+// TODO display season and episode correctly
+.series-info {
+  padding-top: 1rem;
 }
 
 .group-settings {

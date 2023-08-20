@@ -6,6 +6,7 @@ import {Resolution} from "../models/Resolution";
 import {Series} from "../models/Series";
 import {SeriesTranslation} from "../models/SeriesTranslation";
 import {Season} from "../models/Seson";
+import {Group} from "../models/Group";
 
 @Injectable({
   providedIn: 'root'
@@ -95,5 +96,45 @@ export class MovieService {
 
     this.series = null;
     this.selectedSeriesTranslation = null
+  }
+
+  public updateMovieInfo() {
+    return new Promise<Movie>((resolve, reject) => {
+      this.api.sendPutRequest("/movie", this.movie).subscribe(
+        res => {
+          let movie: Movie = {
+            type: 'movie',
+            link: res.link,
+            name: res.name,
+            translations: res.translations
+          }
+          this.setMovie(movie, movie.translations[0]);
+          resolve(movie);
+        },
+        err => {
+          reject(err);
+        }
+      );
+    });
+  }
+
+  public updateSeriesInfo() {
+    return new Promise<Series>((resolve, reject) => {
+      this.api.sendPutRequest("/series", this.series).subscribe(
+        res => {
+          let series: Series = {
+            type: 'series',
+            link: res.link,
+            name: res.name,
+            seriesTranslations: res.seriesTranslations
+          };
+          this.setSeries(series, series.seriesTranslations[0]);
+          resolve(series);
+        },
+        err => {
+          reject(err);
+        }
+      );
+    });
   }
 }

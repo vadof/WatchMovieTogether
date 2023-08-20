@@ -34,13 +34,51 @@ public class SeriesTranslation {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SeriesTranslation that = (SeriesTranslation) o;
-        return Objects.equals(name, that.name);
+        if (!(o instanceof SeriesTranslation that)) return false;
+
+        return Objects.equals(name, that.name) &&
+                this.resolutionsEqual(that) &&
+                this.seasonsEqual(that);
+    }
+
+    private boolean resolutionsEqual(SeriesTranslation otherTranslation) {
+        boolean equal = resolutions.size() == otherTranslation.resolutions.size();
+        if (equal) {
+            for (int i = 0; i < resolutions.size(); i++) {
+                if (!resolutions.get(i).equals(otherTranslation.resolutions.get(i))) {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+        return equal;
+    }
+
+    private boolean seasonsEqual(SeriesTranslation otherTranslation) {
+        boolean equal = seasons.size() == otherTranslation.seasons.size();
+        if (equal) {
+            for (int i = 0; i < seasons.size(); i++) {
+                if (!seasons.get(i).equals(otherTranslation.seasons.get(i))) {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+        return equal;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        int result = 17;
+
+        for (Resolution resolution : resolutions) {
+            result = 31 * result * resolution.hashCode();
+        }
+
+        for (Season season : seasons) {
+            result = 31 * result * season.hashCode();
+        }
+
+        return Objects.hash(name) + result;
     }
 }

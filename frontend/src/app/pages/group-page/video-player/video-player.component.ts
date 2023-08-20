@@ -64,7 +64,7 @@ export class VideoPlayerComponent implements OnInit {
 
     if (this.movieSettings || this.seriesSettings) {
       this.setInitialResolution();
-      this.movieSettings ? this.getMovieLink(false) : this.getNewSeriesLink();
+      this.movieSettings ? this.getNewMovieLink() : this.getNewSeriesLink();
       this.setPreferredVolume();
       setTimeout(() => {this.wsService.synchronizeVideo()}, 3000)
     }
@@ -112,7 +112,7 @@ export class VideoPlayerComponent implements OnInit {
       this.resolutions = ms.selectedTranslation.resolutions.reverse();
 
       this.setInitialResolution();
-      this.getMovieLink(true)
+      this.getNewMovieLink()
 
       this.movieService.setMovie(ms.selectedMovie, ms.selectedTranslation)
     })
@@ -168,31 +168,14 @@ export class VideoPlayerComponent implements OnInit {
     })
   }
 
-  private getMovieLink(newLink: boolean) {
-    if (newLink) {
-      this.getNewMovieLink();
-    } else {
-      const movieName = this.group.groupSettings.movieSettings.selectedMovie.name;
-      const movieLink = this.userConfig.getGroupMovieStreamLink(this.group.id, movieName);
-      if (movieLink) {
-        this.videoLink = movieLink;
-      } else {
-        this.getNewMovieLink();
-      }
-    }
-  }
-
   private async getNewMovieLink() {
     this.videoLink = '';
     await this.movieService.getMovieLink(this.group.id, this.selectedResolution)
       .then((res) => {
         this.videoLink = res;
-        const movieName = this.group.groupSettings.movieSettings.selectedMovie.name;
-        this.userConfig.saveGroupMovieStreamLink(this.group.id, res, movieName);
       });
   }
 
-  // TODO save link for 5 minutes on client
   private async getNewSeriesLink() {
     this.videoLink = '';
     if (this.seriesSettings) {

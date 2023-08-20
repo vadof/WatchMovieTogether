@@ -2,6 +2,7 @@
   button {
     width: 15em;
   }
+  position: relative;
 }
 
 .btn-selected {
@@ -15,4 +16,18 @@
   &:hover {
     color: black;
   }
+}
+
+.buttons {
+  div {
+    &:not(:last-child) {
+      margin-bottom: .5rem;
+    }
+  }
+}
+
+.update-info-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }

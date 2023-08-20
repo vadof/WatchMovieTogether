@@ -19,9 +19,11 @@ public class GroupSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // TODO Remove if group delete
     @OneToOne
     private MovieSettings movieSettings;
 
+    // TODO Remove if group delete
     @OneToOne
     private SeriesSettings seriesSettings;
 

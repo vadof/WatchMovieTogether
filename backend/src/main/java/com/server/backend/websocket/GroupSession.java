@@ -2,7 +2,9 @@ package com.server.backend.websocket;
 
 import com.server.backend.entity.User;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class GroupSession {
@@ -13,6 +15,9 @@ public class GroupSession {
     private String currentMovieTime = "0";
     private long lastTimeUpdate = 0L;
     private String movieState = "PAUSE";
+
+    // TODO map with link to don't get it always
+    private Map<String, String> resolutionStreamLinks = new HashMap<>();
 
     public GroupSession(Long groupId) {
         this.groupId = groupId;

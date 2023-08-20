@@ -4,35 +4,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.backend.entity.*;
 import com.server.backend.enums.MovieType;
 import com.server.backend.repository.*;
+import com.server.backend.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class MovieService {
 
     private final MovieRepository movieRepository;
-    private final SeriesRepository seriesRepository;
     private final ResolutionRepository resolutionRepository;
     private final TranslationRepository translationRepository;
-    private final SeriesTranslationRepository seriesTranslationRepository;
-    private final SeasonRepository seasonRepository;
     private final GroupRepository groupRepository;
 
-    private final HTTPSerivce httpSerivce;
+    private final MovieSettingsRepository movieSettingsRepository;
+
+    private final HTTPService httpService;
+    private final SeriesService seriesService;
+    private final ChatService chatService;
+    private final WebSocketService webSocketService;
 
     private final String REZKA_API_URL = "http://localhost:5000/api";
-    private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
 
     private Optional<MovieType> getMovieType(String link) {
         try {
             String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String response = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/type");
+            String response = this.httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie/type");
             if (response.contains("movie")) {
                 return Optional.of(MovieType.MOVIE);
             } else if (response.contains("tv_series")) {
@@ -40,7 +42,7 @@ public class MovieService {
             }
 
         } catch (Exception e) {
-            LOG.error("Error getting movie type with link: {}", link, e);
+            log.error("Error getting movie type with link: {}", link, e);
         }
 
         return Optional.empty();
@@ -53,7 +55,7 @@ public class MovieService {
             if (movieType.equals(MovieType.MOVIE)) {
                 return this.getMovie(link);
             } else {
-                return this.getSeries(link);
+                return seriesService.getSeries(link);
             }
         } else {
             return Optional.empty();
@@ -63,9 +65,7 @@ public class MovieService {
     private Optional<Movie> getMovie(String link) {
         Optional<Movie> optionalMovie = movieRepository.findByLink(link);
         if (optionalMovie.isEmpty()) {
-            String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String movieJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
-            optionalMovie = parseMovieFromString(movieJsonString);
+            optionalMovie = sendMovieRequest(link);
             optionalMovie.ifPresent(this::saveMovie);
         } else {
             Movie movie = optionalMovie.get();
@@ -75,23 +75,10 @@ public class MovieService {
         return optionalMovie;
     }
 
-    private Optional<Series> getSeries(String link) {
-        if (link.contains("#")) {
-            link = link.substring(0, link.indexOf("#"));
-        }
-        Optional<Series> optionalSeries = seriesRepository.findByLink(link);
-        if (optionalSeries.isEmpty()) {
-            String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String seriesJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/series");
-
-            optionalSeries = parseSeriesFromString(seriesJsonString);
-            optionalSeries.ifPresent(this::saveSeries);
-        } else {
-            Series series = optionalSeries.get();
-            series.addSearch();
-            seriesRepository.save(series);
-        }
-        return optionalSeries;
+    private Optional<Movie> sendMovieRequest(String movieLink) {
+        String requestBody = String.format("{\"url\":\"%s\"}", movieLink);
+        String movieJsonString = httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
+        return parseMovieFromString(movieJsonString);
     }
 
     @Transactional
@@ -106,30 +93,9 @@ public class MovieService {
                 translationRepository.save(translation);
             }
             movieRepository.save(movie);
-            LOG.info("Movie saved to database: {}", movie.getLink());
+            log.info("Movie saved to database: {}", movie.getLink());
         } catch (Exception e) {
-            LOG.error("Error occurred while saving the movie: {}", movie.getLink(), e);
-        }
-    }
-
-    @Transactional
-    private void saveSeries(Series series) {
-        try {
-            for (SeriesTranslation seriesTranslation : series.getSeriesTranslations()) {
-                List<Resolution> resolutions = new ArrayList<>();
-                for (Resolution r : seriesTranslation.getResolutions()) {
-                    resolutions.add(resolutionRepository.findByValue(r.getValue()));
-                }
-                seriesTranslation.setResolutions(resolutions);
-                seasonRepository.saveAll(seriesTranslation.getSeasons());
-
-                seriesTranslationRepository.save(seriesTranslation);
-            }
-
-            seriesRepository.save(series);
-            LOG.info("Series saved to database: {}", series.getLink());
-        } catch (Exception e) {
-            LOG.error("Error occurred while saving the series: {}", series.getLink(), e);
+            log.error("Error occurred while saving the movie: {}", movie.getLink(), e);
         }
     }
 
@@ -141,20 +107,7 @@ public class MovieService {
             ObjectMapper objectMapper = new ObjectMapper();
             return Optional.of(objectMapper.readValue(s, Movie.class));
         } catch (Exception e) {
-            LOG.error("Error while parsing a movie object " + e.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    private Optional<Series> parseSeriesFromString(String s) {
-        try {
-            String elementToCut = "{\"series\":";
-            s = s.substring(elementToCut.length());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            return Optional.of(objectMapper.readValue(s, Series.class));
-        } catch (Exception e) {
-            LOG.error("Error while parsing a series object " + e.getMessage());
+            log.error("Error while parsing a movie object " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -173,14 +126,73 @@ public class MovieService {
                 String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
                         movieUrl, selectedTranslation.getName(), resolution);
 
-                String streamLink = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/link");
+                String streamLink = this.httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie/link");
                 streamLink = streamLink.substring(streamLink.indexOf("http"), streamLink.lastIndexOf(".mp4") + 4);
 
                 return Optional.of(streamLink);
             }
         } catch (Exception e) {
-            LOG.error("Error getting movie stream link {}", e.getMessage());
+            log.error("Error getting movie stream link {}", e.getMessage());
         }
         return Optional.empty();
+    }
+
+    @Transactional
+    public Optional<Movie> updateMovieInfo(Movie movie) {
+        try {
+            movie = movieRepository.findByLink(movie.getLink()).orElseThrow();
+            Movie updatedMovie = this.sendMovieRequest(movie.getLink()).orElseThrow();
+
+            if (!movie.equals(updatedMovie)) {
+                movie.setName(updatedMovie.getName());
+
+                for (Translation translation : updatedMovie.getTranslations()) {
+                    List<Resolution> resolutions = new ArrayList<>();
+                    for (Resolution resolution : translation.getResolutions()) {
+                        resolutions.add(resolutionRepository.findByValue(resolution.getValue()));
+                    }
+                    translation.setResolutions(resolutions);
+                }
+
+                this.translationRepository.saveAll(updatedMovie.getTranslations());
+
+                this.changeSelectedTranslationForAllGroups(movie, updatedMovie.getTranslations());
+
+                this.translationRepository.deleteAll(movie.getTranslations());
+                movie.setTranslations(updatedMovie.getTranslations());
+
+                this.movieRepository.save(movie);
+
+                log.info("Updated movie {}", movie.getLink());
+            }
+
+            return Optional.of(updatedMovie);
+        } catch (Exception e) {
+            log.error("Error updating movie with link {}, Error: {}", movie.getLink(), e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private void changeSelectedTranslationForAllGroups(Movie movie, List<Translation> newTranslations) {
+        List<MovieSettings> movieSettingsList = this.movieSettingsRepository.findAllBySelectedMovie(movie);
+
+        for (MovieSettings ms : movieSettingsList) {
+            Optional<Translation> sameTranslation = newTranslations
+                    .stream()
+                    .filter(t -> t.equals(ms.getSelectedTranslation()))
+                    .findAny();
+
+            if (sameTranslation.isPresent()) {
+                ms.setSelectedTranslation(sameTranslation.get());
+            } else {
+                ms.setSelectedTranslation(newTranslations.get(0));
+
+                Long groupId = this.groupRepository.findByMovieSettings(ms).getId();
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", ms);
+                this.chatService.sendMovieUpdateMessage(groupId);
+            }
+        }
+
+        this.movieSettingsRepository.saveAll(movieSettingsList);
     }
 }

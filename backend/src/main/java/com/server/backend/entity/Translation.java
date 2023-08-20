@@ -3,15 +3,11 @@ package com.server.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -33,13 +29,31 @@ public class Translation {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Translation that = (Translation) o;
-        return Objects.equals(name, that.name);
+        if (!(o instanceof Translation that)) return false;
+
+        return Objects.equals(name, that.name) &&
+                this.resolutionsEqual(that);
+    }
+
+    private boolean resolutionsEqual(Translation otherTranslation) {
+        boolean equal = resolutions.size() == otherTranslation.resolutions.size();
+        if (equal) {
+            for (int i = 0; i < resolutions.size(); i++) {
+                if (!resolutions.get(i).equals(otherTranslation.resolutions.get(i))) {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+        return equal;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        int result = 17;
+        for (Resolution resolution : resolutions) {
+            result = 31 * result + resolution.hashCode();
+        }
+        return Objects.hash(name) + result;
     }
 }

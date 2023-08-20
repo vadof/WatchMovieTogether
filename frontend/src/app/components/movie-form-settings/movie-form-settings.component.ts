@@ -8,8 +8,8 @@ import {MovieService} from "../../services/movie.service";
   styleUrls: ['./movie-form-settings.component.scss']
 })
 export class MovieFormSettingsComponent {
-  // @ts-ignore
-  @Input() movie: Movie
+  @Input() movie!: Movie;
+  public updateStatus: string = '';
 
   selectedTranslation: any = this.movieService.selectedTranslation
 
@@ -17,5 +17,26 @@ export class MovieFormSettingsComponent {
 
   selectTranslation(translation: any) {
     this.selectedTranslation = this.movieService.selectedTranslation = translation;
+  }
+
+  // TODO don't working at group page
+  public updateMovieInfo() {
+    this.updateStatus = 'Updating...';
+
+    let movie = this.movieService.movie;
+    if (movie) {
+      this.movieService.updateMovieInfo()
+        .then(() => {
+          let movie = this.movieService.movie;
+          if (movie) {
+            this.movie = movie;
+            this.selectedTranslation = this.movieService.selectedTranslation;
+            this.updateStatus = '';
+          }
+        })
+        .catch(err => {
+        this.updateStatus = err.error;
+      });
+    }
   }
 }

@@ -41,8 +41,7 @@ public class Group {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Group)) return false;
-        Group otherGroup = (Group) o;
+        if (!(o instanceof Group otherGroup)) return false;
         return Objects.equals(this.id, otherGroup.id);
     }
 
