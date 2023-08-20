@@ -1,6 +1,5 @@
 package com.server.backend.services;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class HTTPSerivce {
+public class HTTPService {
 
     public String sendPostRequest(String requestBody, String url) {
         try {

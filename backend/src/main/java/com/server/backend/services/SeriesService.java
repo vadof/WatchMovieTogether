@@ -14,7 +14,7 @@ import java.util.Optional;
 public class SeriesService {
 
     private final GroupRepository groupRepository;
-    private final HTTPSerivce httpSerivce;
+    private final HTTPService httpService;
 
     private final String REZKA_API_URL = "http://localhost:5000/api";
 
@@ -31,7 +31,7 @@ public class SeriesService {
                             "\"resolution\":\"%s\",\"season\":\"%s\",\"episode\":\"%s\"}",
                     seriesUrl, seriesTranslation.getName(), resolution, season, episode);
 
-            String streamLink = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/series/link");
+            String streamLink = this.httpService.sendPostRequest(requestBody, REZKA_API_URL + "/series/link");
             streamLink = streamLink.substring(streamLink.indexOf("http"), streamLink.lastIndexOf(".mp4") + 4);
 
             return Optional.of(streamLink);

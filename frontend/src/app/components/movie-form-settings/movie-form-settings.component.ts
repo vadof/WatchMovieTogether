@@ -8,7 +8,8 @@ import {MovieService} from "../../services/movie.service";
   styleUrls: ['./movie-form-settings.component.scss']
 })
 export class MovieFormSettingsComponent {
-  @Input() movie!: Movie
+  @Input() movie!: Movie;
+  public updateStatus: string = '';
 
   selectedTranslation: any = this.movieService.selectedTranslation
 
@@ -19,11 +20,22 @@ export class MovieFormSettingsComponent {
   }
 
   public updateMovieInfo() {
-    const movie = this.movieService.movie;
+    let movie = this.movieService.movie;
+    this.updateStatus = 'Updating...';
     if (movie) {
       this.movieService.updateMovieInfo().then(
-        res => console.log(res)
-      );
+        () => {
+          let movie = this.movieService.movie;
+          if (movie) {
+            this.movie = movie;
+            this.selectedTranslation = this.movieService.selectedTranslation;
+            this.updateStatus = '';
+          }
+        }
+      ).catch(err => {
+        console.log(err.error)
+        this.updateStatus = err.error;
+      });
     }
   }
 }

@@ -24,7 +24,9 @@ public class MovieService {
     private final SeasonRepository seasonRepository;
     private final GroupRepository groupRepository;
 
-    private final HTTPSerivce httpSerivce;
+    private final MovieSettingsRepository movieSettingsRepository;
+
+    private final HTTPService httpService;
 
     private final String REZKA_API_URL = "http://localhost:5000/api";
     private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
@@ -32,7 +34,7 @@ public class MovieService {
     private Optional<MovieType> getMovieType(String link) {
         try {
             String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String response = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/type");
+            String response = this.httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie/type");
             if (response.contains("movie")) {
                 return Optional.of(MovieType.MOVIE);
             } else if (response.contains("tv_series")) {
@@ -75,7 +77,7 @@ public class MovieService {
 
     private Optional<Movie> sendMovieRequest(String movieLink) {
         String requestBody = String.format("{\"url\":\"%s\"}", movieLink);
-        String movieJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
+        String movieJsonString = httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie");
         return parseMovieFromString(movieJsonString);
     }
 
@@ -86,7 +88,7 @@ public class MovieService {
         Optional<Series> optionalSeries = seriesRepository.findByLink(link);
         if (optionalSeries.isEmpty()) {
             String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String seriesJsonString = httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/series");
+            String seriesJsonString = httpService.sendPostRequest(requestBody, REZKA_API_URL + "/series");
 
             optionalSeries = parseSeriesFromString(seriesJsonString);
             optionalSeries.ifPresent(this::saveSeries);
@@ -177,7 +179,7 @@ public class MovieService {
                 String requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\",\"resolution\":\"%s\"}",
                         movieUrl, selectedTranslation.getName(), resolution);
 
-                String streamLink = this.httpSerivce.sendPostRequest(requestBody, REZKA_API_URL + "/movie/link");
+                String streamLink = this.httpService.sendPostRequest(requestBody, REZKA_API_URL + "/movie/link");
                 streamLink = streamLink.substring(streamLink.indexOf("http"), streamLink.lastIndexOf(".mp4") + 4);
 
                 return Optional.of(streamLink);
@@ -195,7 +197,16 @@ public class MovieService {
             Movie updatedMovie = this.sendMovieRequest(movie.getLink()).orElseThrow();
 
             if (!movie.equals(updatedMovie)) {
+                movie.setName(updatedMovie.getName());
 
+                this.translationRepository.saveAll(updatedMovie.getTranslations());
+                this.movieRepository.save(movie);
+
+                this.changeSelectedTranslationForAllGroups(movie, updatedMovie.getTranslations());
+
+                this.translationRepository.deleteAll(movie.getTranslations());
+                movie.setTranslations(updatedMovie.getTranslations());
+                this.movieRepository.save(movie);
             }
 
             return Optional.of(updatedMovie);
@@ -203,5 +214,26 @@ public class MovieService {
             LOG.error("Error updating movie with link {}, Error: {}", movie.getLink(), e.getMessage());
             return Optional.empty();
         }
+    }
+
+    private void changeSelectedTranslationForAllGroups(Movie movie, List<Translation> newTranslations) {
+        List<MovieSettings> movieSettingsList = this.movieSettingsRepository.findAllBySelectedMovie(movie);
+
+        for (MovieSettings ms : movieSettingsList) {
+            Optional<Translation> sameTranslation = newTranslations
+                    .stream()
+                    .filter(t -> t.equals(ms.getSelectedTranslation()))
+                    .findAny();
+
+            if (sameTranslation.isPresent()) {
+                ms.setSelectedTranslation(sameTranslation.get());
+            } else {
+                // TODO send notification about movie update
+                ms.setSelectedTranslation(newTranslations.get(0));
+            }
+            ms.setSelectedMovie(movie);
+        }
+
+        this.movieSettingsRepository.saveAll(movieSettingsList);
     }
 }
