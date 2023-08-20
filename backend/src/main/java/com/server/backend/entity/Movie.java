@@ -48,18 +48,24 @@ public class Movie {
     }
 
     private boolean translationsEqual(Movie otherMovie) {
-        if (translations.size() == otherMovie.translations.size()) {
+        boolean equal = translations.size() == otherMovie.translations.size();
+        if (equal) {
             for (int i = 0; i < translations.size(); i++) {
                 if (!translations.get(i).equals(otherMovie.translations.get(i))) {
-                    return false;
+                    equal = false;
+                    break;
                 }
             }
         }
-        return true;
+        return equal;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(link, name, translations);
+        int result = 17;
+        for (Translation translation : translations) {
+            result = 31 * result + translation.hashCode();
+        }
+        return Objects.hash(link, name) + result;
     }
 }

@@ -19,9 +19,11 @@ export class MovieFormSettingsComponent {
     this.selectedTranslation = this.movieService.selectedTranslation = translation;
   }
 
+  // TODO don't working at group page
   public updateMovieInfo() {
-    let movie = this.movieService.movie;
     this.updateStatus = 'Updating...';
+
+    let movie = this.movieService.movie;
     if (movie) {
       this.movieService.updateMovieInfo()
         .then(() => {

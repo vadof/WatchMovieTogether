@@ -3,7 +3,6 @@ package com.server.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,18 +36,24 @@ public class Translation {
     }
 
     private boolean resolutionsEqual(Translation otherTranslation) {
-        if (resolutions.size() == otherTranslation.resolutions.size()) {
+        boolean equal = resolutions.size() == otherTranslation.resolutions.size();
+        if (equal) {
             for (int i = 0; i < resolutions.size(); i++) {
                 if (!resolutions.get(i).equals(otherTranslation.resolutions.get(i))) {
-                    return false;
+                    equal = false;
+                    break;
                 }
             }
         }
-        return true;
+        return equal;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, resolutions);
+        int result = 17;
+        for (Resolution resolution : resolutions) {
+            result = 31 * result + resolution.hashCode();
+        }
+        return Objects.hash(name) + result;
     }
 }

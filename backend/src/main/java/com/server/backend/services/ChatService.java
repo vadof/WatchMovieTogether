@@ -99,4 +99,14 @@ public class ChatService {
         this.addSystemMessageToGroupChat(groupId,
                 String.format("Selected %s episode of %s season", episode, seasonNumber));
     }
+
+    public void sendMovieUpdateMessage(Long groupId) {
+        this.addSystemMessageToGroupChat(groupId,
+                "Movie settings have been changed due to a movie update.");
+    }
+
+    public void sendSeriesUpdateMessage(Long groupId) {
+        this.addSystemMessageToGroupChat(groupId,
+                "Series settings have been changed due to a series update.");
+    }
 }

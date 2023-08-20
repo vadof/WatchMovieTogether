@@ -117,4 +117,24 @@ export class MovieService {
       );
     });
   }
+
+  public updateSeriesInfo() {
+    return new Promise<Series>((resolve, reject) => {
+      this.api.sendPutRequest("/series", this.series).subscribe(
+        res => {
+          let series: Series = {
+            type: 'series',
+            link: res.link,
+            name: res.name,
+            seriesTranslations: res.seriesTranslations
+          };
+          this.setSeries(series, series.seriesTranslations[0]);
+          resolve(series);
+        },
+        err => {
+          reject(err);
+        }
+      );
+    });
+  }
 }

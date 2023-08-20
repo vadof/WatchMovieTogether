@@ -4,32 +4,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.backend.entity.*;
 import com.server.backend.enums.MovieType;
 import com.server.backend.repository.*;
+import com.server.backend.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class MovieService {
 
     private final MovieRepository movieRepository;
-    private final SeriesRepository seriesRepository;
     private final ResolutionRepository resolutionRepository;
     private final TranslationRepository translationRepository;
-    private final SeriesTranslationRepository seriesTranslationRepository;
-    private final SeasonRepository seasonRepository;
     private final GroupRepository groupRepository;
 
     private final MovieSettingsRepository movieSettingsRepository;
 
     private final HTTPService httpService;
+    private final SeriesService seriesService;
+    private final ChatService chatService;
+    private final WebSocketService webSocketService;
 
     private final String REZKA_API_URL = "http://localhost:5000/api";
-    private static final Logger LOG = LoggerFactory.getLogger(MovieService.class);
 
     private Optional<MovieType> getMovieType(String link) {
         try {
@@ -42,7 +42,7 @@ public class MovieService {
             }
 
         } catch (Exception e) {
-            LOG.error("Error getting movie type with link: {}", link, e);
+            log.error("Error getting movie type with link: {}", link, e);
         }
 
         return Optional.empty();
@@ -55,7 +55,7 @@ public class MovieService {
             if (movieType.equals(MovieType.MOVIE)) {
                 return this.getMovie(link);
             } else {
-                return this.getSeries(link);
+                return seriesService.getSeries(link);
             }
         } else {
             return Optional.empty();
@@ -81,25 +81,6 @@ public class MovieService {
         return parseMovieFromString(movieJsonString);
     }
 
-    private Optional<Series> getSeries(String link) {
-        if (link.contains("#")) {
-            link = link.substring(0, link.indexOf("#"));
-        }
-        Optional<Series> optionalSeries = seriesRepository.findByLink(link);
-        if (optionalSeries.isEmpty()) {
-            String requestBody = String.format("{\"url\":\"%s\"}", link);
-            String seriesJsonString = httpService.sendPostRequest(requestBody, REZKA_API_URL + "/series");
-
-            optionalSeries = parseSeriesFromString(seriesJsonString);
-            optionalSeries.ifPresent(this::saveSeries);
-        } else {
-            Series series = optionalSeries.get();
-            series.addSearch();
-            seriesRepository.save(series);
-        }
-        return optionalSeries;
-    }
-
     @Transactional
     private void saveMovie(Movie movie) {
         try {
@@ -112,30 +93,9 @@ public class MovieService {
                 translationRepository.save(translation);
             }
             movieRepository.save(movie);
-            LOG.info("Movie saved to database: {}", movie.getLink());
+            log.info("Movie saved to database: {}", movie.getLink());
         } catch (Exception e) {
-            LOG.error("Error occurred while saving the movie: {}", movie.getLink(), e);
-        }
-    }
-
-    @Transactional
-    private void saveSeries(Series series) {
-        try {
-            for (SeriesTranslation seriesTranslation : series.getSeriesTranslations()) {
-                List<Resolution> resolutions = new ArrayList<>();
-                for (Resolution r : seriesTranslation.getResolutions()) {
-                    resolutions.add(resolutionRepository.findByValue(r.getValue()));
-                }
-                seriesTranslation.setResolutions(resolutions);
-                seasonRepository.saveAll(seriesTranslation.getSeasons());
-
-                seriesTranslationRepository.save(seriesTranslation);
-            }
-
-            seriesRepository.save(series);
-            LOG.info("Series saved to database: {}", series.getLink());
-        } catch (Exception e) {
-            LOG.error("Error occurred while saving the series: {}", series.getLink(), e);
+            log.error("Error occurred while saving the movie: {}", movie.getLink(), e);
         }
     }
 
@@ -147,20 +107,7 @@ public class MovieService {
             ObjectMapper objectMapper = new ObjectMapper();
             return Optional.of(objectMapper.readValue(s, Movie.class));
         } catch (Exception e) {
-            LOG.error("Error while parsing a movie object " + e.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    private Optional<Series> parseSeriesFromString(String s) {
-        try {
-            String elementToCut = "{\"series\":";
-            s = s.substring(elementToCut.length());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            return Optional.of(objectMapper.readValue(s, Series.class));
-        } catch (Exception e) {
-            LOG.error("Error while parsing a series object " + e.getMessage());
+            log.error("Error while parsing a movie object " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -185,7 +132,7 @@ public class MovieService {
                 return Optional.of(streamLink);
             }
         } catch (Exception e) {
-            LOG.error("Error getting movie stream link {}", e.getMessage());
+            log.error("Error getting movie stream link {}", e.getMessage());
         }
         return Optional.empty();
     }
@@ -199,19 +146,29 @@ public class MovieService {
             if (!movie.equals(updatedMovie)) {
                 movie.setName(updatedMovie.getName());
 
+                for (Translation translation : updatedMovie.getTranslations()) {
+                    List<Resolution> resolutions = new ArrayList<>();
+                    for (Resolution resolution : translation.getResolutions()) {
+                        resolutions.add(resolutionRepository.findByValue(resolution.getValue()));
+                    }
+                    translation.setResolutions(resolutions);
+                }
+
                 this.translationRepository.saveAll(updatedMovie.getTranslations());
-                this.movieRepository.save(movie);
 
                 this.changeSelectedTranslationForAllGroups(movie, updatedMovie.getTranslations());
 
                 this.translationRepository.deleteAll(movie.getTranslations());
                 movie.setTranslations(updatedMovie.getTranslations());
+
                 this.movieRepository.save(movie);
+
+                log.info("Updated movie {}", movie.getLink());
             }
 
             return Optional.of(updatedMovie);
         } catch (Exception e) {
-            LOG.error("Error updating movie with link {}, Error: {}", movie.getLink(), e.getMessage());
+            log.error("Error updating movie with link {}, Error: {}", movie.getLink(), e.getMessage());
             return Optional.empty();
         }
     }
@@ -228,10 +185,12 @@ public class MovieService {
             if (sameTranslation.isPresent()) {
                 ms.setSelectedTranslation(sameTranslation.get());
             } else {
-                // TODO send notification about movie update
                 ms.setSelectedTranslation(newTranslations.get(0));
+
+                Long groupId = this.groupRepository.findByMovieSettings(ms).getId();
+                this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", ms);
+                this.chatService.sendMovieUpdateMessage(groupId);
             }
-            ms.setSelectedMovie(movie);
         }
 
         this.movieSettingsRepository.saveAll(movieSettingsList);
