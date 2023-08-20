@@ -51,7 +51,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
         }
 
         if (group.groupSettings.seriesSettings) {
-          console.log(group.groupSettings.seriesSettings)
           this.setEpisodeAndSeries();
           this.movieService.selectedSeriesTranslation = group.groupSettings.seriesSettings.selectedTranslation
           this.refreshSeasonEpisodesArray();
@@ -200,7 +199,6 @@ export class GroupPageComponent implements OnInit, OnDestroy {
     const newTranslation = this.movieService.selectedSeriesTranslation;
     const currentTranslation = this.group.groupSettings.seriesSettings.selectedTranslation;
     if (newTranslation && currentTranslation.name !== newTranslation.name) {
-      console.log("CHANGE")
       this.groupService.changeSeriesTranslation(newTranslation, this.group);
     }
   }

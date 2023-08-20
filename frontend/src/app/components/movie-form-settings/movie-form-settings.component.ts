@@ -23,17 +23,16 @@ export class MovieFormSettingsComponent {
     let movie = this.movieService.movie;
     this.updateStatus = 'Updating...';
     if (movie) {
-      this.movieService.updateMovieInfo().then(
-        () => {
+      this.movieService.updateMovieInfo()
+        .then(() => {
           let movie = this.movieService.movie;
           if (movie) {
             this.movie = movie;
             this.selectedTranslation = this.movieService.selectedTranslation;
             this.updateStatus = '';
           }
-        }
-      ).catch(err => {
-        console.log(err.error)
+        })
+        .catch(err => {
         this.updateStatus = err.error;
       });
     }
