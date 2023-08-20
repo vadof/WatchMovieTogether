@@ -19,18 +19,16 @@ public class GroupSettings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO Remove if group delete
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private MovieSettings movieSettings;
 
-    // TODO Remove if group delete
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private SeriesSettings seriesSettings;
 
     @JsonIgnore
     @OneToOne(mappedBy = "groupSettings")
     private Group group;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<User> usersWithPrivileges = new HashSet<>();
 }
