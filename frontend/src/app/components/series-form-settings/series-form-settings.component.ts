@@ -19,13 +19,11 @@ export class SeriesFormSettingsComponent {
     this.selectedTranslation = this.movieService.selectedSeriesTranslation = translation;
   }
 
-  // TODO don't working at group page
   public updateSeriesInfo() {
     this.updateStatus = 'Updating...';
 
-    let series = this.movieService.series;
-    if (series) {
-      this.movieService.updateSeriesInfo()
+    if (this.series) {
+      this.movieService.updateSeriesInfo(this.series)
         .then(() => {
           let series = this.movieService.series;
           if (series) {

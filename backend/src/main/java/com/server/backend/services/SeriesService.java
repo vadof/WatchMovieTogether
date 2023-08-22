@@ -180,7 +180,6 @@ public class SeriesService {
                 ss.setSelectedEpisode(1);
             }
 
-            // TODO don't received any message at last time
             if (wasChanged) {
                 Long groupId = this.groupRepository.findBySeriesSettings(ss).getId();
                 this.chatService.sendSeriesUpdateMessage(groupId);
