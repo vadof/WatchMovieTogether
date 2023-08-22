@@ -98,9 +98,9 @@ export class MovieService {
     this.selectedSeriesTranslation = null
   }
 
-  public updateMovieInfo() {
+  public updateMovieInfo(movie: Movie | null) {
     return new Promise<Movie>((resolve, reject) => {
-      this.api.sendPutRequest("/movie", this.movie).subscribe(
+      this.api.sendPutRequest("/movie", movie ? movie : this.movie).subscribe(
         res => {
           let movie: Movie = {
             type: 'movie',
@@ -118,9 +118,9 @@ export class MovieService {
     });
   }
 
-  public updateSeriesInfo() {
+  public updateSeriesInfo(series: Series | null) {
     return new Promise<Series>((resolve, reject) => {
-      this.api.sendPutRequest("/series", this.series).subscribe(
+      this.api.sendPutRequest("/series", series ? series : this.series).subscribe(
         res => {
           let series: Series = {
             type: 'series',

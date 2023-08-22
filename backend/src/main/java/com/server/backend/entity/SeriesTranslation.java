@@ -25,10 +25,10 @@ public class SeriesTranslation {
     @NotBlank
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Season> seasons = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.DETACH)
     private List<Resolution> resolutions = new ArrayList<>();
 
     @Override
