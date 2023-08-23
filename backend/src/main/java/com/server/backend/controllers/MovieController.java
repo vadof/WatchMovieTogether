@@ -2,6 +2,7 @@ package com.server.backend.controllers;
 
 import com.server.backend.entity.Movie;
 import com.server.backend.services.MovieService;
+import com.server.backend.websocket.WebSocketService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -206,7 +206,7 @@ export class VideoPlayerComponent implements OnInit {
   // TODO if video 00:00 and change resolution, it still should be 00:00
   public changeResolution(resolution: Resolution) {
     if (this.selectedResolution.value !== resolution.value) {
-      this.vgPlayer.pause();
+      // this.vgPlayer.pause();
       this.selectedResolution = resolution;
       this.userConfig.setPreferredResolution(resolution.value);
 

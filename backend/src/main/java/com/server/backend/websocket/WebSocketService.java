@@ -1,10 +1,17 @@
 package com.server.backend.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.backend.entity.Group;
+import com.server.backend.entity.MovieSettings;
+import com.server.backend.entity.SeriesSettings;
 import com.server.backend.entity.User;
+import com.server.backend.enums.MovieType;
 import com.server.backend.jwt.JwtService;
 import com.server.backend.repository.GroupRepository;
+import com.server.backend.services.HTTPService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -13,14 +20,17 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class WebSocketService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final GroupRepository groupRepository;
     private final JwtService jwtService;
+    private final HTTPService httpService;
 
     private final Map<Long, GroupSession> groupSessionMap = new HashMap<>();
     private final Map<String, User> sessionUserMap = new HashMap<>();
@@ -42,6 +52,14 @@ public class WebSocketService {
             if (groupSession == null) {
                 groupSession = new GroupSession(group.getId());
                 this.groupSessionMap.put(group.getId(), groupSession);
+
+                MovieSettings movieSettings = group.getGroupSettings().getMovieSettings();
+                SeriesSettings seriesSettings = group.getGroupSettings().getSeriesSettings();
+                if (movieSettings != null) {
+                    this.setMovieForGroup(group.getId(), movieSettings);
+                } else if (seriesSettings != null) {
+                    this.setSeriesForGroup(group.getId(), seriesSettings);
+                }
             }
 
             groupSession.addUser(user);
@@ -101,5 +119,64 @@ public class WebSocketService {
 
     public String getGroupMovieState(Long groupId) {
         return this.groupSessionMap.get(groupId).getMovieState();
+    }
+
+    public void setMovieForGroup(Long groupId, MovieSettings movieSettings) {
+        GroupSession groupSession = this.groupSessionMap.get(groupId);
+        if (groupSession != null) {
+            groupSession.setMovie(movieSettings.getSelectedMovie().getLink(),
+                    movieSettings.getSelectedTranslation().getName());
+            this.updateGroupStreamLinks(groupSession);
+        }
+    }
+
+    public void setSeriesForGroup(Long groupId, SeriesSettings seriesSettings) {
+        GroupSession groupSession = this.groupSessionMap.get(groupId);
+        if (groupSession != null) {
+            groupSession.setSeries(seriesSettings.getSelectedSeries().getLink(),
+                    seriesSettings.getSelectedTranslation().getName(),
+                    seriesSettings.getSelectedSeason().getNumber(),
+                    seriesSettings.getSelectedEpisode());
+
+            this.updateGroupStreamLinks(groupSession);
+        }
+    }
+
+    public Optional<String> getStreamLink(Long groupId, String resolution) {
+        try {
+            GroupSession groupSession = this.groupSessionMap.get(groupId);
+            String link = groupSession.getResolutionStreamLinks().get(resolution);
+            return Optional.ofNullable(link);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    private void updateGroupStreamLinks(GroupSession groupSession) {
+        String requestBody = null;
+        String destination = null;
+
+        if (groupSession.getMovieType().equals(MovieType.MOVIE)) {
+            requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\"}",
+                    groupSession.getLink(), groupSession.getTranslation());
+            destination = "http://localhost:5000/api/movie/links";
+        } else if (groupSession.getMovieType().equals(MovieType.SERIES)) {
+            requestBody = String.format("{\"url\":\"%s\",\"translation\":\"%s\"," +
+                            "\"season\":\"%s\",\"episode\":\"%s\"}",
+                    groupSession.getLink(), groupSession.getTranslation(),
+                    groupSession.getSeason(), groupSession.getEpisode());
+            destination = "http://localhost:5000/api/series/links";
+        }
+
+        if (requestBody != null) {
+            try {
+                String res = this.httpService.sendPostRequest(requestBody, destination);
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, String> links = objectMapper.readValue(res, Map.class);
+                groupSession.setResolutionStreamLinks(links);
+            } catch (Exception e) {
+                log.error("Error getting stream links {}", e.getMessage());
+            }
+        }
     }
 }
