@@ -100,7 +100,6 @@ public class GroupService {
         }
     }
 
-    // TODO do only the setting, without checking for episodes and voice acting
     @Transactional
     public void setUpSeriesForGroup(Long groupId, SeriesSettings ss) {
         try {

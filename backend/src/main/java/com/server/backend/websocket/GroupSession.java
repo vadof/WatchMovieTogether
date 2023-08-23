@@ -21,7 +21,6 @@ public class GroupSession {
 
     private MovieType movieType = null;
 
-    // TODO map with link to don't get it always
     private Map<String, String> resolutionStreamLinks = new HashMap<>();
 
     private String link;
