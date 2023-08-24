@@ -100,7 +100,6 @@ public class GroupService {
         }
     }
 
-    // TODO do only the setting, without checking for episodes and voice acting
     @Transactional
     public void setUpSeriesForGroup(Long groupId, SeriesSettings ss) {
         try {
@@ -152,6 +151,7 @@ public class GroupService {
                         seriesTranslation.getName());
             }
 
+            this.webSocketService.setSeriesForGroup(groupId, seriesSettings);
             this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", ss);
         } catch (Exception e) {
             LOG.error("Failed to set up series for group {}" + e.getMessage(), e);
@@ -183,6 +183,7 @@ public class GroupService {
 
                 this.seriesSettingsRepository.save(seriesSettings);
 
+                this.webSocketService.setSeriesForGroup(groupId, seriesSettings);
                 this.chatService.sendSeriesEpisodeChange(groupId,
                         season.getNumber().toString(), episode.toString());
                 this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", seriesSettings);
@@ -267,6 +268,7 @@ public class GroupService {
                 movieSettings.setSelectedTranslation(translation1);
                 this.movieSettingsRepository.save(movieSettings);
 
+                this.webSocketService.setMovieForGroup(groupId, movieSettings);
                 this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", movieSettings);
                 this.chatService.sendTranslationChangeMessage(groupId, translation.getName());
             }
@@ -292,6 +294,7 @@ public class GroupService {
 
                 this.seriesSettingsRepository.save(seriesSettings);
 
+                this.webSocketService.setSeriesForGroup(groupId, seriesSettings);
                 this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/series", seriesSettings);
                 this.chatService.sendSeriesTranslationChangeMessage(groupId, newTranslation.getName());
             }

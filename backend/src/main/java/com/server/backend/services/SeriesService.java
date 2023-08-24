@@ -90,6 +90,11 @@ public class SeriesService {
     public Optional<String> getSeriesStreamLink(Long groupId, String resolution,
                                                 Integer season, Integer episode) {
         try {
+            Optional<String> savedLink = this.webSocketService.getStreamLink(groupId, resolution);
+            if (savedLink.isPresent()) {
+                return savedLink;
+            }
+
             Group group = this.groupRepository.findById(groupId).orElseThrow();
             SeriesSettings seriesSettings = group.getGroupSettings().getSeriesSettings();
 

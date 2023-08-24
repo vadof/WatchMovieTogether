@@ -114,6 +114,11 @@ public class MovieService {
 
     public Optional<String> getMovieStreamLink(Long groupId, String resolution) {
         try {
+            Optional<String> savedLink = this.webSocketService.getStreamLink(groupId, resolution);
+            if (savedLink.isPresent()) {
+                return savedLink;
+            }
+
             Group group = this.groupRepository.findById(groupId).orElseThrow();
             MovieSettings movieSettings = group.getGroupSettings().getMovieSettings();
 
@@ -188,6 +193,7 @@ public class MovieService {
                 ms.setSelectedTranslation(newTranslations.get(0));
 
                 Long groupId = this.groupRepository.findByMovieSettings(ms).getId();
+                this.webSocketService.setMovieForGroup(groupId, ms);
                 this.webSocketService.sendObjectByWebsocket("/group/" + groupId + "/movie", ms);
                 this.chatService.sendMovieUpdateMessage(groupId);
             }

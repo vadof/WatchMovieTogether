@@ -59,8 +59,8 @@ def getMovieStreamLink():
                 return make_response(jsonify(error='Invalid URL provided.'), 400)
 
 
-@app.route('/api/series/link', methods=["POST"])
-def getSeriestStreamLink():
+@app.route('/api/series/link', methods=['POST'])
+def getSeriesStreamLink():
     data = request.get_json()
     url = data.get('url')
     translation = data.get('translation')
@@ -77,6 +77,33 @@ def getSeriestStreamLink():
             attempts -= 1
             if attempts == 0:
                 return make_response(jsonify(error='Invalid URL provided.'), 400)
+
+@app.route('/api/movie/links', methods=['POST'])
+def getMovieStreamLinks():
+    data = request.get_json()
+    url = data.get('url')
+    translation = data.get('translation')
+    try:
+        rezka = HdRezkaApi(url)
+        links = rezka.getStream(translation=translation).videos
+        return make_response(jsonify(links))
+    except:
+        return make_response(jsonify(error='Invalid URL provided'), 400)
+
+
+@app.route('/api/series/links', methods=['POST'])
+def getSeriesStreamLinks():
+    data = request.get_json()
+    url = data.get('url')
+    translation = data.get('translation')
+    season = data.get('season')
+    episode = data.get('episode')
+    try:
+        rezka = HdRezkaApi(url)
+        links = rezka.getStream(season=season, episode=episode, translation=translation).videos
+        return make_response(jsonify(links))
+    except:
+        return make_response(jsonify(error='Invalid URL provided'), 400)
 
 
 def getMovieObject(url, attempts=3):
