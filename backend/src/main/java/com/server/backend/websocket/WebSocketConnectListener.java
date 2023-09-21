@@ -12,7 +12,7 @@ public class WebSocketConnectListener implements ApplicationListener<SessionConn
     private final WebSocketService webSocketService;
 
     @Override
-    public void onApplicationEvent(SessionConnectedEvent event) {;
+    public void onApplicationEvent(SessionConnectedEvent event) {
         this.webSocketService.addUser(event);
     }
 }

@@ -40,6 +40,7 @@ public class WebSocketService {
         simpMessagingTemplate.convertAndSend(destination, o);
     }
 
+    // TODO user adding twice if 2 windows opened or because of delay while getting stream links
     public void addUser(SessionConnectedEvent event) {
         Map<String, String> nativeHeaders = extractNativeHeadersFromString(event.getMessage().getHeaders());
 
