@@ -19,3 +19,21 @@
     max-width: 80%;
   }
 }
+
+.film-item {
+  a {
+    width: 150px;
+    color: #b1d6fd;
+    text-decoration: none;
+  }
+
+  .film-item-text {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 991px) {
+  .film-item {
+    margin-bottom: 2rem;
+  }
+}
