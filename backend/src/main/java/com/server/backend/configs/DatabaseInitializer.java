@@ -17,12 +17,13 @@ public class DatabaseInitializer {
 
     @Bean
     public void addResolutionsToDatabase() {
+        System.out.println("ADD RESOLUTION");
         if (((Collection<Resolution>) resolutionRepository.findAll()).isEmpty()) {
             List<Resolution> resolutions = List.of(new Resolution("360p"),
                     new Resolution("480p"), new Resolution("720p"),
                     new Resolution("1080p"), new Resolution("1080p Ultra"),
                     new Resolution("1440p"), new Resolution("2160p"));
-
+            System.out.println("RESOLUTION ADDED");
             resolutionRepository.saveAll(resolutions);
         }
     }

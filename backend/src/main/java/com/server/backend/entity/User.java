@@ -17,7 +17,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table
+@Table(name = "[user]")
 public class User implements UserDetails {
 
     @JsonIgnore
@@ -63,7 +63,7 @@ public class User implements UserDetails {
     private Role role;
 
     @JsonIgnore
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private List<Message> messages;
 
     @PrePersist

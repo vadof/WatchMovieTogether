@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  backend:
+    build: backend/.
+    restart: always
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
+    depends_on:
+      - postgres
+  frontend:
+    build: frontend/.
+    restart: always
+    ports:
+      - '4200:4200'
+  rezka:
+    build: HdRezkaApi/.
+    restart: always
+    ports:
+      - '5000:5000'
+  postgres:
+    image: postgres:16rc1
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=wmt
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
+    driver: local
